@@ -1,0 +1,175 @@
+/* Design tokens. Every value here is measured off the source brochure's vector data —
+   the palette from its plates, the arch geometry from its logo. Do not "improve" this
+   set; extend the screens instead. */
+
+@theme {
+  /* ---------------------------------------------------------------- palette */
+  /* The ground is the cover's teal, which is a gradient, not a flat fill: it opens at
+     #0A2C2B in the top-left and lifts to #17635C at the bottom-right. Both ends are
+     tokens, and --ground below is the gradient itself. `void` is the bottom of the
+     range — transition furniture, and the surround behind a render. */
+  --color-w-void: #041a19; /* true dark */
+  --color-w-deep: #072928; /* primary bg — the dark end of the ground */
+  --color-w-teal: #0c3b39; /* raised surface */
+  --color-w-teal-2: #114846; /* card fill — the brochure's caption plates */
+  --color-w-lift: #17635c; /* the lit end of the ground */
+  --color-w-line: #24514d; /* hairlines, borders on dark */
+
+  /* Gold is THE accent and the only accent. Three stops of one metal: the shadow, the
+     body and the highlight. Flat --color-w-gold for type and rules; the gradient below
+     for anything that should catch light. */
+  --color-w-gold-deep: #8a6436;
+  --color-w-gold: #c8a16b; /* PRIMARY ACCENT — 6.96:1 on the ground */
+  --color-w-gold-lit: #e7cf95;
+  --color-w-champagne: #efe2c2; /* large display type only */
+
+  --color-w-cream: #f0eae0; /* primary text on dark — NOT #fff */
+  --color-w-ivory: #f2ede7; /* light surface — the plan canvas */
+  --color-w-bark: #4a3a28; /* text on ivory */
+  --color-w-sage: #8aa79b; /* muted secondary — 5.88:1 on the ground */
+
+  /* ------------------------------------------------------------- typography */
+  /* The brochure sets Panton (logo), Montserrat (display) and Gotham (body). Montserrat
+     is the one that is actually licensable, it carries most of the document, and it is
+     close enough to Gotham that the two never read as different systems. The logo's
+     Panton letterforms are not substituted at all — they are real vector, lifted from
+     the PDF into src/assets/brand/lockup.svg.
+     Pinyon Script stands in for Coronet, which the brochure uses for exactly one glyph:
+     the ampersand in "WONDROUS & EXCLUSIVE". */
+  --font-display: 'Montserrat', 'Century Gothic', system-ui, sans-serif;
+  --font-script: 'Pinyon Script', 'Snell Roundhand', cursive;
+
+  /* THE SCALE, and the reason it is shaped like this.
+     The design target is 1920×1080 (the 3xl breakpoint). A pure `vw` scale reproduces
+     that layout exactly at every width — but a 1920×800 window is the same width and
+     280px shorter, and since this application never scrolls, the type has to know about
+     the height too. So the middle term is min(Xvw, Yvh), with Y set so the two are equal
+     at 16:9 (1vw = 1.7778vh). Identical at the target, automatically smaller as the
+     viewport gets shorter, clamped at both ends so a phone and a 5K display are both
+     legible rather than merely proportional. */
+  --text-display: clamp(2rem, min(4.4vw, 7.822vh), 7.5rem);
+  --text-hero: clamp(1.6rem, min(2.85vw, 5.067vh), 4.6rem);
+  --text-headline: clamp(1.375rem, min(2.15vw, 3.822vh), 3.5rem);
+  --text-title: clamp(1.05rem, min(1.45vw, 2.578vh), 2.25rem);
+  --text-stat: clamp(1.125rem, min(1.7vw, 3.022vh), 2.5rem);
+  --text-subhead: clamp(0.875rem, min(1.02vw, 1.813vh), 1.5rem);
+  --text-body: clamp(0.8125rem, min(0.86vw, 1.529vh), 1.25rem);
+  --text-caption: clamp(0.6875rem, min(0.7vw, 1.244vh), 1rem);
+  --text-eyebrow: clamp(0.625rem, min(0.62vw, 1.102vh), 0.9rem);
+  --text-micro: clamp(0.5625rem, min(0.54vw, 0.96vh), 0.8125rem);
+
+  /* ------------------------------------------------------------- the arch */
+  /* MEASURED, not authored. The logo is three overlapping arches, and this is their
+     exact geometry, straight out of the PDF's path data:
+
+         M0 0 V36.53 C0 42.003 4.436 46.439 9.909 46.439 H21.49
+                      C26.962 46.439 31.399 42.003 31.399 36.53 V0
+
+     width 31.399, height 46.439, crown radius 9.909 (a true circular quarter — the
+     control offset 5.473 is 0.5523 × 9.909, the circle kappa), and the three are set
+     23.217 apart so they interlock. Six ticks below sit on the six arch legs.
+
+     Every curve in this application is that ratio. There is no other radius. */
+  --arch-w: 31.399;
+  --arch-h: 46.439;
+  --arch-r: 9.909;
+  --arch-gap: 23.217;
+  --arch-crown: 0.31558; /* radius ÷ width — the one radius, as a fraction of any box */
+
+  /* ------------------------------------------------------------- breakpoints */
+  /* `mob` is the phone breakpoint, and it is used as `max-mob:` far more often than as
+     `mob:` — below 25rem is the 320–390px hardware (SE, mini, older Androids) where the
+     lockup and the nav can no longer both be full size. General phone layout keys off
+     max-md; mob is the last, tightest step. */
+  --breakpoint-mob: 25rem; /* 400px */
+  --breakpoint-sm: 40rem; /* 640 */
+  --breakpoint-md: 48rem; /* 768 */
+  --breakpoint-lg: 64rem; /* 1024 */
+  --breakpoint-xl: 80rem; /* 1280 */
+  --breakpoint-2xl: 96rem; /* 1536 */
+  --breakpoint-3xl: 120rem; /* 1920 — the design target */
+  --breakpoint-4xl: 160rem; /* 2560 */
+  --breakpoint-5xl: 240rem; /* 3840 */
+}
+
+/* Values read by components but not part of a Tailwind token namespace. */
+:root {
+  /* Every scrim over a render is mixed from this, never from black. A neutral scrim
+     greys out the warm dusk in these renders; the same opacity in deep teal leaves the
+     gold in the image intact. Bare channels so each scrim picks its own alpha. */
+  --scrim-rgb: 7 41 40;
+  --gold-rgb: 200 161 107;
+
+  /* THE GROUND. The cover's own gradient, sampled top-left to bottom-right. Every
+     screen that is not covered by a render sits on this, so the app is a lit room
+     rather than a flat field. */
+  --ground: radial-gradient(
+      125% 105% at 3% 0%,
+      #17635c 0%,
+      #10504c 18%,
+      #0c3b39 38%,
+      #072928 68%
+    ),
+    linear-gradient(160deg, #0a3230 0%, #072928 100%);
+
+  /* The same idea at a fraction of the strength, for screens whose content is the
+     subject — plans, specifications — which still must not sit on a dead flat field. */
+  --ground-quiet: radial-gradient(
+      120% 100% at 0% 0%,
+      rgb(23 99 92 / 0.5) 0%,
+      rgb(12 59 57 / 0.28) 28%,
+      rgb(var(--scrim-rgb) / 0) 62%
+    ),
+    radial-gradient(90% 80% at 100% 100%, rgb(17 72 70 / 0.4) 0%, rgb(var(--scrim-rgb) / 0) 58%);
+
+  /* Gold, lit. Anything that should read as metal rather than as a colour. */
+  --gold-gradient: linear-gradient(112deg, #8a6436 0%, #c8a16b 38%, #e7cf95 55%, #a97f48 100%);
+
+  /* Frosted glass. Permitted on exactly three surfaces: the top rail's controls, the
+     Level 26 legend, and the Location panel. It must read as a material, never as an
+     effect — and it is dropped entirely below md, where a full-viewport backdrop-filter
+     costs more than it is worth on a phone GPU. */
+  --glass-bg: linear-gradient(180deg, rgb(12 59 57 / 0.72), rgb(7 41 40 / 0.68));
+  --glass-blur: blur(16px) saturate(120%);
+  --glass-border: 1px solid rgb(var(--gold-rgb) / 0.2);
+
+  /* Standard screen margin. 4.5% of the viewport width at the reference layout, 6% at 4K
+     and above, and a fixed floor on phones where 4.5% of 390px is not a margin, it is a
+     hairline.
+
+     It is expressed in `vw` and NOT as a percentage, and that is load-bearing. A
+     percentage resolves against a different base depending on the property it lands in:
+     `padding` always resolves against the containing block's INLINE size, while `top`,
+     `bottom` and `max-height` resolve against its BLOCK size. The rail insets itself with
+     padding and the Location panel positions itself with `top`, so a percentage token
+     meant one number to the rail and a smaller one to the panel on every landscape
+     viewport — 86px against 49px at 1920x1080 — and the panel's crown climbed into MENU
+     and HOME. A length means the same thing in every property. */
+  --screen-margin: 4.5vw;
+
+  /* Space the persistent chrome occupies. Screen content is inset by these so nothing
+     ever sits under the rail or the caption line.
+
+     The floor is 2.9rem and not the 3.4vw line, because MENU and HOME stop shrinking
+     before the reservation does: their type is `.eyebrow`, which bottoms out at its own
+     clamp floor below ~1370px, so the control holds at 31px while 3.4vw keeps falling.
+     At 2.4rem the reservation cleared a 31px control by 8px on a laptop and by 27px at
+     1920 — the same gap, drawn four times tighter. 2.9rem holds it at 16px until the vw
+     term takes over. */
+  --chrome-top: clamp(2.9rem, 3.4vw, 4.2rem);
+  --chrome-bottom: clamp(1.5rem, 2vw, 2.4rem);
+}
+
+@media (max-width: 767px) {
+  :root {
+    --screen-margin: 1.35rem;
+    --chrome-top: 3rem;
+    --chrome-bottom: 1.4rem;
+  }
+}
+
+@media (min-width: 2560px) {
+  :root {
+    --screen-margin: 6vw;
+  }
+}

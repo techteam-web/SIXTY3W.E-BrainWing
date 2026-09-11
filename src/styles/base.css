@@ -1,0 +1,518 @@
+/* LAW 1 — it never scrolls. This file is the contract. Nothing else in the app sets a
+   height on html, body or #root, and no component may introduce a scroll container. */
+
+@layer base {
+  html,
+  body,
+  #root {
+    width: 100%;
+    height: 100dvh;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
+
+  html {
+    background: var(--color-w-deep);
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background: var(--color-w-deep);
+    color: var(--color-w-cream);
+    font-family: var(--font-display);
+    font-weight: 400;
+    /* 1.5 is the browser default and reads instantly generic. The brochure sets tight,
+       so the app sets tight. Headlines go tighter still. */
+    line-height: 1.25;
+    font-size: var(--text-body);
+    touch-action: manipulation;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    /* iOS Safari fires a synthetic double-tap zoom and paints a grey tap flash over
+       every control; both read as the app stuttering. */
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Headlines are ALL CAPS and letter-spaced. That tracking is the single most
+     recognisable thing about the source document's typography. */
+  h1,
+  h2,
+  h3 {
+    font-weight: 300;
+    line-height: 1.14;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin: 0;
+  }
+
+  p {
+    margin: 0;
+  }
+
+  button {
+    font: inherit;
+    color: inherit;
+    background: none;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+  }
+
+  img {
+    display: block;
+  }
+
+  /* The only radius in this application is the arch crown, and it is applied
+     deliberately by the components that draw an arch. Everything else is square. */
+  *,
+  *::before,
+  *::after {
+    border-radius: 0;
+  }
+
+  /* Focus is visible but stays inside the system: a gold hairline, never a glow. */
+  :focus-visible {
+    outline: 1px solid var(--color-w-gold);
+    outline-offset: 3px;
+  }
+}
+
+@layer components {
+  /* ------------------------------------------------------------- the ground */
+  .ground {
+    background-image: var(--ground);
+  }
+  .ground-quiet {
+    background-image: var(--ground-quiet);
+  }
+
+  /* Frosted glass. Dropped below md: a phone GPU rasterises a backdrop-filter over the
+     whole composited layer beneath it every frame it moves, and this application moves
+     a lot. The gradient underneath already carries the surface. */
+  .glass {
+    background: var(--glass-bg);
+    border: var(--glass-border);
+  }
+
+  @media (min-width: 48rem) {
+    .glass {
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+    }
+  }
+
+  /* ------------------------------------------------------------ typography */
+  /* Eyebrows: ALL CAPS, wide tracking, gold. The brochure's own voice. */
+  .eyebrow {
+    font-size: var(--text-eyebrow);
+    font-weight: 500;
+    letter-spacing: 0.34em;
+    text-transform: uppercase;
+    color: var(--color-w-gold);
+  }
+
+  /* The landing only. Extreme tracking appears nowhere else. */
+  .eyebrow-wide {
+    letter-spacing: 0.72em;
+  }
+
+  /* Gold, as ink rather than as a flat colour — for display type large enough that the
+     gradient across it actually reads. Never below --text-headline. */
+  .ink-gold {
+    background: var(--gold-gradient);
+    background-size: 180% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    /* A gradient clipped to text has no fallback if the clip fails; this keeps a real
+       colour underneath on the engines that ignore it. */
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* A 1px rule that animates by scaleX from an origin — the app's only divider. */
+  .hairline {
+    height: 1px;
+    background: currentColor;
+    transform-origin: left center;
+  }
+
+  /* The brochure's ampersand, which is a different typeface on purpose. */
+  .amp {
+    font-family: var(--font-script);
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: 0;
+    /* Pinyon Script runs small on the body: its cap height is roughly two thirds of
+       Montserrat's at the same size, so it needs the difference back or it reads as a
+       footnote mark rather than as the display glyph the brochure sets. */
+    font-size: 1.55em;
+    line-height: 0;
+    vertical-align: -0.1em;
+    padding-inline: 0.04em;
+  }
+}
+
+@layer components {
+  /* ----------------------------------------------------- transition furniture
+     Animated exclusively by src/gsap/TransitionDirector.js. Nothing here carries a CSS
+     transition — GSAP owns all motion in this application. */
+
+  /* THE ARCH — the one page transition.
+     Three panels standing side by side, each clipped to the logo's own arch profile and
+     each holding a live clone of a screen. Forwards, they drop away in a stagger and
+     the crowns sweep down the frame; backwards, they rise from below and close over it.
+     The panels carry nothing but a transform, so the whole thing is composited: the
+     clip is set once per transition and never animated. */
+  .arch-cut {
+    position: absolute;
+    inset: 0;
+    visibility: hidden;
+    overflow: hidden;
+    isolation: isolate;
+  }
+
+  .arch-panel {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    overflow: hidden;
+    transform-origin: center center;
+    backface-visibility: hidden;
+    will-change: transform;
+  }
+
+  /* Each panel's window onto the clone. The clone is viewport-sized and shifted left by
+     the panel's own offset, so the three panels together reassemble one continuous
+     image rather than three copies of the same crop. */
+  .arch-panel-view {
+    position: absolute;
+    top: 0;
+    height: 100%;
+  }
+
+  /* The clone, forced back to a clean resting state — the original is mid-tween and
+     carrying inline transform/opacity from GSAP when it is copied. */
+  .arch-panel-view > * {
+    position: absolute !important;
+    inset: 0 !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  /* The gold outline, and the reason the transition is the logo rather than a wipe:
+     three adjacent arch outlines with their legs showing ARE the mark. The ring follows
+     the panel's own crown because it inherits its radius, and the director paints a soft
+     gradient over it that is brightest at whichever edge is leading. */
+  .arch-crown {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    /* The hairline, and a soft bloom just inside it so the arch reads as a lit edge at
+       1600px rather than as a 1px line nobody notices at speed. */
+    box-shadow:
+      inset 0 0 0 1px rgb(var(--gold-rgb) / 0.62),
+      inset 0 0 26px rgb(var(--gold-rgb) / 0.1);
+    pointer-events: none;
+  }
+
+  /* ---------------------------------------------------------- the aperture
+     The brochure's other device: a ring of gold dots around a circular window. It is
+     one element — a tiled radial-gradient masked to an annulus — so the ring is a
+     single rasterised layer and scaling or spinning it is free.
+
+     The dot grid is a bare `radial-gradient` at a fixed 0.9% cell, so the ring's dot
+     count scales with the ring, exactly like the printed one. */
+  .aperture-ring {
+    position: absolute;
+    inset: 0;
+    /* Both the tile AND the dot inside it are proportional, and they have to be. A dot
+       fixed in pixels inside a percentage tile means the ring is sparse at 720px and a
+       solid gold glow at 250px, because the tile shrinks and the dot does not. Colour
+       stops in a radial-gradient resolve against the tile, so `closest-side` + a
+       percentage stop gives a dot that is always the same fraction of its own cell —
+       which is what makes the ring look identical at every size, the way the printed one
+       does when the same artwork is placed twice. */
+    background-image: radial-gradient(
+      closest-side circle at center,
+      rgb(var(--gold-rgb) / 0.95) 34%,
+      transparent 52%
+    );
+    background-size: 1.25% 1.25%;
+    /* closest-side, not the default farthest-corner: on a square box the corner is
+       1.414× the half-width, which would push the ring's outer dots past the element's
+       own edges and clip them. closest-side pins the gradient to the inscribed circle,
+       so the ring always lands inside the box whatever size it is given. */
+    -webkit-mask-image: radial-gradient(
+      closest-side circle at center,
+      transparent 0%,
+      transparent 62%,
+      #000 67%,
+      #000 79%,
+      rgb(0 0 0 / 0.4) 91%,
+      transparent 100%
+    );
+    mask-image: radial-gradient(
+      closest-side circle at center,
+      transparent 0%,
+      transparent 62%,
+      #000 67%,
+      #000 79%,
+      rgb(0 0 0 / 0.4) 91%,
+      transparent 100%
+    );
+    pointer-events: none;
+    will-change: transform;
+  }
+
+  /* --------------------------------------------------------- the entry control
+     The landing's one call to action, and the only framed control in the app. Every
+     other control is a label over a hairline, which is right for a rail you have
+     already learned and wrong for the single thing a first-time visitor has to find.
+     So this one is framed as an arch — the brand mark used as a button — with a gold
+     fill that wipes in on hover and a light that travels the frame on a slow loop, so
+     it is never completely still. */
+  .portal {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 1.2em;
+    padding: 0.95em 1.9em;
+    overflow: hidden;
+    isolation: isolate;
+    border: 1px solid rgb(var(--gold-rgb) / 0.45);
+    background: transparent;
+    /* The arch crown, at the measured ratio, on the leading corners. */
+    border-top-left-radius: 1.35em;
+    border-top-right-radius: 1.35em;
+  }
+
+  .portal-panel {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    border-top-left-radius: inherit;
+    border-top-right-radius: inherit;
+    /* The landing CTA stands over the render, not over a scrim, so it carries its own
+       material: enough to hold the outline and the label against a lit building, not
+       enough to read as a filled button. */
+    background: linear-gradient(180deg, rgb(12 59 57 / 0.42), rgb(4 26 25 / 0.34));
+    box-shadow: inset 0 1px 0 rgb(240 234 224 / 0.06);
+  }
+
+  /* The fill, in two boxes on purpose. The outer one is never touched; the inner one is
+     the only thing GSAP scales, so the transform stays a pure scaleX that the
+     compositor can run without re-rasterising the button. */
+  .portal-fill {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    border-top-left-radius: inherit;
+    border-top-right-radius: inherit;
+  }
+
+  .portal-fill-bar {
+    position: absolute;
+    inset: 0;
+    transform: scaleX(0);
+    transform-origin: left center;
+    background: var(--gold-gradient);
+  }
+
+  .portal-sheen {
+    position: absolute;
+    inset: -1px;
+    z-index: -1;
+    background: linear-gradient(
+      100deg,
+      transparent 38%,
+      rgb(240 234 224 / 0.14) 48%,
+      rgb(240 234 224 / 0.32) 50%,
+      rgb(240 234 224 / 0.14) 52%,
+      transparent 62%
+    );
+  }
+
+  .portal-label {
+    position: relative;
+    z-index: 1;
+    white-space: nowrap;
+  }
+
+  /* The rail variant: the same control, the same three gestures, tightened. It keeps a
+     dark panel because it sits over bright full-bleed renders where a bare outline
+     washes out. */
+  .portal--sm {
+    gap: 0.62em;
+    padding: 0.6em 1.1em;
+    border-top-left-radius: 0.85em;
+    border-top-right-radius: 0.85em;
+  }
+
+  .portal--sm .portal-panel {
+    background: linear-gradient(180deg, rgb(12 59 57 / 0.78), rgb(4 26 25 / 0.72));
+    box-shadow:
+      inset 0 1px 0 rgb(240 234 224 / 0.07),
+      0 6px 20px rgb(4 26 25 / 0.35);
+  }
+
+  /* Disabled, in the rail: NOTHING changes. MENU and HOME are disabled for the whole of
+     every transition — arrivals included, where the visitor has clicked nothing — so any
+     state they take on for that duration is a change nobody asked for and then watches
+     undo itself. The rail is furniture: it is painted once and it holds still. */
+}
+
+@layer utilities {
+  /* Content inset for any screen the top rail is drawn over. Never hand-roll this —
+     the rail's height is a system value, not a per-screen guess. */
+  .screen-inset {
+    padding: calc(var(--screen-margin) + var(--chrome-top)) var(--screen-margin)
+      calc(var(--screen-margin) + var(--chrome-bottom));
+  }
+
+  /* The landing and the gate carry no rail. */
+  .screen-inset-bare {
+    padding: var(--screen-margin);
+  }
+
+  /* The arch crown as a utility, so every rounded thing in the app provably uses the one
+     measured radius rather than a taste call.
+     
+     A PERCENTAGE border-radius resolves per axis: the horizontal radius against the
+     element's width and the vertical against its height. On a landscape box that is
+     close enough to circular to read as the arch; on a PORTRAIT one it is a tall ellipse
+     that eats the top of the box and clips whatever is written there. So this utility is
+     for boxes that are at least as wide as they are tall — the render frames, the plan
+     sheet, the Level 26 plate. A tall panel takes the same ratio as an explicit length
+     instead (see the Location panel), which keeps the corner circular. */
+  .crown {
+    border-top-left-radius: calc(var(--arch-crown) * 100%);
+    border-top-right-radius: calc(var(--arch-crown) * 100%);
+  }
+
+  /* Scrolls, but the track never draws — for the few panels (the Location landmark
+     list, the Specifications columns) where a visible scrollbar would clutter a glass
+     surface. These are the ONLY scroll containers permitted, and only inside a panel
+     that is already smaller than the viewport. */
+  .rail-none {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .rail-none::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* The fullscreen gate freezes the app beneath it. The gate is a SIBLING of the frozen
+   layer, never a descendant — `filter` creates a containing block for fixed descendants
+   and would blur the gate along with everything else. */
+html[data-frozen] #frozen-layer {
+  filter: blur(7px) saturate(0.85);
+  pointer-events: none;
+}
+
+/* THE GATE'S ENTRANCE, IN CSS, AND IT CANNOT BE ANYTHING ELSE.
+   Every other animation in this application goes through GSAP (LAW 3). The gate is the
+   single exception, and it is not a preference: the gate is what appears when the app is
+   frozen, and the freeze is gsap.globalTimeline.pause(). A GSAP entrance here would be
+   created on a paused root and would never advance — the mark would sit at opacity 0 and
+   the gate would come up blank.
+
+   Scoped to [data-open='true'] so the sequence restarts every time the gate reopens: an
+   element that begins matching an animation rule starts that animation from the top.
+   With no rule applied the elements are simply in their finished state, which is what the
+   gate's own opacity fade needs on the way out. Under reduced motion the block at the end
+   of this file collapses each duration to 0.01ms and they land there immediately. */
+#gate[data-open='true'] [data-gate-mark] {
+  animation: w63-gate-mark 1.15s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+#gate[data-open='true'] [data-gate-glow] {
+  animation: w63-gate-glow 2.35s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+}
+#gate[data-open='true'] [data-gate-rule] {
+  animation: w63-gate-rule 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.6s both;
+}
+#gate[data-open='true'] [data-gate-eyebrow] {
+  animation: w63-gate-eyebrow 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.7s both;
+}
+#gate[data-open='true'] [data-gate-cta] {
+  animation: w63-gate-cta 0.65s cubic-bezier(0.16, 1, 0.3, 1) 1s both;
+}
+
+@keyframes w63-gate-mark {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Blooms past its resting size and settles back, so the mark reads as lit rather than
+   as faded in. The 47% stop is the 1.1s bloom inside the 2.35s whole. */
+@keyframes w63-gate-glow {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  47% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+  100% {
+    opacity: 0.35;
+    transform: scale(1.2);
+  }
+}
+
+@keyframes w63-gate-rule {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: none;
+  }
+}
+
+@keyframes w63-gate-eyebrow {
+  from {
+    opacity: 0;
+    letter-spacing: 0.9em;
+  }
+  to {
+    opacity: 1;
+    letter-spacing: 0.34em;
+  }
+}
+
+@keyframes w63-gate-cta {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Reduced motion is honoured by the transition director, which collapses every
+   transition to a 0.28s crossfade. This only stops CSS-driven motion. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.25s !important;
+  }
+}

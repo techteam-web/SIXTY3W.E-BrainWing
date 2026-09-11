@@ -1,0 +1,367 @@
+/* MapLibre, pulled into the brand.
+   The style itself (src/features/map/mapStyle.js) paints the ground, the green and the
+   roads in the application's own teal and gold. What is left here is the chrome MapLibre
+   injects, and the markers.
+
+   Everything below is GOLD AND CREAM ON TEAL — the same pairing every other screen in the
+   application uses. Each marker carries a thin ring in the deepest teal, so a gold dot
+   sitting on a gold road still reads as a separate object rather than as a bead on it. */
+
+.w63-map {
+  width: 100%;
+  height: 100%;
+  /* The ground before a single tile has landed, and what the arch panels carry across
+     the screen during a transition: MapLibre's canvas cannot be cloned, so this colour IS
+     the map in the copy. It is the style's own ground, so the hand-off cannot be seen. */
+  background: var(--color-w-teal);
+  /* MapLibre stacks its canvas and marker layers; isolating keeps them from painting over
+     the panel. */
+  isolation: isolate;
+  /* Markers are plain absolutely-positioned DOM, not canvas content, so nothing clips
+     them to the map box on its own — and free pan means the project marker's name can
+     easily be dragged up under the fixed top rail. Clipping keeps every marker inside the
+     map's own box, the same as the canvas already is. */
+  overflow: hidden;
+}
+
+.w63-map canvas {
+  outline: none;
+}
+
+/* Attribution is a licence requirement and is never removed — only styled down. */
+.w63-map .maplibregl-ctrl-attrib,
+.w63-map .maplibregl-ctrl-bottom-right {
+  background: transparent;
+}
+
+.w63-map .maplibregl-ctrl-attrib.maplibregl-compact,
+.w63-map .maplibregl-ctrl-attrib-inner {
+  background: transparent;
+  color: rgb(240 234 224 / 0.42);
+  font-family: var(--font-display);
+  font-size: 10px;
+  padding: 0 6px;
+}
+
+.w63-map .maplibregl-ctrl-attrib a {
+  color: rgb(240 234 224 / 0.6);
+  text-decoration: none;
+}
+
+.w63-map .maplibregl-ctrl-attrib-button {
+  display: none;
+}
+
+/* MapLibre's own controls, brought into the system: the deepest teal, a gold hairline,
+   and ivory icons. A step darker than the ground so the stack reads as an object on the
+   map rather than as a hole in it. Square — a 30px button is far too small to wear the
+   arch crown. */
+.w63-map .maplibregl-ctrl-group {
+  background: var(--color-w-deep);
+  border: 1px solid rgb(var(--gold-rgb) / 0.35);
+  border-radius: 0;
+  box-shadow: 0 8px 22px rgb(2 12 11 / 0.45);
+}
+
+.w63-map .maplibregl-ctrl-group button {
+  width: 30px;
+  height: 30px;
+  background: transparent;
+  border-radius: 0;
+}
+
+.w63-map .maplibregl-ctrl-group button + button {
+  border-top: 1px solid rgb(var(--gold-rgb) / 0.22);
+}
+
+.w63-map .maplibregl-ctrl-group button:hover {
+  background: rgb(var(--gold-rgb) / 0.2);
+}
+
+.w63-map .maplibregl-ctrl-icon {
+  /* MapLibre ships black icons; this lifts them to the ivory the controls need. */
+  filter: invert(94%) sepia(6%) saturate(220%) hue-rotate(3deg) brightness(103%);
+}
+
+/* ------------------------------------------------------------------ the project */
+
+/* The project's medallion: the mark in gold on the deepest teal, ringed in void and lit
+   by a soft gold bloom. On a teal ground a flat dark disc would sink into the map, and
+   the bloom is what makes it the one object on the sheet the eye goes to first.
+
+   The element IS the medallion and is anchored at its centre, so it sits ON the
+   coordinate the way a plan symbol does rather than floating above it like a pin. The
+   name hangs below through `top: 100%`, outside the box. */
+.w63-project {
+  position: relative;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: var(--color-w-deep);
+  border: 1px solid rgb(var(--gold-rgb) / 0.7);
+  box-shadow:
+    0 0 0 3px rgb(4 26 25 / 0.9),
+    0 0 24px rgb(var(--gold-rgb) / 0.3),
+    0 6px 18px rgb(2 12 11 / 0.5);
+  pointer-events: none;
+}
+
+.w63-project__mark {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 30px;
+  height: auto;
+  transform: translate(-50%, -50%);
+  color: var(--color-w-gold-lit);
+  overflow: visible;
+}
+
+.w63-project__halo {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  transform: translate(-50%, -50%);
+  border: 1.5px solid var(--color-w-gold);
+  border-radius: 50%;
+  opacity: 0;
+}
+
+.w63-project__name {
+  position: absolute;
+  left: 50%;
+  top: calc(100% + 9px);
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-family: var(--font-display);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  color: var(--color-w-cream);
+  text-shadow:
+    0 0 3px var(--color-w-void),
+    0 0 7px var(--color-w-void),
+    0 0 11px var(--color-w-void);
+}
+
+/* ---------------------------------------------------------------- the landmarks */
+
+.w63-landmark {
+  position: relative;
+  width: 9px;
+  height: 9px;
+  background: none;
+  border: 0;
+  cursor: default;
+}
+
+/* A gold dot breathing an outward pulse and shedding a few sparks that drift and fade. */
+.w63-landmark__dot {
+  display: block;
+  position: relative;
+  box-sizing: border-box;
+  width: 7px;
+  height: 7px;
+  margin: 1px;
+  border-radius: 50%;
+  background: var(--color-w-gold-lit);
+  box-shadow: 0 0 0 2px rgb(4 26 25 / 0.9);
+  transition:
+    opacity 0.4s linear,
+    background-color 0.3s linear;
+}
+
+.w63-landmark__dot::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--color-w-gold);
+  opacity: 0.45;
+  animation: w63-pulse 2.4s ease-out infinite;
+}
+
+.w63-landmark__spark {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 2px;
+  height: 2px;
+  margin: -1px 0 0 -1px;
+  border-radius: 50%;
+  background: var(--color-w-gold-lit);
+  opacity: 0;
+  transform: rotate(var(--a, 0deg)) translateX(0);
+  animation: w63-spark 1.8s ease-out infinite;
+}
+
+.w63-landmark__spark:nth-of-type(3) {
+  animation-delay: 0.6s;
+}
+
+.w63-landmark__spark:nth-of-type(4) {
+  animation-delay: 1.2s;
+}
+
+.w63-landmark__label {
+  position: absolute;
+  left: 15px;
+  top: -3px;
+  white-space: nowrap;
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  color: var(--color-w-cream);
+  text-shadow:
+    0 0 3px var(--color-w-void),
+    0 0 7px var(--color-w-void),
+    0 0 11px var(--color-w-void);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s linear;
+}
+
+.w63-landmark:hover .w63-landmark__label,
+.w63-landmark[data-active='true'] .w63-landmark__label,
+.w63-landmark[data-labelled='true'] .w63-landmark__label {
+  opacity: 1;
+}
+
+.w63-landmark[data-active='true'] .w63-landmark__dot {
+  background: var(--color-w-champagne);
+  box-shadow:
+    0 0 0 2px rgb(4 26 25 / 0.9),
+    0 0 12px rgb(var(--gold-rgb) / 0.85);
+}
+
+.w63-landmark[data-dim='true'] .w63-landmark__dot {
+  opacity: 0;
+}
+
+.w63-landmark[data-dim='true'] .w63-landmark__dot::before,
+.w63-landmark[data-dim='true'] .w63-landmark__spark {
+  animation-play-state: paused;
+  opacity: 0;
+}
+
+/* Orientation nodes — Aarey, the highway, Goregaon East — are always named and never wait
+   on hover. They are what tells you which way you are looking, so they read as the map's
+   own place names rather than as landmarks you can click. */
+.w63-landmark--node .w63-landmark__dot {
+  width: 5px;
+  height: 5px;
+  margin: 2px;
+  background: rgb(239 226 194 / 0.55);
+  box-shadow: none;
+}
+
+.w63-landmark--node .w63-landmark__dot::before,
+.w63-landmark--node .w63-landmark__spark {
+  display: none;
+}
+
+.w63-landmark--node .w63-landmark__label {
+  opacity: 1;
+  left: 12px;
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgb(239 226 194 / 0.72);
+}
+
+/* ------------------------------------------------------------- the destination */
+
+/* The pin dropped where a clicked route ends. The line alone never said WHERE it
+   finished — only the panel did. */
+.w63-dest {
+  position: relative;
+  width: 22px;
+  height: 40px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.35s ease-out;
+}
+
+.w63-dest[data-visible='true'] {
+  opacity: 1;
+}
+
+.w63-dest__pin {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 11px;
+  height: 11px;
+  margin-left: -5.5px;
+  border-radius: 50%;
+  background: var(--color-w-gold-lit);
+  box-shadow:
+    0 0 0 2.5px var(--color-w-void),
+    0 2px 10px rgb(2 12 11 / 0.5);
+}
+
+.w63-dest__pin::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--color-w-gold-lit);
+  opacity: 0.5;
+  animation: w63-pulse 2.4s ease-out infinite;
+}
+
+.w63-dest__name {
+  position: absolute;
+  left: 20px;
+  bottom: -3px;
+  max-width: 15ch;
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: 0.05em;
+  color: var(--color-w-cream);
+  text-shadow:
+    0 0 3px var(--color-w-void),
+    0 0 7px var(--color-w-void),
+    0 0 11px var(--color-w-void);
+}
+
+@keyframes w63-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.45;
+  }
+  100% {
+    transform: scale(3.2);
+    opacity: 0;
+  }
+}
+
+@keyframes w63-spark {
+  0% {
+    transform: rotate(var(--a, 0deg)) translateX(0);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.7;
+  }
+  100% {
+    transform: rotate(var(--a, 0deg)) translateX(var(--dist, 11px));
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .w63-landmark__dot::before,
+  .w63-landmark__spark,
+  .w63-dest__pin::before {
+    animation: none;
+    opacity: 0;
+  }
+}
