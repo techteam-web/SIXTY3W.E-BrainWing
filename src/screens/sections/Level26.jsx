@@ -72,7 +72,7 @@ export function Level26() {
           {/* The callout labels hang off their dots and are clipped by the area above —
               which is the design, and which the overflow guard would otherwise report as
               content escaping on every viewport. */}
-          <div ref={plate} data-overflow-ok className="relative">
+          <div ref={plate} data-overflow-ok data-ring-focus className="relative">
             <div className="crown absolute inset-0 overflow-hidden">
               <Render
                 id="level26"

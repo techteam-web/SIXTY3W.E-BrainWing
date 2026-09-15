@@ -49,33 +49,26 @@ export function Residences() {
         priority
       />
 
-      {/* Bottom-weighted, because the caption is bottom-weighted. A scrim that covers
-          the whole frame evenly would flatten the render it is protecting. */}
+      {/* No teal on these renders. A teal wash turned four interiors lit in warm stone
+          and timber green, so the only shading left is neutral — plain shadow, the way a
+          photograph darkens toward its edge — and only where the caption needs it: the
+          foot of the frame, deepest in the corner the type sits in. */}
       <div
         aria-hidden="true"
         className="absolute inset-0 max-md:hidden"
         style={{
           background:
-            'linear-gradient(0deg, rgb(var(--scrim-rgb) / 0.96) 0%, rgb(var(--scrim-rgb) / 0.8) 26%, rgb(var(--scrim-rgb) / 0.24) 52%, transparent 74%)',
+            'radial-gradient(58% 70% at 0% 100%, rgb(0 0 0 / 0.5) 0%, rgb(0 0 0 / 0.3) 50%, rgb(0 0 0 / 0) 100%), linear-gradient(0deg, rgb(0 0 0 / 0.74) 0%, rgb(0 0 0 / 0.56) 24%, rgb(0 0 0 / 0.22) 42%, rgb(0 0 0 / 0) 58%)',
         }}
       />
-      {/* The phone's own, and it is nearly a panel rather than a wash: the caption sits
-          over the bottom 40% of the frame, and on the lobby plate that 40% is blown-out
-          marble. A gradient tuned for a dusk render does not carry cream type over it. */}
+      {/* The phone's own, and heavier: the caption covers the bottom 40% of the frame,
+          and on the lobby plate that 40% is pale marble. */}
       <div
         aria-hidden="true"
         className="absolute inset-0 md:hidden"
         style={{
           background:
-            'linear-gradient(0deg, rgb(var(--scrim-rgb) / 0.98) 0%, rgb(var(--scrim-rgb) / 0.95) 30%, rgb(var(--scrim-rgb) / 0.55) 47%, rgb(var(--scrim-rgb) / 0.14) 66%, transparent 84%)',
-        }}
-      />
-      <div
-        aria-hidden="true"
-        className="absolute inset-0"
-        style={{
-          background:
-            'linear-gradient(90deg, rgb(var(--scrim-rgb) / 0.6) 0%, rgb(var(--scrim-rgb) / 0.16) 32%, transparent 56%)',
+            'linear-gradient(0deg, rgb(0 0 0 / 0.78) 0%, rgb(0 0 0 / 0.66) 30%, rgb(0 0 0 / 0.3) 48%, rgb(0 0 0 / 0) 68%)',
         }}
       />
 
@@ -106,7 +99,12 @@ function RoomCaption({ room, index, eyebrow }) {
   );
 
   return (
-    <div ref={root} className="max-w-[46ch] max-md:max-w-none">
+    // A soft shadow under the type, wide and faint: over a bright window or pale stone it
+    // is what keeps cream legible without darkening the picture any further.
+    <div
+      ref={root}
+      className="max-w-[46ch] [text-shadow:0_1px_22px_rgb(0_0_0/0.45)] max-md:max-w-none"
+    >
       <span data-stagger className="eyebrow mb-[0.9em] block">
         {eyebrow}
       </span>

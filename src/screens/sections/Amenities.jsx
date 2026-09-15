@@ -98,7 +98,8 @@ function Window({ item, index }) {
       ref={root}
       className="relative flex min-h-0 w-full flex-col justify-center gap-[clamp(0.8rem,2vh,1.6rem)]"
     >
-      <div className="relative min-h-0">
+      {/* The screen's subject: the page transition's ring opens around it. */}
+      <div data-ring-focus className="relative min-h-0">
         {/* A gold hairline standing just outside the frame, offset the way a mount board
             sits behind a print. It is the only decoration on this screen. */}
         <span

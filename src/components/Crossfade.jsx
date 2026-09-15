@@ -31,6 +31,9 @@ export function Crossfade({
   position = 'center',
   zoom = true,
   priority = false,
+  // A framing for THIS picture — { position, scale, origin } — for a box whose crop the
+  // picture's composition does not survive. See `backdropFrame` in src/data/sections.js.
+  frame = null,
 }) {
   const root = useRef(null);
   const layers = useRef([]);
@@ -53,8 +56,20 @@ export function Crossfade({
         cancelled = true;
       };
 
+      // Written onto the element as it is dressed, never through a style prop: both
+      // layers belong to one component, so a prop would re-frame the OUTGOING picture in
+      // the same commit that chooses the incoming one, and it would jump as it fades. The
+      // scale is on the <img>, the cross-fade's settle is on the layer, so the two compose.
+      const place = (el, bg) => {
+        const s = el.style;
+        s[bg ? 'backgroundPosition' : 'objectPosition'] = frame?.position ?? position;
+        s.transform = frame?.scale ? `scale(${frame.scale})` : '';
+        s.transformOrigin = frame?.origin ?? '';
+      };
+
       const dress = (layer) => {
         const img = layer.querySelector('img');
+        place(img, false);
         // `sizes` FIRST. Setting srcset runs the selection algorithm immediately, and it
         // runs it against whatever `sizes` says at that moment — which, if sizes has not
         // been assigned yet, is the 100vw default. Get the order wrong and every layer
@@ -66,7 +81,10 @@ export function Crossfade({
         return img.decode?.().catch(() => {}) ?? Promise.resolve();
       };
 
-      if (poster.current) poster.current.style.backgroundImage = `url(${render.lqip})`;
+      if (poster.current) {
+        poster.current.style.backgroundImage = `url(${render.lqip})`;
+        place(poster.current, true);
+      }
 
       // First paint: the poster is already up, so the picture simply resolves onto it.
       if (shown.current === null) {

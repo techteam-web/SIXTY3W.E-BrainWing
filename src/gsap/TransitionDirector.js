@@ -151,6 +151,100 @@ const emptyNode = (el) => {
   while (el?.firstChild) el.removeChild(el.firstChild);
 };
 
+/* ------------------------------------------------------------- the aperture */
+
+// Where the aperture opens: around whatever the arriving screen is ABOUT — the menu's
+// circle, the plan sheet, the Level 26 plate, the amenity window, the tower in a
+// full-bleed render — which the screen marks with [data-ring-focus]. A screen with no one
+// subject (a room filling the frame, the map, the specification panels) gets the centre
+// of the viewport.
+//
+//   data-ring-focus="ring"        the node IS a dotted ring (the menu's aperture), and the
+//                                 transition's ring takes exactly its place and size, so
+//                                 the one lands on the other.
+//   data-ring-focus               the node is the subject, and the ring's clear centre is
+//                                 sized to it.
+//   data-ring-box="x0 y0 x1 y1"   with it: the subject is that part of the PICTURE the node
+//                                 holds, in fractions of the image, mapped through
+//                                 object-fit: cover and the image's object-position.
+//
+// Measured once, at build time, before the destination is staged — so from boxes at rest,
+// and with the node's own transform taken back out: the plan sheet arrives on an xPercent
+// slide, and the ring belongs where the sheet will be, not where its entrance has it.
+
+// The ring's clear centre as a fraction of its diameter: the mask's inner stop in
+// .aperture-ring.
+const RING_CLEAR = 0.62;
+
+function objectPosition(value) {
+  const named = { left: 0, top: 0, center: 50, right: 100, bottom: 100 };
+  const [a = 'center', b = 'center'] = String(value || 'center').trim().split(/\s+/);
+  const pct = (word) => (word in named ? named[word] : parseFloat(word)) / 100;
+  const x = pct(a);
+  const y = pct(b);
+  return [Number.isFinite(x) ? x : 0.5, Number.isFinite(y) ? y : 0.5];
+}
+
+function ringFocus(el) {
+  const W = window.innerWidth || 1;
+  const H = window.innerHeight || 1;
+  const centre = { x: W / 2, y: H / 2, d: Math.min(W, H) * 1.04 };
+  const node = el?.querySelector('[data-ring-focus]');
+  const w = node?.offsetWidth ?? 0;
+  const h = node?.offsetHeight ?? 0;
+  if (!(w > 1 && h > 1)) return centre;
+
+  // offsetWidth/Height are the layout box, untouched by transforms; the rect's centre
+  // less the node's own translation is that box's centre at rest.
+  const t = getComputedStyle(node).transform;
+  const m = t && t !== 'none' ? new DOMMatrixReadOnly(t) : null;
+  const rect = node.getBoundingClientRect();
+  const left = rect.left + rect.width / 2 - (m?.m41 ?? 0) - w / 2;
+  const top = rect.top + rect.height / 2 - (m?.m42 ?? 0) - h / 2;
+
+  if (node.dataset.ringFocus === 'ring') return { x: left + w / 2, y: top + h / 2, d: w };
+
+  let box = { left, top, w, h };
+  const frac = node.dataset.ringBox?.split(/\s+/).map(Number);
+  const img = frac?.length === 4 && frac.every(Number.isFinite) ? node.querySelector('img') : null;
+  const iw = Number(img?.getAttribute('width')) || img?.naturalWidth || 0;
+  const ih = Number(img?.getAttribute('height')) || img?.naturalHeight || 0;
+  if (iw && ih) {
+    const s = Math.max(w / iw, h / ih);
+    const rw = iw * s;
+    const rh = ih * s;
+    const [px, py] = objectPosition(img.style.objectPosition);
+    const x0 = left + (w - rw) * px;
+    const y0 = top + (h - rh) * py;
+    box = {
+      left: x0 + frac[0] * rw,
+      top: y0 + frac[1] * rh,
+      w: (frac[2] - frac[0]) * rw,
+      h: (frac[3] - frac[1]) * rh,
+    };
+  }
+
+  // A subject the layout has put out of frame — the phone's Overview shows the sky, not
+  // the tower — has nothing on screen to open around.
+  const cx = box.left + box.w / 2;
+  const cy = box.top + box.h / 2;
+  if (cx < 0 || cx > W || cy < 0 || cy > H) return centre;
+
+  // Sized to the subject's area rather than its long side, so a tall tower or a wide plan
+  // is circled through its middle instead of by a ring twice the height of the screen.
+  const d = Math.min(
+    Math.max(Math.sqrt(box.w * box.h) / RING_CLEAR, Math.min(W, H) * 0.5),
+    Math.max(W, H) * 1.6,
+  );
+  return { x: cx, y: cy, d };
+}
+
+// Written straight onto the element: the ring is invisible between transitions, so there
+// is nothing to animate from one placement to the next.
+function placeRing(ring, { x, y, d }) {
+  gsap.set(ring, { left: x - d / 2, top: y - d / 2, width: d, height: d });
+}
+
 /* ----------------------------------------------------------------- the cut */
 
 function theArch(ctx, dir) {
@@ -158,6 +252,8 @@ function theArch(ctx, dir) {
   const root = chrome.cut;
   const panels = (chrome.panels ?? []).filter(Boolean);
   const ring = chrome.ring ?? null;
+  // First, while the destination is still at rest — see ringFocus.
+  const focus = ring ? ringFocus(inEl) : null;
 
   // Nothing to cut with, or nothing to carry: fall back rather than play half of one.
   if (!root || panels.length < 2 || !inEl) return crossfade(ctx);
@@ -251,9 +347,10 @@ function theArch(ctx, dir) {
     0.06,
   );
 
-  // The aperture: the brochure's ring of gold dots, opening behind the arches as they
-  // land. Transform and opacity only, on a single rasterised layer.
+  // The aperture: the brochure's ring of gold dots, opening around the arriving screen's
+  // subject as the arches land. Transform and opacity only, on a single rasterised layer.
   if (ring) {
+    placeRing(ring, focus);
     tl.set(ring, { autoAlpha: 0, scale: up ? 0.55 : 1.5, rotate: up ? -14 : 14 })
       .to(ring, { autoAlpha: 0.6, scale: up ? 1.08 : 1.02, rotate: 0, duration: 1.05, ease: E.out }, 0.1)
       .to(ring, { autoAlpha: 0, scale: up ? 1.5 : 0.6, duration: 0.7, ease: E.in }, 1.05);
@@ -402,6 +499,8 @@ export function introSequence({ inEl, chrome, tl }) {
     .set(lines.length ? lines : INERT, { autoAlpha: 0, y: 26 });
 
   if (ring) {
+    // Centred: here the subject is the mark itself, drawing at centre stage.
+    placeRing(ring, ringFocus(null));
     gsap.set(ring, { autoAlpha: 0, scale: 0.2, rotate: -30 });
   }
 

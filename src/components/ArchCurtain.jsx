@@ -32,15 +32,6 @@ export function ArchCurtain() {
 
   return (
     <div className="pointer-events-none fixed inset-0 z-90" aria-hidden="true">
-      {/* The aperture. Behind the arches, and outside the clipped .arch-cut box so it can
-          scale past the viewport without being cropped by it. */}
-      <div className="absolute inset-0 grid place-items-center overflow-hidden">
-        <span
-          ref={ref('ring')}
-          className="aperture-ring block h-[min(104vh,104vw)] w-[min(104vh,104vw)] opacity-0"
-        />
-      </div>
-
       {/* THE ARCHES. */}
       <div ref={ref('cut')} className="arch-cut">
         {PANELS.map((i) => (
@@ -49,6 +40,17 @@ export function ArchCurtain() {
             <span data-panel-crown className="arch-crown" />
           </div>
         ))}
+      </div>
+
+      {/* The aperture. OVER the arches: they carry the arriving screen's picture, and the
+          ring opens around the subject in that picture — behind them it was covered within
+          half a second and only ever showed above their crowns. Outside the clipped
+          .arch-cut box, so it can scale past the viewport without being cropped by it. No
+          place or size of its own: the director sets both every time it plays — see
+          ringFocus. (Sized here and centred by a grid, it was neither: .aperture-ring is
+          absolutely positioned, which a grid cannot centre.) */}
+      <div className="absolute inset-0 overflow-hidden">
+        <span ref={ref('ring')} className="aperture-ring block opacity-0" />
       </div>
     </div>
   );

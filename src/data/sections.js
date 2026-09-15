@@ -15,6 +15,10 @@
 //
 // `caption` is the compliance line for that screen. Every render is an artist's
 // impression; a map is not, and captioning it as one would be wrong.
+//
+// `backdropFrame` reframes a backdrop inside the aperture, for a render whose subject a
+// centred square crop would miss. Percentages of a square box, so it holds at every size
+// the aperture takes.
 
 export const SECTIONS = [
   {
@@ -22,7 +26,12 @@ export const SECTIONS = [
     no: '01',
     label: 'The Address',
     backdrop: 'tower-night',
-    lead: { id: 'tower-night', sizes: '80vw' },
+    // The tower stands 27% of the way across this render, so a centred square crop shows
+    // sky. Pinned to the left edge and drawn in 1.35× — the least zoom that brings the
+    // tower onto the circle's centre line — with its crown just under the top of the
+    // window and its base in the trees.
+    backdropFrame: { position: '0% 50%', scale: 1.35, origin: '0% 56%' },
+    lead: { id: 'tower-night', sizes: '100vw' },
   },
   {
     id: 'residences',
@@ -66,13 +75,18 @@ export const SECTIONS = [
     no: '07',
     label: 'Specifications',
     backdrop: 'tower-dusk',
-    lead: { id: 'tower-dusk', sizes: '100vw' },
+    // No lead render: this screen is three panels on the ground, with no picture behind.
+    lead: null,
   },
 ];
 
 // What the menu's aperture asks for. Kept beside the table it applies to, so the
 // preloader and the aperture can never drift apart.
-export const BACKDROP_SIZES = '(max-width: 767px) 62vw, 32vw';
+//
+// It is the width of the IMAGE, not of the window: a 1.38:1 render covering a circle is
+// 1.38 windows wide, and a framed backdrop is drawn larger again (1.35×). The window is
+// about 66vh across on a landscape screen and 66% of 114vw on a phone.
+export const BACKDROP_SIZES = '(max-width: 767px) 130vw, 72vw';
 
 export const SECTION_IDS = SECTIONS.map((s) => s.id);
 

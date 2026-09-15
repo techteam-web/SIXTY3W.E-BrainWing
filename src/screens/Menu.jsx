@@ -128,7 +128,7 @@ export function Menu() {
 
   return (
     <Screen id="menu">
-      <div className="relative grid h-full min-h-0 grid-cols-[minmax(0,40%)_1fr] items-center gap-[3%] max-md:grid-cols-1 max-md:grid-rows-[auto_auto] max-md:content-center max-md:items-stretch max-md:gap-[3vh]">
+      <div className="relative grid h-full min-h-0 grid-cols-[minmax(0,40%)_1fr] grid-rows-[minmax(0,1fr)] items-center gap-[3%] max-md:grid-cols-1 max-md:grid-rows-[auto_auto] max-md:content-center max-md:items-stretch max-md:gap-[3vh]">
         <div className="relative z-10 flex min-h-0 flex-col justify-center max-md:order-2 max-md:justify-start">
           <span data-menu-brand className="eyebrow mb-[clamp(0.9rem,2.4vh,2rem)] block">
             {MENU.eyebrow}
@@ -155,40 +155,45 @@ export function Menu() {
           </div>
         </div>
 
-        {/* The aperture. On a phone it bleeds off the right edge behind the list, which
-            is exactly what the printed divider pages do with the same circle. */}
+        {/* The aperture, and the largest thing on the screen, as it is on the printed
+            divider pages. Its box is centred ABSOLUTELY in the cell so it can run larger
+            than the cell: the outer dots fade out, and where they reach the screen's edge
+            they are cut the way the print bleeds them — while the grid, which never sees
+            the box, keeps the list on its centre line. On a phone the cell takes an
+            explicit height a little under the ring's, so the list tucks under its faint
+            outer dots rather than waiting below them. */}
         <div
           data-stagger
-          className="relative grid min-h-0 place-items-center max-md:order-1 max-md:pointer-events-none"
+          className="relative min-h-0 self-stretch max-md:order-1 max-md:pointer-events-none max-md:h-[min(90vw,41vh)]"
         >
-          <div className="relative aspect-square w-[min(92%,72vh)] max-md:w-[min(64vw,30vh)]">
+          {/* 100vh, and centred 45% of the way across the cell rather than half: the size
+              and the nudge at which the ring's outer dots fade out just short of the
+              corner lockup above it and the compliance line below — both on the right. */}
+          {/* data-ring-focus="ring": the page transition's ring lands exactly on this one. */}
+          <div data-ring-focus="ring" className="absolute left-[45%] top-1/2 aspect-square w-[min(126%,100vh)] -translate-x-1/2 -translate-y-1/2 max-md:left-1/2 max-md:w-[min(114vw,52vh)]">
             <span ref={ring} aria-hidden="true" className="aperture-ring" data-overflow-ok />
 
-            {/* The window. Its radius matches the mask's inner stop in .aperture-ring, so
-                the innermost ring of dots sits just clear of the photograph's edge. */}
+            {/* The window. Inset 17% puts its edge at 66% of the ring's radius, just
+                inside where the mask in .aperture-ring turns the dots fully on (67%), so
+                the innermost dots sit tight against the photograph and the picture takes
+                as much of the ring as it can. No label under it: the row being pointed at
+                already names the picture. */}
             <Crossfade
               id={SECTION_BY_ID[active]?.backdrop}
+              frame={SECTION_BY_ID[active]?.backdropFrame}
               sizes={BACKDROP_SIZES}
-              className="absolute inset-[19%] rounded-full"
+              className="absolute inset-[17%] rounded-full"
               priority
             />
             <span
               aria-hidden="true"
-              className="pointer-events-none absolute inset-[19%] rounded-full"
+              className="pointer-events-none absolute inset-[17%] rounded-full"
               style={{
                 background:
                   'radial-gradient(closest-side, transparent 52%, rgb(var(--scrim-rgb) / 0.5) 100%)',
                 boxShadow: 'inset 0 0 0 1px rgb(var(--gold-rgb) / 0.22)',
               }}
             />
-
-            {/* The label under the window, naming what the ring is showing. */}
-            <span className="pointer-events-none absolute inset-x-0 -bottom-[1%] flex flex-col items-center gap-[0.5em] max-md:hidden">
-              <span className="h-px w-[2.6em] bg-w-gold/50" />
-              <span className="text-caption tracking-[0.26em] text-w-cream/70 uppercase">
-                {SECTION_BY_ID[active]?.label}
-              </span>
-            </span>
           </div>
         </div>
       </div>

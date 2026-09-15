@@ -29,7 +29,9 @@ export function Landing() {
 
   return (
     <Screen id="landing" padded={false}>
-      <div className="absolute inset-0">
+      {/* data-ring-box: the towers' own box in the picture, which the page transition's
+          ring opens around when a visitor comes back here. */}
+      <div data-ring-focus data-ring-box="0.242 0.117 0.439 0.844" className="absolute inset-0">
         <Render id="tower-dusk" priority sizes="100vw" position={portrait ? '42% 30%' : 'center'} />
       </div>
 

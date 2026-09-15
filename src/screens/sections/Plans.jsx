@@ -203,6 +203,8 @@ function Plate({ plate, index }) {
     >
       <div
         ref={sheet}
+        // The screen's subject: the page transition's ring opens around it.
+        data-ring-focus
         className="crown relative bg-w-ivory shadow-[0_28px_70px_-30px_rgb(4_26_25/0.75)]"
       >
         {render ? (
