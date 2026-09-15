@@ -64,6 +64,15 @@ Everything visual is measured off the brochure rather than chosen.
 **The palette** is the cover's teal and its gold, sampled from the plates —
 `src/styles/theme.css`. The ground is a gradient, not a flat fill, because the cover's is.
 
+**The lattice.** No screen sits on a flat field. The brochure's cover carries a
+tone-on-tone lattice under its aperture — the name itself, "3 W E", set in rounded cells and
+tiled — and every screen carries the same texture as a static layer behind its content
+(`.lattice` in `base.css`, rendered by `Screen`). It is rebuilt as a vector tile from the
+cover plate rather than lifted from it, because the plate is a 142dpi JPEG and would go soft
+at screen size. White and black at low strength, so it reads tone-on-tone on the teal, and strongest where the ground is lit, as on the cover. It does not move: the
+arch transition carries a copy of each screen's ground, and a moving ground cannot match its
+copy. Screens with a full-bleed render or the map simply cover it.
+
 **The arch** is the logo, and it is the app's one shape. Its geometry is lifted straight
 out of the PDF's path data: width 31.399, height 46.439, crown radius 9.909 (a true
 circular quarter — the control offset is the circle kappa), three of them 23.217 apart so

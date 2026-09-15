@@ -88,6 +88,28 @@
     background-image: var(--ground-quiet);
   }
 
+  /* ------------------------------------------------------------- the lattice
+     The cover's texture, carried into the application. Page 1 of the brochure is not a
+     flat teal field: under its aperture it carries a tone-on-tone lattice, and the lattice
+     is the name itself — "3 W E" set in rounded cells and tiled. It is baked into the
+     cover's JPEG plate at 142dpi, far too soft to scale up, so it is rebuilt here as a
+     vector tile: 303 x 76 units measured off the plate, corners at the logo's crown ratio,
+     a light rule with a faint offset shadow, which is how the print embosses it.
+
+     White and black at low strength rather than a colour, so it reads tone-on-tone on the
+     teal. Strongest where the ground is lit, as on the cover, and
+     never gone entirely. STATIC on purpose: the arch transition carries a copy of each
+     screen's ground, and a ground that moves cannot match the copy sweeping across it. */
+  .lattice {
+    --lattice-w: clamp(13rem, 17vw, 30rem);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='303' height='76' viewBox='0 0 303 76'%3E%3Cg fill='none' stroke-width='1.1'%3E%3Cg stroke='%23000' stroke-opacity='0.9' transform='translate(0.9 0.9)'%3E%3Crect x='4' y='4' width='35' height='68' rx='11'/%3E%3Crect x='39' y='4' width='35' height='68' rx='11'/%3E%3Crect x='80' y='4' width='70' height='34' rx='11'/%3E%3Crect x='80' y='38' width='70' height='34' rx='11'/%3E%3Crect x='156' y='4' width='141' height='34' rx='11'/%3E%3Crect x='156' y='38' width='69' height='34' rx='11'/%3E%3Crect x='228' y='38' width='69' height='34' rx='11'/%3E%3C/g%3E%3Cg stroke='%23fff'%3E%3Crect x='4' y='4' width='35' height='68' rx='11'/%3E%3Crect x='39' y='4' width='35' height='68' rx='11'/%3E%3Crect x='80' y='4' width='70' height='34' rx='11'/%3E%3Crect x='80' y='38' width='70' height='34' rx='11'/%3E%3Crect x='156' y='4' width='141' height='34' rx='11'/%3E%3Crect x='156' y='38' width='69' height='34' rx='11'/%3E%3Crect x='228' y='38' width='69' height='34' rx='11'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: var(--lattice-w) calc(var(--lattice-w) * 0.25083);
+    opacity: 0.08;
+    -webkit-mask-image: radial-gradient(140% 120% at 0% 0%, #000 0%, rgb(0 0 0 / 0.72) 45%, rgb(0 0 0 / 0.32) 100%);
+    mask-image: radial-gradient(140% 120% at 0% 0%, #000 0%, rgb(0 0 0 / 0.72) 45%, rgb(0 0 0 / 0.32) 100%);
+  }
+
   /* Frosted glass. Dropped below md: a phone GPU rasterises a backdrop-filter over the
      whole composited layer beneath it every frame it moves, and this application moves
      a lot. The gradient underneath already carries the surface. */
