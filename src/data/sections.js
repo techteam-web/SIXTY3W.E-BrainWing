@@ -74,7 +74,9 @@ export const SECTIONS = [
     id: 'specifications',
     no: '07',
     label: 'Specifications',
-    backdrop: 'tower-dusk',
+    // An interior, not the tower: the sheet is finishes and fittings, and the bedroom is
+    // where they show — the flooring, the panelled wall, the full-height glazing.
+    backdrop: 'bedroom',
     // No lead render: this screen is three panels on the ground, with no picture behind.
     lead: null,
   },

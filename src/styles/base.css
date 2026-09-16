@@ -91,21 +91,23 @@
   /* ------------------------------------------------------------- the lattice
      The cover's texture, carried into the application. Page 1 of the brochure is not a
      flat teal field: under its aperture it carries a tone-on-tone lattice, and the lattice
-     is the name itself — "3 W E" set in rounded cells and tiled. It is baked into the
-     cover's JPEG plate at 142dpi, far too soft to scale up, so it is rebuilt here as a
-     vector tile: 303 x 76 units measured off the plate, corners at the logo's crown ratio,
-     a light rule with a faint offset shadow, which is how the print embosses it.
+     is the name itself — "6 3 W E", tiled. It is baked into the cover's JPEG plate at
+     142dpi, far too soft to scale up, so it is rebuilt here as a vector tile: four 75-unit
+     square slots, one glyph each, every glyph two stacked rounded cells drawn as a single
+     open stroke — the 3 and the E are mirror images, the 6 is the E with its lower cell
+     closed, the W is two cells side by side. Open strokes on purpose: closed cells tile
+     into rows of blocks and stop reading as letters. Corners at the logo's crown ratio.
 
-     White and black at low strength rather than a colour, so it reads tone-on-tone on the
+     White at low strength rather than a colour, so it reads tone-on-tone on the
      teal. Strongest where the ground is lit, as on the cover, and
      never gone entirely. STATIC on purpose: the arch transition carries a copy of each
      screen's ground, and a ground that moves cannot match the copy sweeping across it. */
   .lattice {
     --lattice-w: clamp(13rem, 17vw, 30rem);
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='303' height='76' viewBox='0 0 303 76'%3E%3Cg fill='none' stroke-width='1.1'%3E%3Cg stroke='%23000' stroke-opacity='0.9' transform='translate(0.9 0.9)'%3E%3Crect x='4' y='4' width='35' height='68' rx='11'/%3E%3Crect x='39' y='4' width='35' height='68' rx='11'/%3E%3Crect x='80' y='4' width='70' height='34' rx='11'/%3E%3Crect x='80' y='38' width='70' height='34' rx='11'/%3E%3Crect x='156' y='4' width='141' height='34' rx='11'/%3E%3Crect x='156' y='38' width='69' height='34' rx='11'/%3E%3Crect x='228' y='38' width='69' height='34' rx='11'/%3E%3C/g%3E%3Cg stroke='%23fff'%3E%3Crect x='4' y='4' width='35' height='68' rx='11'/%3E%3Crect x='39' y='4' width='35' height='68' rx='11'/%3E%3Crect x='80' y='4' width='70' height='34' rx='11'/%3E%3Crect x='80' y='38' width='70' height='34' rx='11'/%3E%3Crect x='156' y='4' width='141' height='34' rx='11'/%3E%3Crect x='156' y='38' width='69' height='34' rx='11'/%3E%3Crect x='228' y='38' width='69' height='34' rx='11'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='75' viewBox='0 0 300 75'%3E%3Cpath d='M71 4H15A11 11 0 0 0 4 15V26.5A11 11 0 0 0 15 37.5M15 37.5A11 11 0 0 0 4 48.5V60A11 11 0 0 0 15 71H60A11 11 0 0 0 71 60V48.5A11 11 0 0 0 60 37.5ZM79 4H135A11 11 0 0 1 146 15V26.5A11 11 0 0 1 135 37.5H79M135 37.5A11 11 0 0 1 146 48.5V60A11 11 0 0 1 135 71H79M154 4V60A11 11 0 0 0 165 71H176.5A11 11 0 0 0 187.5 60V4M187.5 60A11 11 0 0 0 198.5 71H210A11 11 0 0 0 221 60V4M296 4H240A11 11 0 0 0 229 15V26.5A11 11 0 0 0 240 37.5H296M240 37.5A11 11 0 0 0 229 48.5V60A11 11 0 0 0 240 71H296' fill='none' stroke='%23fff' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
     background-repeat: repeat;
-    background-size: var(--lattice-w) calc(var(--lattice-w) * 0.25083);
-    opacity: 0.08;
+    background-size: var(--lattice-w) calc(var(--lattice-w) * 0.25);
+    opacity: 0.12;
     -webkit-mask-image: radial-gradient(140% 120% at 0% 0%, #000 0%, rgb(0 0 0 / 0.72) 45%, rgb(0 0 0 / 0.32) 100%);
     mask-image: radial-gradient(140% 120% at 0% 0%, #000 0%, rgb(0 0 0 / 0.72) 45%, rgb(0 0 0 / 0.32) 100%);
   }

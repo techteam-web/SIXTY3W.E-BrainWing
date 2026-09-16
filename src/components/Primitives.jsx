@@ -49,6 +49,13 @@ export function Render({
 
 // Never a filled button. A label over a gold hairline that extends on hover, with the
 // label's tracking opening by 0.04em. Three properties, one gesture.
+//
+// Centred, because its one use is the gate. Letter-spacing is added after EVERY letter,
+// the last included, so a tracked label's box runs one space past its ink on the right
+// and a rule sized to that box overhangs on one side only. The label pulls that trailing
+// space back with an equal negative margin — tweened together with the tracking — and
+// the rule extends from its centre, so the line sits exactly under the word at rest and
+// on hover.
 export function Control({ children, onClick, className = '', disabled = false, ...rest }) {
   const root = useRef(null);
   const { contextSafe } = useGSAP({ scope: root });
@@ -58,6 +65,7 @@ export function Control({ children, onClick, className = '', disabled = false, .
     gsap.to('[data-control-rule]', { scaleX: on ? 1.35 : 1, duration: D.micro, ease: E.soft });
     gsap.to('[data-control-label]', {
       letterSpacing: on ? '0.4em' : '0.34em',
+      marginRight: on ? '-0.4em' : '-0.34em',
       duration: D.micro,
       ease: E.soft,
     });
@@ -76,16 +84,16 @@ export function Control({ children, onClick, className = '', disabled = false, .
       onFocus={enter}
       onBlur={leave}
       disabled={disabled}
-      className={`group inline-flex flex-col items-start gap-[0.7em] disabled:opacity-40 ${className}`}
+      className={`group inline-flex flex-col items-center gap-[0.7em] disabled:opacity-40 ${className}`}
       {...rest}
     >
-      <span data-control-label className="eyebrow">
+      <span data-control-label className="eyebrow" style={{ marginRight: '-0.34em' }}>
         {children}
       </span>
       <span
         data-control-rule
         aria-hidden="true"
-        className="hairline w-full origin-left bg-w-gold"
+        className="hairline w-full origin-center bg-w-gold"
       />
     </button>
   );
