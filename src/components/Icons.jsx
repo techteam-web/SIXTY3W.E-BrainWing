@@ -52,3 +52,16 @@ export const CloseIcon = (p) => (
     <path d="M18 6L6 18" />
   </Icon>
 );
+
+export const SunIcon = (p) => (
+  <Icon {...p}>
+    <circle cx="12" cy="12" r="4.2" />
+    <path d="M12 2.5v2.4M12 19.1v2.4M4.6 4.6l1.7 1.7M17.7 17.7l1.7 1.7M2.5 12h2.4M19.1 12h2.4M4.6 19.4l1.7-1.7M17.7 6.3l1.7-1.7" />
+  </Icon>
+);
+
+export const MoonIcon = (p) => (
+  <Icon {...p}>
+    <path d="M19.5 14.35A8 8 0 1 1 9.65 4.5a6.4 6.4 0 0 0 9.85 9.85Z" />
+  </Icon>
+);

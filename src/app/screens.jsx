@@ -1,6 +1,7 @@
 import { Landing } from '../screens/Landing';
 import { Menu } from '../screens/Menu';
 import { Overview } from '../screens/sections/Overview';
+import { Panorama } from '../screens/sections/Panorama';
 import { Residences } from '../screens/sections/Residences';
 import { Amenities } from '../screens/sections/Amenities';
 import { Level26 } from '../screens/sections/Level26';
@@ -13,6 +14,7 @@ import { Specifications } from '../screens/sections/Specifications';
 // still resolving behind a Suspense boundary would be cloned empty.
 export const SECTION_SCREENS = {
   overview: Overview,
+  'views-360': Panorama,
   residences: Residences,
   amenities: Amenities,
   'level-26': Level26,

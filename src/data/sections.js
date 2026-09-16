@@ -1,4 +1,4 @@
-// Seven screens. This is a sales instrument, not a PDF viewer — every screen here is one
+// Eight screens. This is a sales instrument, not a PDF viewer — every screen here is one
 // a broker actually stops on and works from, and the brochure's twenty-five pages
 // collapse onto them rather than being paged through.
 //
@@ -34,36 +34,45 @@ export const SECTIONS = [
     lead: { id: 'tower-night', sizes: '100vw' },
   },
   {
-    id: 'residences',
+    id: 'views-360',
     no: '02',
+    label: '360° Views',
+    backdrop: 'deck',
+    // No lead render: this screen's ground is the live panorama, not a picture.
+    lead: null,
+    caption: 'Interactive 360° tour',
+  },
+  {
+    id: 'residences',
+    no: '03',
     label: 'Residences',
     backdrop: 'living',
     lead: { id: 'lobby', sizes: '100vw' },
   },
   {
     id: 'amenities',
-    no: '03',
+    no: '04',
     label: 'Amenities',
     backdrop: 'pool',
     lead: { id: 'pool', sizes: '(max-width: 1024px) 92vw, 52vw' },
   },
   {
     id: 'level-26',
-    no: '04',
+    no: '05',
     label: 'Level 26',
     backdrop: 'level26',
     lead: { id: 'level26', sizes: '(max-width: 1024px) 96vw, 68vw' },
   },
   {
     id: 'plans',
-    no: '05',
+    no: '06',
     label: 'Floor Plans',
     backdrop: 'lobby',
     lead: { id: 'plan-low', sizes: '(max-width: 1024px) 94vw, 64vw' },
   },
   {
     id: 'location',
-    no: '06',
+    no: '07',
     label: 'Location',
     backdrop: 'skyline',
     // No lead render: this screen's ground is the live map, not a picture.
@@ -72,7 +81,7 @@ export const SECTIONS = [
   },
   {
     id: 'specifications',
-    no: '07',
+    no: '08',
     label: 'Specifications',
     // An interior, not the tower: the sheet is finishes and fittings, and the bedroom is
     // where they show — the flooring, the panelled wall, the full-height glazing.

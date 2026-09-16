@@ -53,6 +53,17 @@ export const OVERVIEW = {
   ],
 };
 
+// -------------------------------------------------------------- 360° Views
+// The vantage points themselves — which scene id to load, day and night — live in
+// src/data/panoViews.js, because the viewer reads that table and this file is only
+// ever read by the screen.
+
+export const PANORAMA = {
+  eyebrow: 'Step inside',
+  headline: ['360°', 'Views'],
+  lede: 'Look around the tower as it stands today — by day and by night.',
+};
+
 // ----------------------------------------------------------------- Residences
 
 export const RESIDENCES = {
