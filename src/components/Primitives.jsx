@@ -119,6 +119,8 @@ export function Portal({
   disabled = false,
   size = 'md',
   icon = <ArrowIcon size="1.05em" />,
+  // The mark before the label rather than after — for a control that points back.
+  iconFirst = false,
   ...rest
 }) {
   const root = useRef(null);
@@ -208,7 +210,9 @@ export function Portal({
 
       <span
         data-portal-mark
-        className={`portal-label flex items-center ${nav ? 'text-w-cream' : 'text-w-gold'}`}
+        className={`portal-label flex items-center ${nav ? 'text-w-cream' : 'text-w-gold'} ${
+          iconFirst ? 'order-first' : ''
+        }`}
       >
         {icon}
       </span>

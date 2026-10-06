@@ -95,7 +95,7 @@ export function Landing() {
               <span key={line} data-landing-line className="block">
                 {i === 2 ? (
                   <>
-                    Forest <span className="amp text-w-gold">&</span> City Views
+                    Forest <span className="text-w-gold">&amp;</span> City Views
                   </>
                 ) : (
                   line

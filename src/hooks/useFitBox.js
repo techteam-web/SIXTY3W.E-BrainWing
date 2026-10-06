@@ -11,8 +11,8 @@ import { useEventListener } from './useEventListener';
 //
 // Anything that has to line up with the picture therefore needs the picture's real
 // rectangle, and this is where it comes from: the Level 26 callouts (whose coordinates
-// are normalised against the render itself) and the Floor Plans sheet both depend on it
-// being exact, at every viewport, in the first frame.
+// are normalised against the render itself) depend on it being exact, at every viewport,
+// in the first frame.
 
 export function useFitBox(containerRef, boxRef, aspect, mode = 'contain') {
   const apply = useCallback(() => {

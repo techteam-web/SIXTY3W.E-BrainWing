@@ -33,11 +33,8 @@
      is the one that is actually licensable, it carries most of the document, and it is
      close enough to Gotham that the two never read as different systems. The logo's
      Panton letterforms are not substituted at all — they are real vector, lifted from
-     the PDF into src/assets/brand/lockup.svg.
-     Pinyon Script stands in for Coronet, which the brochure uses for exactly one glyph:
-     the ampersand in "WONDROUS & EXCLUSIVE". */
+     the PDF into src/assets/brand/lockup.svg. */
   --font-display: 'Montserrat', 'Century Gothic', system-ui, sans-serif;
-  --font-script: 'Pinyon Script', 'Snell Roundhand', cursive;
 
   /* THE SCALE, and the reason it is shaped like this.
      The design target is 1920×1080 (the 3xl breakpoint). A pure `vw` scale reproduces

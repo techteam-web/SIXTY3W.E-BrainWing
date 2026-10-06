@@ -1,0 +1,146 @@
+/* Floor Plans — the states of the traced SVG shapes.
+
+   The shapes lie over a render, so at rest they paint nothing: the building and the
+   drawing look exactly as supplied. A highlight is a wash and a hairline in the app's
+   own gold, never a colour of its own. The stroke is non-scaling so it stays a hairline
+   however far the plan is zoomed.
+
+   These are colour changes on hover, which CSS carries. Anything that MOVES — the cue
+   that sweeps the floors on arrival, the transition into a plan — is GSAP's, and it
+   animates the separate [data-cue] copies so the two never fight over one property. */
+
+@layer components {
+  .bw-floor,
+  .bw-area {
+    fill-opacity: 0;
+    stroke-opacity: 0;
+    stroke-width: 1px;
+    vector-effect: non-scaling-stroke;
+    stroke-linejoin: round;
+    outline: none;
+    transition:
+      fill-opacity 0.35s cubic-bezier(0.33, 1, 0.68, 1),
+      stroke-opacity 0.35s cubic-bezier(0.33, 1, 0.68, 1);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* ---------------------------------------------------------- the building */
+  .bw-floor {
+    fill: var(--color-w-gold-lit);
+    stroke: var(--color-w-gold-lit);
+    cursor: pointer;
+  }
+  .bw-floor[data-state='hover'],
+  .bw-floor:focus-visible {
+    fill-opacity: 0.3;
+    stroke-opacity: 0.95;
+  }
+  .bw-floor[data-state='selected'] {
+    fill-opacity: 0.46;
+    stroke-opacity: 1;
+  }
+
+  /* A floor with no plan answers the pointer, but in cream and at half the strength:
+     it can be read, it cannot be opened. */
+  .bw-floor[data-plan='none'] {
+    fill: var(--color-w-cream);
+    stroke: var(--color-w-cream);
+    cursor: default;
+  }
+  .bw-floor[data-plan='none'][data-state='hover'],
+  .bw-floor[data-plan='none']:focus-visible {
+    fill-opacity: 0.12;
+    stroke-opacity: 0.4;
+  }
+
+  /* ------------------------------------------------------------- the plans */
+  .bw-area {
+    fill: var(--color-w-gold);
+    stroke: var(--color-w-gold-deep);
+    stroke-width: 1.5px;
+    cursor: pointer;
+    transition:
+      fill-opacity 0.35s cubic-bezier(0.33, 1, 0.68, 1),
+      stroke-opacity 0.35s cubic-bezier(0.33, 1, 0.68, 1),
+      stroke-width 0.35s cubic-bezier(0.33, 1, 0.68, 1);
+  }
+  /* Strong enough to read as "this is the one under the cursor" at a glance, against a
+     plan that is itself busy with browns and creams — the old 0.18 all but vanished
+     next to the artwork. */
+  .bw-area[data-state='hover'],
+  .bw-area:focus-visible {
+    fill-opacity: 0.4;
+    stroke-opacity: 1;
+    stroke-width: 2.5px;
+  }
+  .bw-area[data-state='active'] {
+    fill-opacity: 0.48;
+    stroke-opacity: 1;
+    stroke-width: 2.5px;
+  }
+
+  /* ------------------------------------------------------- the plan viewer
+     Below lg the plan is the whole screen. From lg up it is two framed panels under
+     BACK, running to just above the caption line: the tower on the left, the plan and
+     its title on the right. Both take the arch crown at one radius — the mark's ratio of
+     the tower panel's width — so they read as a pair.
+
+     --sheet-k is how much of its panel the plan's sheet takes at rest. */
+  .bw-viewer {
+    --sheet-k: 1;
+  }
+
+  .bw-plan-panel {
+    inset: 0;
+  }
+
+  @media (min-width: 64rem) {
+    .bw-viewer {
+      --sheet-k: 0.92;
+      --panels-top: calc(var(--screen-margin) + var(--chrome-top) + clamp(3rem, 5.4vh, 3.8rem));
+      --panels-bottom: calc(var(--screen-margin) + var(--chrome-bottom) + 0.3rem);
+      --tower-panel-w: clamp(15rem, 23vw, 30rem);
+      --panel-gap: clamp(1rem, 1.6vw, 2rem);
+      --panel-crown: calc(var(--tower-panel-w) * 0.31558);
+    }
+
+    .bw-panel {
+      border: 1px solid rgb(var(--gold-rgb) / 0.3);
+      background: linear-gradient(180deg, rgb(12 59 57 / 0.42), rgb(4 26 25 / 0.36));
+      box-shadow:
+        inset 0 1px 0 rgb(240 234 224 / 0.05),
+        0 30px 70px -34px rgb(2 12 11 / 0.8);
+      border-top-left-radius: var(--panel-crown);
+      border-top-right-radius: var(--panel-crown);
+    }
+
+    .bw-tower-panel {
+      top: var(--panels-top);
+      bottom: var(--panels-bottom);
+      left: var(--screen-margin);
+      width: var(--tower-panel-w);
+    }
+
+    .bw-plan-panel {
+      top: var(--panels-top);
+      bottom: var(--panels-bottom);
+      left: calc(var(--screen-margin) + var(--tower-panel-w) + var(--panel-gap));
+      right: var(--screen-margin);
+    }
+  }
+
+  /* The arrival cue's copies. Never hit-tested, never transitioned. */
+  .bw-cue {
+    fill: var(--color-w-gold-lit);
+    fill-opacity: 0;
+    stroke: var(--color-w-gold-lit);
+    stroke-opacity: 0;
+    stroke-width: 1px;
+    vector-effect: non-scaling-stroke;
+    pointer-events: none;
+  }
+  .bw-cue--plan {
+    fill: var(--color-w-gold);
+    stroke: var(--color-w-gold-deep);
+  }
+}

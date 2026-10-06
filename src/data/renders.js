@@ -9,7 +9,7 @@ export const RENDERS = {
     "width": 1824,
     "height": 1324,
     "src": "/assets/renders/tower-dusk-1824.webp",
-    "srcSet": "/assets/renders/tower-dusk-480.webp 480w, /assets/renders/tower-dusk-768.webp 768w, /assets/renders/tower-dusk-1200.webp 1200w, /assets/renders/tower-dusk-1600.webp 1600w, /assets/renders/tower-dusk-1824.webp 1824w",
+    "srcSet": "/assets/renders/tower-dusk-480.webp 480w, /assets/renders/tower-dusk-768.webp 768w, /assets/renders/tower-dusk-1200.webp 1200w, /assets/renders/tower-dusk-1600.webp 1600w, /assets/renders/tower-dusks-1824.webp 1824w",
     "lqip": "data:image/webp;base64,UklGRnIAAABXRUJQVlA4IGYAAADQAwCdASoUAA4APu1iqU2ppaOiMAgBMB2JQBadA0dnGUF/Fwon7gAA/uQgbj7liarTbpUDIpVhUK79ZWh42Fqqbbyh7bJrjaFRRER0crVa5QCxdFIdhdw3ZdBK4l3PNnEaujcAAAA="
   },
   "tower-night": {
@@ -155,30 +155,6 @@ export const RENDERS = {
     "src": "/assets/renders/level26-2000.webp",
     "srcSet": "/assets/renders/level26-480.webp 480w, /assets/renders/level26-768.webp 768w, /assets/renders/level26-1200.webp 1200w, /assets/renders/level26-1600.webp 1600w, /assets/renders/level26-2000.webp 2000w",
     "lqip": "data:image/webp;base64,UklGRmYAAABXRUJQVlA4IFoAAACwAwCdASoUAAwAPu1iqU2ppaQiMAgBMB2JZwAAQvJNCN5+OIjAAAD+8X8RPtlTUvSJ6sa376hlO9GVnkpMH0SiM3uxhXqGRXwBluw26VKUb7AF/8R0n7bZNgA="
-  },
-  "plan-low": {
-    "alt": "Typical floor plan, 2nd to 5th and 7th to 10th floors",
-    "width": 1530,
-    "height": 800,
-    "src": "/assets/renders/plan-low-1530.webp",
-    "srcSet": "/assets/renders/plan-low-480.webp 480w, /assets/renders/plan-low-768.webp 768w, /assets/renders/plan-low-1200.webp 1200w, /assets/renders/plan-low-1530.webp 1530w",
-    "lqip": "data:image/webp;base64,UklGRn4AAABXRUJQVlA4IHIAAADQAwCdASoUAAoAPu1iqU2ppaQiMAgBMB2JZwAD5RGmg20wvSPD6UAA/tdvpMIK6V5Pxjt4QqJfe8k6WC4sxciC88smxKoP0r3ah3+ol700P5jxojRzy91nVVD668QLxr3WFwExMwjr0X74fx0odISAAAA="
-  },
-  "plan-high": {
-    "alt": "Typical floor plan, 11th to 25th floors",
-    "width": 1530,
-    "height": 800,
-    "src": "/assets/renders/plan-high-1530.webp",
-    "srcSet": "/assets/renders/plan-high-480.webp 480w, /assets/renders/plan-high-768.webp 768w, /assets/renders/plan-high-1200.webp 1200w, /assets/renders/plan-high-1530.webp 1530w",
-    "lqip": "data:image/webp;base64,UklGRoAAAABXRUJQVlA4IHQAAADwAwCdASoUAAoAPu1iqU2ppaOiMAgBMB2JZwDE2BuPNpm3xUcbWrZAAP7XiLWzgOrpvluCq+DgjSxM1Qjym9+76ryzT0z0mK/49+v4fSvI3jZUFPmEMFDVzL2nxqHssYzhCfEaHbR721qCkMNDNEA1EOUAAA=="
-  },
-  "plan-amenity": {
-    "alt": "26th floor amenity plan",
-    "width": 1052,
-    "height": 1078,
-    "src": "/assets/renders/plan-amenity-1052.webp",
-    "srcSet": "/assets/renders/plan-amenity-480.webp 480w, /assets/renders/plan-amenity-768.webp 768w, /assets/renders/plan-amenity-1052.webp 1052w",
-    "lqip": "data:image/webp;base64,UklGRsAAAABXRUJQVlA4ILQAAACQBQCdASoUABQAPu1urlIppiQiqAgBMB2JYwDI1ywTnIVqXOke59tf9ToVCy502L6w8g5aAAD+84KEeXffiNNCymsvpzADqOSMX99hFTiMSv99afVhJRSgvnrlzw8JSzpRWS9vDyb4RMGJGh7EG+/AGw1ZNi1bj//aMY985DtX6Vhx37WbhymNJYCiDEeHoyyOSwq0ziYR72qutkcWQ3jIz4SPjtHQ4PuMRpC1q+stfwk2gAA="
   }
 };
 

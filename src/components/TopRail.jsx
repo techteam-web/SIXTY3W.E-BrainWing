@@ -1,6 +1,8 @@
-import { useCallback } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { useApp } from '../app/appContext';
 import { useMediaQuery } from '../hooks/useEventListener';
+import { SECTIONS } from '../data/sections';
+import { gsap, useGSAP, E } from '../gsap/Gsapconfig';
 import { BrandCorner } from './Lockup';
 import { Portal } from './Primitives';
 import { MenuIcon, HomeIcon } from './Icons';
@@ -29,8 +31,97 @@ function NavButton({ label, onClick, disabled, icon }) {
   );
 }
 
+// MENU opens the menu page as before, and on hover or focus also drops the sections down
+// beneath it — so a visitor already in a section can jump straight to the next one.
+function MenuChip({ current, goTo, goToMenu, disabled }) {
+  const [open, setOpen] = useState(false);
+  const panel = useRef(null);
+
+  useGSAP(
+    () => {
+      if (!open || !panel.current) return;
+      gsap.fromTo(
+        panel.current,
+        { autoAlpha: 0, y: -8 },
+        { autoAlpha: 1, y: 0, duration: 0.35, ease: E.out, overwrite: 'auto' },
+      );
+    },
+    { dependencies: [open], scope: panel, revertOnUpdate: false },
+  );
+
+  return (
+    <div
+      className="pointer-events-auto relative"
+      onPointerEnter={(e) => e.pointerType === 'mouse' && setOpen(true)}
+      onPointerLeave={(e) => e.pointerType === 'mouse' && setOpen(false)}
+      onFocus={() => setOpen(true)}
+      onBlur={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget)) setOpen(false);
+      }}
+    >
+      <NavButton label="Menu" onClick={goToMenu} disabled={disabled} icon={<MenuIcon size="1em" />} />
+
+      {open ? (
+        <div className="absolute left-0 top-full pt-[0.6em]">
+          <nav
+            ref={panel}
+            aria-label="Sections"
+            className="w-[clamp(15rem,20vw,19rem)] py-[0.5em]"
+            style={{
+              background:
+                'linear-gradient(168deg, rgb(7 41 40 / 0.96) 0%, rgb(12 59 57 / 0.94) 100%)',
+              border: '1px solid rgb(var(--gold-rgb) / 0.34)',
+              boxShadow: '0 24px 60px -28px rgb(2 12 11 / 0.85)',
+            }}
+          >
+            <ul>
+              {SECTIONS.map((s) => {
+                const on = s.id === current?.id;
+                return (
+                  <li key={s.id}>
+                    <button
+                      type="button"
+                      disabled={disabled}
+                      aria-current={on}
+                      onClick={() => {
+                        setOpen(false);
+                        goTo(s.id);
+                      }}
+                      className="group flex w-full items-baseline gap-[1em] px-[1.1em] py-[0.6em] text-left disabled:cursor-not-allowed disabled:opacity-40"
+                    >
+                      <span className="text-micro tabular-nums tracking-[0.2em] text-w-gold/70">
+                        {s.no}
+                      </span>
+                      <span
+                        className={`text-micro uppercase tracking-[0.2em] transition-colors duration-300 ${
+                          on ? 'text-w-gold' : 'text-w-cream/80 group-hover:text-w-gold'
+                        }`}
+                      >
+                        {s.label}
+                      </span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          </nav>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 export function TopRail() {
-  const { stage, current, registerChrome, goToMenu, goToLanding, isTransitioning } = useApp();
+  const {
+    stage,
+    current,
+    registerChrome,
+    goTo,
+    goToMenu,
+    goToLanding,
+    isTransitioning,
+    immersive,
+  } = useApp();
   const railRef = useCallback((el) => registerChrome('rail', el), [registerChrome]);
   // A light screen is not light everywhere at every size: below md the Location plan
   // docks a dark panel over its own bottom half, so the FOOT of the rail is back on teal
@@ -61,20 +152,26 @@ export function TopRail() {
               the row runs out of room, and MENU/HOME shrink below their own labels. These
               are the working controls; the mark is decorative and clamps itself. */}
           <div className="flex shrink-0 items-start gap-[1.1em] max-md:gap-[0.7em]">
-            {stage === 'section' ? (
-              <NavButton
-                label="Menu"
-                onClick={goToMenu}
-                disabled={isTransitioning}
-                icon={<MenuIcon size="1em" />}
-              />
-            ) : null}
-            <NavButton
-              label="Home"
-              onClick={goToLanding}
-              disabled={isTransitioning}
-              icon={<HomeIcon size="1em" />}
-            />
+            {/* A screen in its own immersive mode (the 360° viewer, so far) owns this
+                corner with its own BACK control — MENU/HOME would only compete with it. */}
+            {immersive ? null : (
+              <>
+                {stage === 'section' ? (
+                  <MenuChip
+                    current={current}
+                    goTo={goTo}
+                    goToMenu={goToMenu}
+                    disabled={isTransitioning}
+                  />
+                ) : null}
+                <NavButton
+                  label="Home"
+                  onClick={goToLanding}
+                  disabled={isTransitioning}
+                  icon={<HomeIcon size="1em" />}
+                />
+              </>
+            )}
           </div>
 
           <BrandCorner tone={light ? 'light' : 'dark'} />

@@ -51,6 +51,7 @@ function List({ items, active, onEnter }) {
             onPointerEnter={(e) => {
               if (e.pointerType === 'touch') return;
               onEnter(i);
+              
             }}
             onFocus={() => onEnter(i)}
             onClick={() => onEnter(i)}

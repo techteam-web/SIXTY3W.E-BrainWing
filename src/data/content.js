@@ -36,10 +36,10 @@ export const MENU = {
 export const OVERVIEW = {
   eyebrow: 'The address',
   headline: ['A world of', 'integrated living', 'at 400063'],
-  lede: 'The name is the address. Six-three, Western Express Highway, where Goregaon East meets the Aarey green belt.',
+  lede: 'The name is the address. Sixty-three, Western Express Highway, where Goregaon East meets the Aarey green belt.',
   hallmarks: [
-    { k: '31', unit: 'storeys', label: 'Residential tower defining the skyline' },
-    { k: '3.2', unit: 'm', label: 'Floor-to-floor height in every home' },
+    { k: '32', unit: 'storeys', label: 'Residential tower defining the skyline' },
+    { k: '3.2', unit: 'mtr', label: 'Floor-to-floor height in every home' },
     { k: '579', unit: 'sq.ft.', label: '2 BHK RERA carpet, onwards' },
     { k: '26', unit: 'th floor', label: 'Euphoria, the lifestyle level' },
   ],
@@ -153,47 +153,6 @@ export const LEVEL26 = {
     { n: 17, name: 'Zen Rock Garden', u: 0.5761, v: 0.3377 },
     { n: 18, name: 'Games Room', u: 0.6041, v: 0.2184 },
   ],
-};
-
-// ---------------------------------------------------------------- Floor Plans
-
-export const PLANS = {
-  eyebrow: 'Well-planned & efficient',
-  headline: ['Floor Plans'],
-  plates: [
-    {
-      id: 'low',
-      render: 'plan-low',
-      title: 'Typical Floor',
-      floors: '2nd – 5th · 7th – 10th',
-      units: [
-        { no: '01', area: '579.00' },
-        { no: '02', area: '599.00' },
-        { no: '03', area: '599.00' },
-        { no: '04', area: '579.00' },
-      ],
-    },
-    {
-      id: 'high',
-      render: 'plan-high',
-      title: 'Typical Floor',
-      floors: '11th – 12th · 14th – 19th · 21st – 25th',
-      units: [
-        { no: '01', area: '634.00' },
-        { no: '02', area: '686.00' },
-        { no: '03', area: '686.00' },
-        { no: '04', area: '634.00' },
-      ],
-    },
-    {
-      id: 'amenity',
-      render: 'plan-amenity',
-      title: 'Euphoria',
-      floors: '26th, the amenity level',
-      units: [],
-    },
-  ],
-  areaNote: 'RERA carpet area',
 };
 
 // ------------------------------------------------------------------- Location

@@ -51,12 +51,8 @@ const SOURCES = [
   { id: 'corridor', file: 'image-0091.jpg', alt: 'The Western Express Highway corridor' },
   { id: 'level26', file: 'image-0155.jpg', alt: 'Level 26 amenity deck from above' },
 
-  // The three plan plates. Cropped to the drawing: the printed title, the carpet-area
-  // table and the compass rose are all rebuilt as live DOM on the Floor Plans screen,
-  // so they scale with the type instead of with the image.
-  { id: 'plan-low', file: 'image-0115.jpg', crop: [128, 28, 1530, 800], flat: true, alt: 'Typical floor plan, 2nd to 5th and 7th to 10th floors' },
-  { id: 'plan-high', file: 'image-0120.jpg', crop: [128, 28, 1530, 800], flat: true, alt: 'Typical floor plan, 11th to 25th floors' },
-  { id: 'plan-amenity', file: 'image-0125.jpg', crop: [120, 70, 1052, 1078], flat: true, alt: '26th floor amenity plan' },
+  // No plan plates: the Floor Plans screen draws its drawings straight from the traced
+  // SVG layers and renders in src/assets/building and src/assets/floorplans.
 ];
 
 const bytes = (n) => `${(n / 1024).toFixed(0)} kB`;

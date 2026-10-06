@@ -436,8 +436,7 @@ function revealIncoming(tl, inEl, at) {
 
 /* ---------------------------------------------------------------- factories */
 
-// Used for every in-screen layer swap: plate-to-plate in Floor Plans, room-to-room in
-// Residences. No arches — these are not page changes, and reusing the page transition
+// Used for every in-screen layer swap: room-to-room in Residences. No arches — these are not page changes, and reusing the page transition
 // for them would flatten the difference between moving through the document and moving
 // inside one screen.
 export function plateSlide({ outEl, inEl, tl, opts = {} }) {

@@ -1,8 +1,9 @@
 import { useApp } from './appContext';
 import { useEventListener } from '../hooks/useEventListener';
 
-// Global keyboard navigation. Screens that own their own arrow keys (Residences, Floor
-// Plans) handle them locally and stop them reaching here.
+// Global keyboard navigation. Screens that own their own keys (Residences, and Floor
+// Plans while a floor is focused or its plan is open) handle them locally and stop them
+// reaching here.
 export function KeyboardNav() {
   const { stage, goToMenu, goToAdjacent } = useApp();
 

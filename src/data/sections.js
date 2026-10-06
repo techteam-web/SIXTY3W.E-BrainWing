@@ -68,7 +68,9 @@ export const SECTIONS = [
     no: '06',
     label: 'Floor Plans',
     backdrop: 'lobby',
-    lead: { id: 'plan-low', sizes: '(max-width: 1024px) 94vw, 64vw' },
+    // No lead render: this screen's ground is the building elevation, a bundled asset
+    // rather than an entry in the render ladder.
+    lead: null,
   },
   {
     id: 'location',

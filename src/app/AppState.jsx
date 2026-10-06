@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 
 import { useTransition } from '../gsap/useTransition';
 import { AppContext } from './appContext';
@@ -7,6 +7,9 @@ import { SECTIONS, SECTION_BY_ID, sectionIndex } from '../data/sections';
 export function AppStateProvider({ children }) {
   const t = useTransition({ stage: 'gate' });
   const { view, navigate } = t;
+  // Set by a screen that wants the rail's MENU/HOME pair gone while it's open — the
+  // pano viewer, so far. BACK stays: it's owned by the screen itself, not the rail.
+  const [immersive, setImmersive] = useState(false);
 
   const value = useMemo(() => {
     const current = view.section ? SECTION_BY_ID[view.section] : null;
@@ -19,6 +22,8 @@ export function AppStateProvider({ children }) {
       prevSection: view.prevSection,
       current,
       renderList: view.renderList,
+      immersive,
+      setImmersive,
 
       goTo: (sectionId, opts) => navigate(sectionId, opts),
       goToMenu: () => navigate({ stage: 'menu' }),
@@ -32,7 +37,7 @@ export function AppStateProvider({ children }) {
         return next ? navigate(next.id) : false;
       },
     };
-  }, [t, view, navigate]);
+  }, [t, view, navigate, immersive]);
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 }

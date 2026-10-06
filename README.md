@@ -141,8 +141,7 @@ frame at which the state machine exchanges screens — and in development
 
 Every pixel comes from the brochure, and `scripts/ingest-assets.mjs` is the only way it
 gets in. It pulls the embedded rasters out of the PDF with `mutool extract` (so the
-photographs arrive without the page's overlaid type), crops the plan plates to the drawing,
-writes a WebP ladder at 480/768/1200/1600/2000 and an inline 20px LQIP, and regenerates
+photographs arrive without the page's overlaid type), writes a WebP ladder at 480/768/1200/1600/2000 and an inline 20px LQIP, and regenerates
 `src/data/renders.js`.
 
 ```bash
@@ -154,6 +153,13 @@ A phone loads at most ~440 kB of imagery for the entire application.
 Two coordinate sets are also lifted from the PDF's vector data rather than placed by eye:
 the eighteen Level 26 callouts (`LEVEL26.spots`) and, previously, the Location leader
 lines. Both derivations are documented where the numbers live.
+
+The Floor Plans screen is the exception to the ingest script. Its building elevation and
+its three plans live in `src/assets/building` and `src/assets/floorplans`, each as a
+1920×1080 render paired with an SVG of the same 460.8×259.2 frame whose named shapes are
+traced over it — one per floor, unit or amenity. The SVGs are the interactive layer and
+the source of truth for what can be selected; `src/data/floors.js` maps floors to plans and
+attaches the areas the project already publishes.
 
 ---
 
@@ -204,8 +210,7 @@ not worth one frame of mismatch.
 
 - **`useFitBox`** sizes a box to fit or fill its container at a fixed aspect ratio, in real
   pixels. CSS can express "fit inside this box" for a bare `<img>` and nothing else, and
-  anything that has to line up with the picture — the Level 26 callouts, the plan sheet —
-  needs the picture's real rectangle. Any track it measures must carry `min-w-0`: a `1fr`
+  anything that has to line up with the picture — the Level 26 callouts — needs the picture's real rectangle. Any track it measures must carry `min-w-0`: a `1fr`
   track floors at its own min-content width, so one wide measurement would otherwise
   ratchet the track permanently wider.
 - **`Crossfade`** gates its fade on `img.decode()`. An `<img>` whose src is assigned
@@ -236,7 +241,6 @@ not worth one frame of mismatch.
 
 ## Type licensing
 
-Montserrat and Pinyon Script load from Google Fonts (see the swap point in `index.html`).
-The brochure also sets Gotham and Coronet; if either is licensed, add it ahead of the
-current stack in `--font-display` / `--font-script` and nothing else changes. The lockup
-needs no swap — it is vector.
+Montserrat loads from Google Fonts (see the swap point in `index.html`). The brochure also
+sets Gotham; if it is licensed, add it ahead of the current stack in `--font-display` and
+nothing else changes. The lockup needs no swap — it is vector.

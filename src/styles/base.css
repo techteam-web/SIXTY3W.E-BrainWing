@@ -162,20 +162,6 @@
     transform-origin: left center;
   }
 
-  /* The brochure's ampersand, which is a different typeface on purpose. */
-  .amp {
-    font-family: var(--font-script);
-    font-weight: 400;
-    text-transform: none;
-    letter-spacing: 0;
-    /* Pinyon Script runs small on the body: its cap height is roughly two thirds of
-       Montserrat's at the same size, so it needs the difference back or it reads as a
-       footnote mark rather than as the display glyph the brochure sets. */
-    font-size: 1.55em;
-    line-height: 0;
-    vertical-align: -0.1em;
-    padding-inline: 0.04em;
-  }
 }
 
 @layer components {

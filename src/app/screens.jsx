@@ -5,7 +5,7 @@ import { Panorama } from '../screens/sections/Panorama';
 import { Residences } from '../screens/sections/Residences';
 import { Amenities } from '../screens/sections/Amenities';
 import { Level26 } from '../screens/sections/Level26';
-import { Plans } from '../screens/sections/Plans';
+import { FloorPlans } from '../screens/sections/FloorPlans';
 import { Location } from '../screens/sections/Location';
 import { Specifications } from '../screens/sections/Specifications';
 
@@ -18,7 +18,7 @@ export const SECTION_SCREENS = {
   residences: Residences,
   amenities: Amenities,
   'level-26': Level26,
-  plans: Plans,
+  plans: FloorPlans,
   location: Location,
   specifications: Specifications,
 };
