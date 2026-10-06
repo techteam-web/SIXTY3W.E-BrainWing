@@ -5,14 +5,18 @@ import { Render } from '../../components/Primitives';
 import { LEVEL26 } from '../../data/content';
 import { getRender } from '../../data/renders';
 import { useFitBox } from '../../hooks/useFitBox';
-import { gsap, useGSAP } from '../../gsap/Gsapconfig';
 
 // The centrepiece of the brochure, made live.
 //
 // Eighteen amenities on one deck, and in the printed document they are eighteen numbers
 // on a photograph next to a numbered list — which means finding one is a matter of
 // reading the list, then hunting the picture. Here the two halves point at each other:
-// touch a number and its name lights, touch a name and its number pulses.
+// touch a number and its name lights, touch a name and its number lights and pulses.
+//
+// Nothing moves unless it has been chosen. The dots used to breathe permanently, on a
+// stagger, which read as numbers lighting up at random while a visitor was trying to
+// follow the one they had picked. Now exactly one dot — the selected or pointed-at one —
+// is ever lit, and the rest stand still.
 //
 // The dot positions are not placed by eye. They are the brochure's own callout
 // coordinates, lifted out of the PDF's vector data and normalised against the render
@@ -27,30 +31,24 @@ const RENDER = getRender('level26');
 const ASPECT = RENDER ? RENDER.width / RENDER.height : 1.6;
 
 export function Level26() {
-  const [active, setActive] = useState(null);
+  // Two sources, one answer: a click SELECTS and the selection stays until another is
+  // chosen (or the same one is clicked again); pointing only previews. Leaving a dot
+  // returns to the selection rather than to nothing, so the choice never drops away
+  // under the pointer.
+  const [selected, setSelected] = useState(null);
+  const [hovered, setHovered] = useState(null);
+  const active = hovered ?? selected;
   const area = useRef(null);
   const plate = useRef(null);
 
   useFitBox(area, plate, ASPECT, 'contain');
 
-  const onEnter = useCallback((n) => setActive(n), []);
-  const onLeave = useCallback(() => setActive(null), []);
-
-  // A slow, permanent breath on every dot, offset per dot so they never pulse in unison.
-  // It is what stops eighteen static circles from reading as printed ink.
-  useGSAP(
-    () => {
-      gsap.to('[data-spot-halo]', {
-        scale: 1.7,
-        opacity: 0,
-        duration: 2.4,
-        ease: 'power2.out',
-        repeat: -1,
-        stagger: { each: 0.13, repeat: -1 },
-      });
-    },
-    { scope: plate },
-  );
+  const onEnter = useCallback((n) => setHovered(n), []);
+  const onLeave = useCallback(() => setHovered(null), []);
+  const onSelect = useCallback((n) => {
+    setHovered(null);
+    setSelected((prev) => (prev === n ? null : n));
+  }, []);
 
   return (
     <Screen id="level-26">
@@ -62,6 +60,7 @@ export function Level26() {
             active={active}
             onEnter={onEnter}
             onLeave={onLeave}
+            onSelect={onSelect}
             className="max-lg:hidden"
           />
         </div>
@@ -100,6 +99,7 @@ export function Level26() {
                 dimmed={active !== null && active !== s.n}
                 onEnter={onEnter}
                 onLeave={onLeave}
+                onSelect={onSelect}
               />
             ))}
           </div>
@@ -112,6 +112,7 @@ export function Level26() {
           active={active}
           onEnter={onEnter}
           onLeave={onLeave}
+          onSelect={onSelect}
           className="lg:hidden"
           compact
         />
@@ -122,7 +123,7 @@ export function Level26() {
 
 /* -------------------------------------------------------------------- spot */
 
-function Spot({ spot, active, dimmed, onEnter, onLeave }) {
+function Spot({ spot, active, dimmed, onEnter, onLeave, onSelect }) {
   // Past the midpoint the label would run off the right edge, so it flips to the other
   // side of its own dot. One rule, applied from the coordinate itself — and 0.55 rather
   // than a half, because "Cabana Seating & Hammocks" is a long way past its own dot.
@@ -141,10 +142,12 @@ function Spot({ spot, active, dimmed, onEnter, onLeave }) {
         if (e.pointerType === 'touch') return;
         onLeave();
       }}
-      onFocus={() => onEnter(spot.n)}
+      onFocus={(e) => {
+        if (focusVisible(e)) onEnter(spot.n);
+      }}
       onBlur={onLeave}
-      onClick={() => onEnter(active ? null : spot.n)}
-      className="absolute z-10 -translate-x-1/2 -translate-y-1/2"
+      onClick={() => onSelect(spot.n)}
+      className={`absolute -translate-x-1/2 -translate-y-1/2 ${active ? 'z-20' : 'z-10'}`}
       style={{ left: `${spot.u * 100}%`, top: `${spot.v * 100}%` }}
     >
       <span
@@ -156,12 +159,14 @@ function Spot({ spot, active, dimmed, onEnter, onLeave }) {
               : 'bg-w-deep/85 text-w-cream ring-1 ring-w-gold/70'
         }`}
       >
-        {/* The breath. Behind the dot, so a pulse never obscures its own number. */}
-        <span
-          data-spot-halo
-          aria-hidden="true"
-          className="absolute inset-0 rounded-full bg-w-gold/40"
-        />
+        {/* The pulse, on the chosen dot only. Behind the dot, so it never obscures its
+            own number. */}
+        {active ? (
+          <span
+            aria-hidden="true"
+            className="absolute inset-0 animate-ping rounded-full bg-w-gold/45 [animation-duration:1.6s] motion-reduce:hidden"
+          />
+        ) : null}
         <span className="relative">{spot.n}</span>
       </span>
 
@@ -185,7 +190,7 @@ function Spot({ spot, active, dimmed, onEnter, onLeave }) {
 
 /* ------------------------------------------------------------------ legend */
 
-function Legend({ spots, active, onEnter, onLeave, className = '', compact = false }) {
+function Legend({ spots, active, onEnter, onLeave, onSelect, className = '', compact = false }) {
   return (
     <ul
       data-stagger
@@ -206,9 +211,11 @@ function Legend({ spots, active, onEnter, onLeave, className = '', compact = fal
               if (e.pointerType === 'touch') return;
               onLeave();
             }}
-            onFocus={() => onEnter(s.n)}
+            onFocus={(e) => {
+              if (focusVisible(e)) onEnter(s.n);
+            }}
             onBlur={onLeave}
-            onClick={() => onEnter(active === s.n ? null : s.n)}
+            onClick={() => onSelect(s.n)}
             className="group flex w-full min-w-0 items-center gap-[0.55em] py-[clamp(0.12rem,0.5vh,0.34rem)] text-left"
           >
             <span
@@ -232,4 +239,14 @@ function Legend({ spots, active, onEnter, onLeave, className = '', compact = fal
       ))}
     </ul>
   );
+}
+
+// A click also focuses the button it lands on. Only keyboard focus should preview — a
+// pointer focus would pin the hover state to whatever was clicked last.
+function focusVisible(e) {
+  try {
+    return e.target.matches(':focus-visible');
+  } catch {
+    return true;
+  }
 }
