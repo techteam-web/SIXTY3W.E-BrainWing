@@ -378,6 +378,34 @@
     border-top-right-radius: 0.85em;
   }
 
+  /* The cover's ENTER: brighter than the rail's controls, with a warm glow under it so
+     it is the first thing the eye finds on the page. */
+  .portal--cta {
+    border-color: rgb(231 207 149 / 0.8);
+    box-shadow:
+      0 0 0 1px rgb(231 207 149 / 0.12),
+      0 10px 34px -8px rgb(200 161 107 / 0.45);
+  }
+
+  .portal--cta .portal-panel {
+    background: linear-gradient(180deg, rgb(200 161 107 / 0.28), rgb(12 59 57 / 0.5));
+  }
+
+  /* Gold, lit, as type. */
+  .gold-text {
+    background: linear-gradient(100deg, #e7cf95 0%, #f6e8c4 42%, #d9b77f 72%, #c8a16b 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Icon only: the secondary HOME control, square-ish so it never reads as a twin of
+     the labelled MENU button beside it. */
+  .portal--icon {
+    gap: 0;
+    padding: 0.6em 0.78em;
+  }
+
   .portal--sm .portal-panel {
     background: linear-gradient(180deg, rgb(12 59 57 / 0.78), rgb(4 26 25 / 0.72));
     box-shadow:

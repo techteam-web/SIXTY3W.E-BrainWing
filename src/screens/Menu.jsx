@@ -2,7 +2,8 @@ import { useCallback, useRef, useState } from 'react';
 import { Screen } from '../layout/Screen';
 import { Crossfade } from '../components/Crossfade';
 import { SECTIONS, SECTION_BY_ID, BACKDROP_SIZES } from '../data/sections';
-import { MENU } from '../data/content';
+import { MENU, VISITOR } from '../data/content';
+import { sessionVisitor } from '../app/visitor';
 import { useApp } from '../app/appContext';
 import { gsap, useGSAP, D, E } from '../gsap/Gsapconfig';
 
@@ -113,6 +114,8 @@ function Row({ section, active, onEnter, onSelect, disabled }) {
 export function Menu() {
   const { goTo, isTransitioning } = useApp();
   const [active, setActive] = useState(SECTIONS[0].id);
+  // The visitor's own name, if they gave it on the way in.
+  const [visitor] = useState(() => sessionVisitor()?.name ?? null);
   const onEnter = useCallback((id) => setActive(id), []);
 
   // The aperture's slow permanent rotation, and the only thing on this screen that moves
@@ -131,7 +134,7 @@ export function Menu() {
       <div className="relative grid h-full min-h-0 grid-cols-[minmax(0,40%)_1fr] grid-rows-[minmax(0,1fr)] items-center gap-[3%] max-md:grid-cols-1 max-md:grid-rows-[auto_auto] max-md:content-center max-md:items-stretch max-md:gap-[3vh]">
         <div className="relative z-10 flex min-h-0 flex-col justify-center max-md:order-2 max-md:justify-start">
           <span data-menu-brand className="eyebrow mb-[clamp(0.9rem,2.4vh,2rem)] block">
-            {MENU.eyebrow}
+            {visitor ? VISITOR.greeting(visitor) : MENU.eyebrow}
           </span>
 
           <div className="relative flex min-h-0 gap-[clamp(1rem,1.6vw,2em)]">

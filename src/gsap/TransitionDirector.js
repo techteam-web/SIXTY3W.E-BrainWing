@@ -92,7 +92,7 @@ function archLayout() {
 const CLONE_QUIET =
   '[data-menu-row],[data-menu-brand],[data-menu-rule],[data-landing-line],' +
   '[data-landing-eyebrow],[data-landing-meta],[data-landing-note],[data-lockup],' +
-  '[data-enter],[data-headline],[data-stagger]';
+  '[data-enter],[data-headline],[data-stagger],[data-landing-near]';
 
 // A screen, frozen. The original may be mid-tween and carrying inline transform and
 // opacity from GSAP; .arch-panel-view > * in base.css resets all of that, so the clone
@@ -386,6 +386,7 @@ function partsOf(el) {
     landing,
     eyebrow: el?.querySelector('[data-landing-eyebrow]') ?? null,
     meta: el?.querySelector('[data-landing-meta]') ?? null,
+    near: el?.querySelector('[data-landing-near]') ?? null,
     // The fixed corner lockup never animates on a page change — see BrandCorner — so it
     // is excluded here and simply sits at full opacity from first paint.
     lockup: el?.querySelector('[data-lockup]:not([data-corner-mark])') ?? null,
@@ -409,7 +410,7 @@ function stageIncoming(tl, inEl, cleanups, at) {
   set(tl, some(p.brand), { autoAlpha: 0, y: 14 }, at);
   set(tl, p.landing, { autoAlpha: 0, y: 26 }, at);
   set(tl, some(p.eyebrow), { autoAlpha: 0, y: 10 }, at);
-  set(tl, some(p.meta), { autoAlpha: 0, y: 14 }, at);
+  set(tl, some(p.meta, p.near), { autoAlpha: 0, y: 14 }, at);
   set(tl, some(p.lockup), { autoAlpha: 0, y: 16 }, at);
   set(tl, some(p.enter), { autoAlpha: 0, y: 12 }, at);
   set(tl, some(p.note), { autoAlpha: 0, y: 12 }, at);
@@ -430,6 +431,7 @@ function revealIncoming(tl, inEl, at) {
   to(tl, some(p.eyebrow), { autoAlpha: 1, y: 0, duration: 0.8 }, at);
   to(tl, p.landing, { autoAlpha: 1, y: 0, duration: 0.9, stagger: 0.08 }, at + 0.08);
   to(tl, some(p.lockup), { autoAlpha: 1, y: 0, duration: 0.8 }, at + 0.1);
+  to(tl, some(p.near), { autoAlpha: 1, y: 0, duration: 0.75 }, at + 0.16);
   to(tl, some(p.meta), { autoAlpha: 1, y: 0, duration: 0.75 }, at + 0.3);
   to(tl, some(p.enter, p.note), { autoAlpha: 1, y: 0, duration: 0.7 }, at + 0.44);
 }
@@ -467,6 +469,7 @@ export function introSequence({ inEl, chrome, tl }) {
   const hero = inEl?.querySelector('[data-hero]') ?? null;
   const scrim = inEl?.querySelector('[data-scrim]') ?? null;
   const meta = inEl?.querySelector('[data-landing-meta]') ?? null;
+  const near = inEl?.querySelector('[data-landing-near]') ?? null;
   const enter = inEl?.querySelector('[data-enter]') ?? null;
   const note = inEl?.querySelector('[data-landing-note]') ?? null;
   const lines = q(inEl, '[data-landing-line]');
@@ -495,7 +498,7 @@ export function introSequence({ inEl, chrome, tl }) {
     .set(some(hero, scrim), { autoAlpha: 0 })
     .set(some(hero), { scale: 1.14 })
     .set(some(eyebrow), { autoAlpha: 0, letterSpacing: '1.1em' })
-    .set(some(meta, enter, note), { autoAlpha: 0, y: 14 })
+    .set(some(meta, near, enter, note), { autoAlpha: 0, y: 14 })
     .set(lines.length ? lines : INERT, { autoAlpha: 0, y: 26 });
 
   if (ring) {
@@ -519,6 +522,7 @@ export function introSequence({ inEl, chrome, tl }) {
     // 5. The mark travels from centre stage to the corner it keeps.
     .to(some(lockup), { x: 0, y: 0, scale: 1, duration: 1.25 }, 2.35)
     .addLabel('swap', 2.35)
+    .to(some(near), { autoAlpha: 1, y: 0, duration: 0.8 }, 2.95)
     .to(some(eyebrow), { autoAlpha: 1, letterSpacing: '0.72em', duration: 1 }, 3.05)
     .to(lines.length ? lines : INERT, { autoAlpha: 1, y: 0, duration: 0.95, stagger: 0.09 }, 3.2)
     .to(some(meta), { autoAlpha: 1, y: 0, duration: 0.8 }, 3.7)

@@ -111,6 +111,8 @@ export function Portal({
   disabled = false,
   size = 'md',
   icon = <ArrowIcon size="1.05em" />,
+  // A back control reads its arrow first: ← MENU, not MENU ←.
+  iconFirst = false,
   ...rest
 }) {
   const root = useRef(null);
@@ -191,16 +193,22 @@ export function Portal({
       <span data-portal-sheen data-overflow-ok aria-hidden="true" className="portal-sheen" />
       <span data-portal-hit data-overflow-ok aria-hidden="true" className="portal-sheen" />
 
-      <span
-        data-control-label
-        className={`eyebrow portal-label ${nav ? 'text-w-cream' : 'text-w-gold'}`}
-      >
-        {children}
-      </span>
+      {children != null ? (
+        <span
+          data-control-label
+          className={`eyebrow portal-label ${nav ? 'text-w-cream' : 'text-w-gold'} ${
+            iconFirst ? 'order-2' : ''
+          }`}
+        >
+          {children}
+        </span>
+      ) : null}
 
       <span
         data-portal-mark
-        className={`portal-label flex items-center ${nav ? 'text-w-cream' : 'text-w-gold'}`}
+        className={`portal-label flex items-center ${nav ? 'text-w-cream' : 'text-w-gold'} ${
+          iconFirst ? 'order-1' : ''
+        }`}
       >
         {icon}
       </span>

@@ -58,7 +58,7 @@ function Tabs({ columns, active, onSelect }) {
           className="group relative shrink-0 pb-[0.4em]"
         >
           <span
-            className={`text-micro uppercase tracking-[0.2em] transition-colors duration-300 ${
+            className={`text-caption uppercase tracking-[0.2em] transition-colors duration-300 ${
               c.id === active ? 'text-w-gold' : 'text-w-cream/45'
             }`}
           >
@@ -139,8 +139,8 @@ function Panel({ col }) {
         data-spec
         className="relative flex flex-col items-center gap-[0.6em] px-[10%] pt-[calc(var(--arch-crown)*32cqw)] text-center"
       >
-        <span className="text-micro tabular-nums tracking-[0.3em] text-w-gold">{no}</span>
-        <h2 className="text-caption uppercase tracking-[0.22em] text-w-cream">{col.title}</h2>
+        <span className="text-caption tabular-nums tracking-[0.3em] text-w-gold">{no}</span>
+        <h2 className="text-subhead uppercase tracking-[0.2em] text-w-cream">{col.title}</h2>
       </header>
 
       {/* Sized to fit at every common screen, and allowed to scroll only as the last
@@ -149,26 +149,26 @@ function Panel({ col }) {
           unless there is more below it, and then it is the cue that there is. */}
       <div
         data-scroll-ok
-        className="rail-none relative flex min-h-0 flex-col gap-[clamp(0.9rem,2.2vh,1.6rem)] overflow-y-auto px-[clamp(1.1rem,2.2vw,2.6rem)] pb-[clamp(1.2rem,3vh,2.4rem)] pt-[clamp(1rem,2.6vh,2rem)] [mask-image:linear-gradient(to_bottom,#000_calc(100%-clamp(1.2rem,3vh,2.4rem)),transparent)]"
+        className="rail-none relative flex min-h-0 flex-col gap-[clamp(0.7rem,2vh,1.6rem)] overflow-y-auto px-[clamp(1.1rem,2.2vw,2.6rem)] pb-[clamp(1.2rem,3vh,2.4rem)] pt-[clamp(1rem,2.6vh,2rem)] [mask-image:linear-gradient(to_bottom,#000_calc(100%-clamp(1.2rem,3vh,2.4rem)),transparent)]"
       >
         {col.groups.map((g, gi) => (
           <section key={g.title ?? gi} className="flex min-w-0 flex-col gap-[0.6em]">
             {g.title ? (
               <h3
                 data-spec
-                className="text-micro uppercase tracking-[0.24em] text-w-gold/80"
+                className="text-eyebrow uppercase tracking-[0.22em] text-w-gold/90"
               >
                 {g.title}
               </h3>
             ) : null}
             {/* No bullets: the panel, its title and the gold subheads do all the grouping
                 this list needs. */}
-            <ul className="flex min-w-0 flex-col gap-[0.5em]">
+            <ul className="flex min-w-0 flex-col gap-[0.42em]">
               {g.items.map((item) => (
                 <li
                   key={item}
                   data-spec
-                  className="min-w-0 text-caption leading-[1.5] text-w-cream/80"
+                  className="min-w-0 text-read leading-[1.42] text-w-cream/85"
                 >
                   {item}
                 </li>

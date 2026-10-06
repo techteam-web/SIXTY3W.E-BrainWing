@@ -67,14 +67,23 @@ for (const vp of VIEWPORTS) {
     return ok;
   };
 
-  await click('[data-enter]');
+  // ENTER opens the visitor card first; photograph it, then skip through to the menu.
+  await click('[data-enter]', 1200);
+  await page.screenshot({ path: `${OUT}/${vp.name}-visitor.png` });
+  await page.evaluate(() => {
+    const skip = [...document.querySelectorAll('[data-visitor-card] button')].find((b) =>
+      /skip/i.test(b.textContent),
+    );
+    skip?.click();
+  });
+  await page.waitForTimeout(3400);
   await page.screenshot({ path: `${OUT}/${vp.name}-menu.png` });
 
   for (const id of SECTIONS) {
     await click(`[data-section="${id}"]`);
     await page.screenshot({ path: `${OUT}/${vp.name}-${id}.png` });
     // Back to the menu through the rail, which is also the archFall direction.
-    await click('.portal--sm');
+    await click('[data-nav="back"]');
   }
 
   const overflows = await page.evaluate(() => window.__W63__?.overflows ?? []);

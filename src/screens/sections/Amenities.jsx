@@ -23,7 +23,7 @@ export function Amenities() {
 
   return (
     <Screen id="amenities">
-      <div className="grid h-full min-h-0 grid-cols-[minmax(0,40%)_1fr] gap-[clamp(1.5rem,4%,4rem)] max-lg:grid-cols-1 max-lg:grid-rows-[auto_1fr] max-lg:items-start max-lg:gap-[clamp(1rem,2.4vh,1.8rem)]">
+      <div className="grid h-full min-h-0 grid-cols-[minmax(0,29%)_1fr] gap-[clamp(1.5rem,3%,3.4rem)] max-xl:grid-cols-[minmax(0,34%)_1fr] max-lg:grid-cols-1 max-lg:grid-rows-[auto_1fr] max-lg:items-start max-lg:gap-[clamp(1rem,2.4vh,1.8rem)]">
         <div className="flex min-h-0 flex-col justify-center gap-[clamp(1rem,3vh,2.4rem)]">
           <SectionHead eyebrow={eyebrow} headline={headline} lede={lede} />
           <List items={items} active={i} onEnter={onEnter} />
@@ -41,7 +41,7 @@ function List({ items, active, onEnter }) {
   return (
     <ul
       data-stagger
-      className="grid grid-cols-2 gap-x-[clamp(1rem,2vw,2.4rem)] gap-y-[0.1em] max-lg:grid-cols-3 max-md:grid-cols-2"
+      className="grid grid-cols-2 gap-x-[clamp(0.8rem,1.4vw,1.8rem)] gap-y-[0.1em] max-lg:grid-cols-3 max-md:grid-cols-2"
     >
       {items.map((item, i) => (
         <li key={item.id} className="min-w-0">
@@ -96,9 +96,11 @@ function Window({ item, index }) {
     <div
       data-stagger
       ref={root}
-      className="relative flex min-h-0 w-full flex-col justify-center gap-[clamp(0.8rem,2vh,1.6rem)]"
+      className="relative flex min-h-0 w-full flex-col justify-center"
     >
-      {/* The screen's subject: the page transition's ring opens around it. */}
+      {/* The screen's subject: the page transition's ring opens around it. As large as
+          the screen allows — the picture is the argument here, so the name and caption
+          sit ON it, over a foot scrim, rather than taking height away from it below. */}
       <div data-ring-focus className="relative min-h-0">
         {/* A gold hairline standing just outside the frame, offset the way a mount board
             sits behind a print. It is the only decoration on this screen. */}
@@ -109,22 +111,29 @@ function Window({ item, index }) {
         <Crossfade
           id={item.render}
           sizes="(max-width: 1024px) 92vw, 52vw"
-          className="crown relative aspect-[4/3] max-h-[58vh] w-full max-lg:aspect-[16/10] max-lg:max-h-[38vh]"
+          className="crown relative aspect-[16/10] max-h-[73vh] w-full max-lg:max-h-[46vh]"
           position="50% 50%"
           priority
         />
-      </div>
-
-      <div className="flex min-w-0 flex-col gap-[0.4em] overflow-hidden">
         <span
-          data-window-part
-          className="text-title font-light uppercase tracking-[0.13em] text-w-cream"
-        >
-          {item.title}
-        </span>
-        <span data-window-part className="text-caption text-w-cream/60">
-          {item.caption}
-        </span>
+          aria-hidden="true"
+          className="crown pointer-events-none absolute inset-0"
+          style={{
+            background:
+              'linear-gradient(0deg, rgb(4 26 25 / 0.82) 0%, rgb(4 26 25 / 0.5) 16%, rgb(4 26 25 / 0) 34%)',
+          }}
+        />
+        <div className="absolute inset-x-0 bottom-0 flex min-w-0 flex-col gap-[0.35em] overflow-hidden px-[clamp(1rem,2.2vw,2.6rem)] pb-[clamp(0.9rem,2.4vh,2rem)] [text-shadow:0_1px_18px_rgb(0_0_0/0.5)]">
+          <span
+            data-window-part
+            className="text-title font-light uppercase tracking-[0.13em] text-w-cream"
+          >
+            {item.title}
+          </span>
+          <span data-window-part className="text-caption text-w-cream/80">
+            {item.caption}
+          </span>
+        </div>
       </div>
     </div>
   );

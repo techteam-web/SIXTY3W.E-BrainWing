@@ -30,6 +30,13 @@ export const ArrowIcon = (p) => (
   </Icon>
 );
 
+export const BackIcon = (p) => (
+  <Icon {...p}>
+    <path d="M20 12H5" />
+    <path d="M11 6l-6 6 6 6" />
+  </Icon>
+);
+
 export const MenuIcon = (p) => (
   <Icon {...p}>
     <path d="M4 7h16" />

@@ -50,13 +50,36 @@ function distanceRings(lng, lat) {
   return { type: 'FeatureCollection', features };
 }
 
-// Marching dashes. Cycling the phase shifts the gap, so the bright overlay appears to
-// travel toward the destination — the directions read, done with paint only.
-const DASH_STEPS = [
-  [0, 4, 3], [0.5, 4, 2.5], [1, 4, 2], [1.5, 4, 1.5], [2, 4, 1], [2.5, 4, 0.5],
-  [3, 4, 0], [0, 0.5, 3, 3.5], [0, 1, 3, 3], [0, 1.5, 3, 2.5],
-  [0, 2, 3, 2], [0, 2.5, 3, 1.5], [0, 3, 3, 1], [0, 3.5, 3, 0.5],
-];
+// The route draws itself once, from the tower to the destination, and then holds
+// still. It used to be overlaid with dashes marching along it forever, which read as
+// noise — a direction is shown once, not repeated. `upTo` is the leading part of the
+// line, `t` of the way along it by ground distance, so the pen moves at an even speed
+// however the vertices happen to be spaced.
+function upTo(coords, t) {
+  if (t >= 1 || coords.length < 2) return coords;
+  const seg = [];
+  let total = 0;
+  for (let i = 1; i < coords.length; i += 1) {
+    const d = Math.hypot(coords[i][0] - coords[i - 1][0], coords[i][1] - coords[i - 1][1]);
+    seg.push(d);
+    total += d;
+  }
+  let left = total * Math.max(0, t);
+  const out = [coords[0]];
+  for (let i = 1; i < coords.length; i += 1) {
+    const d = seg[i - 1];
+    if (left >= d) {
+      out.push(coords[i]);
+      left -= d;
+      continue;
+    }
+    const k = d ? left / d : 0;
+    const [a, b] = [coords[i - 1], coords[i]];
+    out.push([a[0] + (b[0] - a[0]) * k, a[1] + (b[1] - a[1]) * k]);
+    break;
+  }
+  return out.length > 1 ? out : [coords[0], coords[0]];
+}
 
 // The project marker: the logo's three arches, drawn at the exact geometry the mark uses
 // everywhere else (see src/components/Lockup.jsx), standing on a lit ground pad. It is
@@ -79,7 +102,7 @@ export function EstateMap({ activeCategory, focusId, highlightId, onRoute }) {
   const host = useRef(null);
   const map = useRef(null);
   const markers = useRef(new Map());
-  const dashRaf = useRef(0);
+  const draw = useRef({ t: 0 });
   const abort = useRef(null);
   const routeFade = useRef({ o: 0 });
   const hasFocused = useRef(false);
@@ -92,10 +115,33 @@ export function EstateMap({ activeCategory, focusId, highlightId, onRoute }) {
     let observer = null;
 
     (async () => {
-      const [mod] = await Promise.all([
-        import('maplibre-gl'),
-        import('maplibre-gl/dist/maplibre-gl.css'),
-      ]);
+      let mod;
+      try {
+        [mod] = await Promise.all([
+          import('maplibre-gl'),
+          import('maplibre-gl/dist/maplibre-gl.css'),
+        ]);
+      } catch (err) {
+        // The map's code is a lazy chunk fetched on the first visit to this screen. If the
+        // server restarted (or the app was redeployed) since the page loaded, that chunk's
+        // URL is stale and the import rejects — which used to leave the map blank for good.
+        // Reload once, on this same screen, to pick up the current build.
+        console.error('[map] failed to load MapLibre', err);
+        try {
+          if (!sessionStorage.getItem('w63.mapReload')) {
+            sessionStorage.setItem('w63.mapReload', '1');
+            window.location.reload();
+          }
+        } catch {
+          /* storage blocked: stay on the teal ground rather than loop */
+        }
+        return;
+      }
+      try {
+        sessionStorage.removeItem('w63.mapReload');
+      } catch {
+        /* ignore */
+      }
       const maplibregl = mod.default ?? mod;
       if (cancelled || !host.current || map.current) return;
 
@@ -172,15 +218,15 @@ export function EstateMap({ activeCategory, focusId, highlightId, onRoute }) {
 
         m.addSource(ROUTE_SRC, { type: 'geojson', data: EMPTY });
 
-        // The routed line, in four passes: halo, dark casing, the gold path, and cream
-        // dashes marching toward the destination. Every one is born at opacity 0 and
-        // brought up by the same fade that lowers it later.
+        // The routed line, in three passes: a faint halo, a dark casing and the gold
+        // path. Every one is born at opacity 0 and brought up by the same fade that
+        // lowers it later.
         m.addLayer({
           id: 'dir-glow',
           type: 'line',
           source: ROUTE_SRC,
           layout: { 'line-cap': 'round', 'line-join': 'round' },
-          paint: { 'line-color': '#E7CF95', 'line-width': 20, 'line-opacity': 0, 'line-blur': 14 },
+          paint: { 'line-color': '#E7CF95', 'line-width': 14, 'line-opacity': 0, 'line-blur': 10 },
         });
         m.addLayer({
           id: 'dir-case',
@@ -189,26 +235,14 @@ export function EstateMap({ activeCategory, focusId, highlightId, onRoute }) {
           layout: { 'line-cap': 'round', 'line-join': 'round' },
           // The casing is the deepest teal: its job is to cut the gold route cleanly out of the
           // gold arterials it runs along, so the line never merges into the road beneath it.
-          paint: { 'line-color': '#041A19', 'line-width': 11.5, 'line-opacity': 0 },
+          paint: { 'line-color': '#041A19', 'line-width': 8.5, 'line-opacity': 0 },
         });
         m.addLayer({
           id: 'dir-base',
           type: 'line',
           source: ROUTE_SRC,
           layout: { 'line-cap': 'round', 'line-join': 'round' },
-          paint: { 'line-color': '#E7CF95', 'line-width': 5.5, 'line-opacity': 0 },
-        });
-        m.addLayer({
-          id: 'dir-flow',
-          type: 'line',
-          source: ROUTE_SRC,
-          layout: { 'line-cap': 'butt', 'line-join': 'round' },
-          paint: {
-            'line-color': '#0C3B39',
-            'line-width': 5.5,
-            'line-opacity': 0,
-            'line-dasharray': [0, 4, 3],
-          },
+          paint: { 'line-color': '#E7CF95', 'line-width': 4, 'line-opacity': 0 },
         });
 
         const projectEl = document.createElement('div');
@@ -245,7 +279,7 @@ export function EstateMap({ activeCategory, focusId, highlightId, onRoute }) {
       cancelled = true;
       observer?.disconnect();
       abort.current?.abort();
-      cancelAnimationFrame(dashRaf.current);
+      gsap.killTweensOf(draw.current);
       clearTimeout(destTimeout.current);
       destMarker.current = null;
       gsap.killTweensOf(routeFade.current);
@@ -295,19 +329,25 @@ export function EstateMap({ activeCategory, focusId, highlightId, onRoute }) {
 
   /* ------------------------------------------------------------- directions */
 
-  const startDashes = useCallback((m) => {
-    cancelAnimationFrame(dashRaf.current);
-    if (prefersReducedMotion()) return;
-    let step = -1;
-    const tick = () => {
-      const next = Math.floor((performance.now() / 55) % DASH_STEPS.length);
-      if (next !== step) {
-        step = next;
-        if (m.getLayer('dir-flow')) m.setPaintProperty('dir-flow', 'line-dasharray', DASH_STEPS[step]);
-      }
-      dashRaf.current = requestAnimationFrame(tick);
-    };
-    dashRaf.current = requestAnimationFrame(tick);
+  // Draws the line from the tower outward, once. ~1.2s, eased so it lands softly.
+  const drawRoute = useCallback((m, coordinates) => {
+    const state = draw.current;
+    gsap.killTweensOf(state);
+    const src = () => m.getSource(ROUTE_SRC);
+    if (prefersReducedMotion()) {
+      src()?.setData(lineFeature(coordinates));
+      return;
+    }
+    state.t = 0;
+    src()?.setData(lineFeature(upTo(coordinates, 0)));
+    gsap.to(state, {
+      t: 1,
+      duration: 1.2,
+      ease: E.out,
+      onUpdate() {
+        src()?.setData(lineFeature(upTo(coordinates, state.t)));
+      },
+    });
   }, []);
 
   const showDest = useCallback((maplibregl, m, dest) => {
@@ -348,10 +388,9 @@ export function EstateMap({ activeCategory, focusId, highlightId, onRoute }) {
       overwrite: true,
       onUpdate() {
         if (!m.getLayer('dir-base')) return;
-        m.setPaintProperty('dir-glow', 'line-opacity', 0.22 * state.o);
-        m.setPaintProperty('dir-case', 'line-opacity', 0.95 * state.o);
+        m.setPaintProperty('dir-glow', 'line-opacity', 0.16 * state.o);
+        m.setPaintProperty('dir-case', 'line-opacity', 0.85 * state.o);
         m.setPaintProperty('dir-base', 'line-opacity', state.o);
-        m.setPaintProperty('dir-flow', 'line-opacity', 0.95 * state.o);
       },
       onComplete() {
         if (!to) m.getSource(ROUTE_SRC)?.setData(EMPTY);
@@ -369,7 +408,7 @@ export function EstateMap({ activeCategory, focusId, highlightId, onRoute }) {
       const dest = focusId ? LANDMARK_BY_ID[focusId] : null;
 
       if (!dest) {
-        cancelAnimationFrame(dashRaf.current);
+        gsap.killTweensOf(draw.current);
         fadeRoute(m, false);
         hideDest();
         onRoute?.(null);
@@ -391,9 +430,8 @@ export function EstateMap({ activeCategory, focusId, highlightId, onRoute }) {
       fetchRoute([dest.lng, dest.lat], controller.signal)
         .then(({ coordinates, distance, duration }) => {
           if (controller.signal.aborted || !m.getSource(ROUTE_SRC)) return;
-          m.getSource(ROUTE_SRC).setData(lineFeature(coordinates));
           fadeRoute(m, true);
-          startDashes(m);
+          drawRoute(m, coordinates);
           onRoute?.({
             id: dest.id,
             name: dest.name,
