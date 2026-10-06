@@ -31,14 +31,41 @@ export const MENU = {
   eyebrow: 'Contents',
 };
 
+// ---------------------------------------------------------------- The visitor
+
+// The details card that opens on the way in. Name and mobile only — the microsite's own
+// enquiry form asks for the same two, and a site-office visitor will not type more.
+export const VISITOR = {
+  eyebrow: 'Welcome',
+  title: 'Before we begin',
+  lede: 'Share your name and number so our team can send you the details you see today.',
+  name: 'Full name',
+  phone: 'Mobile number',
+  submit: 'Continue',
+  skip: 'Skip for now',
+  consent: 'I agree to get updates via SMS, RCS & WhatsApp.',
+  greeting: (name) => `Welcome, ${name}`,
+};
+
 // ---------------------------------------------------------------- The Address
 
 export const OVERVIEW = {
   eyebrow: 'The address',
   headline: ['A world of', 'integrated living', 'at 400063'],
-  lede: 'The name is the address. Sixty-three, Western Express Highway, where Goregaon East meets the Aarey green belt.',
+  // The name, explained exactly as the project's own microsite explains it: W.E. is
+  // Wonderful living, Exclusive lifestyle. Verbatim — do not paraphrase.
+  name: [
+    { initial: 'W', rest: 'onderful Living,' },
+    { initial: 'E', rest: 'xclusive Lifestyle' },
+  ],
+  lede: "At Sixty3 W.E. Residences, luxury living is redefined. Wake up to breathtaking views where the morning light dances across premium finishes, and nature's charm flows effortlessly into your living space. Thoughtfully designed with airy layouts and floor-to-ceiling views, your home is a sanctuary that embraces the sky, the greens, and the city in perfect harmony.",
+  // The two outlooks the tower is sold on.
+  views: [
+    { id: 'aarey', title: 'Aarey Views', label: 'Panoramic green vistas over the Aarey forest' },
+    { id: 'city', title: 'City Views', label: 'The Goregaon skyline and the W.E. Highway' },
+  ],
   hallmarks: [
-    { k: '32', unit: 'storeys', label: 'Residential tower defining the skyline' },
+    { k: '31', unit: 'storeys', label: 'Residential tower defining the skyline' },
     { k: '3.2', unit: 'mtr', label: 'Floor-to-floor height in every home' },
     { k: '579', unit: 'sq.ft.', label: '2 BHK RERA carpet, onwards' },
     { k: '26', unit: 'th floor', label: 'Euphoria, the lifestyle level' },
@@ -183,7 +210,7 @@ export const SPECS = {
             'Well-planned 2 BHK residences from 579 sq. ft. onwards',
             'A dedicated parking tower with professional valet services',
             'Prime location right next to the W.E. Highway',
-            'Airy 3.2 m floor-to-floor height',
+            'Airy 3.2 mtr floor-to-floor height',
           ],
         },
         {

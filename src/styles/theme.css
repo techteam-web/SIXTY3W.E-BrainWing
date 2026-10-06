@@ -52,6 +52,9 @@
   --text-subhead: clamp(0.875rem, min(1.02vw, 1.813vh), 1.5rem);
   --text-body: clamp(0.8125rem, min(0.86vw, 1.529vh), 1.25rem);
   --text-caption: clamp(0.6875rem, min(0.7vw, 1.244vh), 1rem);
+  /* Reading size for lists that ARE the content — the specification sheet and the
+     hallmarks. A step above caption, because those lines are read, not glanced at. */
+  --text-read: clamp(0.78rem, min(0.82vw, 1.458vh), 1.18rem);
   --text-eyebrow: clamp(0.625rem, min(0.62vw, 1.102vh), 0.9rem);
   --text-micro: clamp(0.5625rem, min(0.54vw, 0.96vh), 0.8125rem);
 

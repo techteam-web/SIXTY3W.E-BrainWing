@@ -138,7 +138,7 @@ export function VisitorCard({ onDone, onClose }) {
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               className="w-full bg-transparent py-[0.55em] text-body tabular-nums text-w-cream outline-none placeholder:text-w-cream/30"
-              placeholder="98765 43210"
+              placeholder="Your phone number"
             />
           </span>
         </Field>

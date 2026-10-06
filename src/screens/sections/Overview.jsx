@@ -121,7 +121,7 @@ export function Overview() {
               divides one group from another; the bullets went because they only
               decorated a row. On a phone or a short screen they give way to the name and
               the views — every one of them is repeated on the Specifications sheet. */}
-          <div data-stagger className="shrink-0 max-lg:hidden [@media(max-height:56rem)]:hidden">
+          <div data-stagger className="shrink-0 max-lg:hidden [@media(max-height:44rem)]:hidden">
             <span aria-hidden="true" className="mb-[1.1em] block h-px w-full bg-w-gold/25" />
             <ul className="grid grid-cols-2 gap-x-[clamp(1rem,2.4vw,3rem)] gap-y-[0.7em] max-mob:grid-cols-1">
               {OVERVIEW.marks.map((m) => (
