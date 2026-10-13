@@ -39,16 +39,16 @@
 // Pool 11. Fine-tune any of them with ?calibrate and paste the result over its line.
 export const ROOM_VIEWS = {
   'typical-low': {
-    _1: { start: { yaw: -68, pitch: 0, fov: 180 }, yaw: [-138, 2] },
-    _2: { start: { yaw: -126, pitch: 0, fov: 180 }, yaw: [164, -56] },
-    _3: { start: { yaw: 125, pitch: 0, fov: 180 }, yaw: [55, -165] },
-    _4: { start: { yaw: 71, pitch: 0, fov: 180 }, yaw: [1, 141] },
+          _1: { start: { yaw: -119.7, pitch: -2.5, fov: 55 }, yaw: [-170.4, -67] },
+         _2: { start: { yaw: -169.4, pitch: -2.5, fov: 55 }, yaw: [121.1, -113.6] },
+          _3: { start: { yaw: 175.4, pitch: -2.5, fov: 55 }, yaw: [113.2, -125] },
+         _4: { start: { yaw: 114.4, pitch: -2.5, fov: 55 }, yaw: [59.6, 169.9] },
   },
   'typical-high': {
-    _1: { start: { yaw: -69, pitch: -8, fov: 80 }, yaw: [-139, 1] },
-    _2: { start: { yaw: -130, pitch: -8, fov: 80 }, yaw: [160, -60] },
-    _3: { start: { yaw: 129, pitch: -8, fov: 80 }, yaw: [59, -161] },
-    _4: { start: { yaw: 73, pitch: -8, fov: 80 }, yaw: [3, 143] },
+    _1: { start: { yaw: -115.4, pitch: -7.5, fov: 55 }, yaw: [-163, -63.4] },
+    _2: { start: { yaw: -163.2, pitch: -7.5, fov: 55 }, yaw: [129.7, -113.3] },
+    _3: { start: { yaw: 156.2, pitch: -7.5, fov: 55 }, yaw: [112.5, -134.2] },
+    _4: { start: { yaw: 99.8, pitch: -7.5, fov: 55 }, yaw: [57.2, 159.9] },
   },
   amenity: {
     Games_Room: { start: { yaw: -95, pitch: -8, fov: 180 }, yaw: [-165, -25] },
@@ -76,3 +76,4 @@ export const floorViewFor = (key) => ROOM_VIEWS.floors[key] ?? ROOM_VIEWS.floors
 export const DEFAULT_PITCH = [-35, 20];
 
 export const roomViewFor = (planId, areaId) => ROOM_VIEWS[planId]?.[areaId] ?? null;
+

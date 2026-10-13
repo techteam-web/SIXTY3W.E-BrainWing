@@ -226,8 +226,9 @@ export function PanoRadar({ pano, geo, coneRef, readoutRef, rooms = [], activeAr
         >
           <defs>
             <radialGradient id={gradId} cx={cx} cy={cy} r={geo.radius} gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stopColor="var(--color-w-gold)" stopOpacity="0.75" />
-              <stop offset="100%" stopColor="var(--color-w-gold)" stopOpacity="0.08" />
+              <stop offset="0%" stopColor="var(--color-w-gold)" stopOpacity="0.85" />
+              <stop offset="70%" stopColor="var(--color-w-gold)" stopOpacity="0.4" />
+              <stop offset="100%" stopColor="var(--color-w-gold)" stopOpacity="0.16" />
             </radialGradient>
           </defs>
 
@@ -244,12 +245,16 @@ export function PanoRadar({ pano, geo, coneRef, readoutRef, rooms = [], activeAr
             />
           ) : null}
 
+          {/* A bold outline, not just the soft fill, is what makes this read as a wedge
+              rather than a smudge against a busy plan — the fill alone was too faint to
+              notice at a glance. */}
           <path
             ref={coneRef}
             fill={`url(#${gradId})`}
-            stroke="var(--color-w-gold-deep)"
-            strokeWidth="1"
-            strokeOpacity="0.6"
+            stroke="var(--color-w-gold-lit)"
+            strokeWidth="2.5"
+            strokeOpacity="0.95"
+            strokeLinejoin="round"
             vectorEffect="non-scaling-stroke"
           />
           <circle cx={cx} cy={cy} r={geo.radius * 0.07} fill="var(--color-w-gold-deep)" />

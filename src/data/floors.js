@@ -56,10 +56,10 @@ export const PLANS = {
     layer: parseSvgLayer(typicalLowSvg),
     frame: [66, 26, 329, 200],
     areas: {
-      _1: residence('01', 579),
-      _2: residence('02', 599),
-      _3: residence('03', 599),
-      _4: residence('04', 579),
+      _1: residence('04', 579),
+      _2: residence('03', 599),
+      _3: residence('02', 599),
+      _4: residence('01', 579),
     },
   },
   'typical-high': {
@@ -73,10 +73,10 @@ export const PLANS = {
     layer: parseSvgLayer(typicalHighSvg),
     frame: [66, 26, 329, 200],
     areas: {
-      _1: residence('01', 634),
-      _2: residence('02', 686),
-      _3: residence('03', 686),
-      _4: residence('04', 634),
+      _1: residence('04', 634),
+      _2: residence('03', 686),
+      _3: residence('02', 686),
+      _4: residence('01', 634),
     },
   },
   amenity: {

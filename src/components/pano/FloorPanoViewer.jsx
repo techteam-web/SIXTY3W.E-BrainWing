@@ -257,7 +257,7 @@ export function FloorPanoViewer({ floor, room: from = null, onBack, onStep, root
                   Rooms
                 </span>
                 <div className="flex flex-wrap gap-[0.4em]">
-                  {rooms.map((a) => {
+                  {[...rooms].reverse().map((a) => {
                     const on = a.id === room.areaId;
                     return (
                       <button
