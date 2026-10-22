@@ -25,11 +25,28 @@ export function makeTour({ data, tiles, labels, fallback }) {
     names[s.id] = total[p] > 1 ? `${p} · Point ${seen[p]}` : p;
   }
 
+  // Every PLACE in the tour, once, in the export's own order, each pointing at the first
+  // camera shot there. This is what the viewer's jump menu offers: a visitor thinks in
+  // places ("the pool"), not in cameras, and a menu listing "Lift Lobby · Point 1"
+  // through "· Point 7" is a menu nobody reads to the end.
+  const places = [];
+  const firstOf = {};
+  for (const s of data.scenes) {
+    const p = place(s.id);
+    if (firstOf[p]) continue;
+    firstOf[p] = s.id;
+    places.push({ id: s.id, label: p });
+  }
+
   return {
     // The shape PanoViewer takes: one tile set, offered as "day" only.
     data: { day: data, night: data },
     tiles: { day: tiles, night: tiles },
     label: (id) => names[id] ?? place(id),
+    places,
+    // Which place a scene belongs to, so the menu can mark where you are standing even
+    // after the arrows have walked you to another camera in the same room.
+    placeOf: (id) => place(id),
     // A card's thumbnail: the lowest real level's single tile on whichever cube face the
     // scene opens facing — the face nearest its initial yaw (front 0, right +90°, back
     // 180°, left −90°), so the card shows what the visitor will actually see first.

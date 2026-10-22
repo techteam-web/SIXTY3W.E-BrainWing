@@ -1,13 +1,20 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { PanoViewer } from '../../features/pano/PanoViewer';
-import { ArrowIcon } from '../Icons';
+import { ArrowIcon, ChevronIcon } from '../Icons';
 import { Portal } from '../Primitives';
 import { useEventListener } from '../../hooks/useEventListener';
+import { gsap, useGSAP, E, prefersReducedMotion } from '../../gsap/Gsapconfig';
 
 // A walkable 360° tour (src/data/tours.js): one scene full screen, with the Marzipano
-// Tool's own arrows to step to the next. Back is the only control, as on the other 360°
-// views; the name of where you're standing sits under it, because after a few steps
-// through a lobby or a passage that is the one thing a visitor can lose track of.
+// Tool's own arrows to step to the next. Back sits top-left, and the name of where
+// you're standing sits under it, because after a few steps through a lobby or a passage
+// that is the one thing a visitor can lose track of.
+//
+// Bottom-left is the jump menu. The arrows walk the level the way a resident would, but
+// a broker standing with a buyer does not want to walk: they want the pool, now, then
+// the games room. Going back out to the gallery to pick the next one costs two clicks
+// and throws the tour away in between. The menu lists every place in the tour and goes
+// straight there.
 
 // Keys the app's own navigation would otherwise act on — up/down change section,
 // Escape goes to the menu — none of which should happen from inside the tour.
@@ -15,6 +22,7 @@ const BLOCKED = new Set(['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown']);
 
 export function TourViewer({ tour, start, onBack, rootRef, backLabel = 'Back' }) {
   const [sceneId, setSceneId] = useState(start);
+  const [menuOpen, setMenuOpen] = useState(false);
   const label = tour.label(sceneId);
 
   // The shape PanoViewer takes: one scene id under "day", none under "night".
@@ -22,16 +30,25 @@ export function TourViewer({ tour, start, onBack, rootRef, backLabel = 'Back' })
 
   const onLink = useCallback((target) => setSceneId(target), []);
 
+  const jump = useCallback((target) => {
+    setSceneId(target);
+    setMenuOpen(false);
+  }, []);
+
   // On the document, so it runs before KeyboardNav on the window and can claim the key.
+  // Escape closes the jump menu first and only then leaves the tour: one Escape, one
+  // thing undone, in the order the visitor opened them.
   useEventListener(
     'keydown',
     (e) => {
       if (e.defaultPrevented || e.metaKey || e.ctrlKey || e.altKey) return;
       if (e.key === 'Escape') {
         e.preventDefault();
-        onBack();
+        if (menuOpen) setMenuOpen(false);
+        else onBack();
       } else if (BLOCKED.has(e.key)) {
-        e.preventDefault();
+        // The menu owns up/down while it is open — it moves through the list there.
+        if (!menuOpen) e.preventDefault();
       }
     },
     document,
@@ -75,6 +92,157 @@ export function TourViewer({ tour, start, onBack, rootRef, backLabel = 'Back' })
           </span>
         </div>
       </div>
+
+      <ScenePicker
+        places={tour.places}
+        here={tour.placeOf(sceneId)}
+        open={menuOpen}
+        onOpenChange={setMenuOpen}
+        onPick={jump}
+      />
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------ scene picker */
+
+// Bottom-left, opening upward: the place you are standing in, and the list of everywhere
+// else. It is the app's own glass-and-arch panel rather than a browser <select>, because
+// a native menu on a fullscreen presentation is a grey rectangle from another century.
+function ScenePicker({ places, here, open, onOpenChange, onPick }) {
+  const root = useRef(null);
+  const list = useRef(null);
+
+  // A click anywhere else closes it. Pointerdown rather than click, so it closes on the
+  // way down and never swallows the first drag of the panorama behind it.
+  useEventListener(
+    'pointerdown',
+    (e) => {
+      if (!open || root.current?.contains(e.target)) return;
+      onOpenChange(false);
+    },
+    document,
+  );
+
+  // Opening scrolls to where you are standing, so a long tour does not open on a list
+  // that has nothing to do with the view behind it.
+  useEffect(() => {
+    if (!open) return;
+    const el = list.current?.querySelector('[data-here="true"]');
+    el?.scrollIntoView({ block: 'nearest' });
+  }, [open]);
+
+  useGSAP(
+    () => {
+      if (!open || !list.current || prefersReducedMotion()) return;
+      gsap.fromTo(
+        list.current,
+        { autoAlpha: 0, y: 10 },
+        { autoAlpha: 1, y: 0, duration: 0.32, ease: E.out },
+      );
+    },
+    { dependencies: [open], scope: root },
+  );
+
+  // Up and down walk the list; Enter and Space pick, which the buttons do themselves.
+  const onKeyDown = (e) => {
+    if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
+    const items = [...(list.current?.querySelectorAll('[data-place-option]') ?? [])];
+    if (!items.length) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const at = items.indexOf(document.activeElement);
+    const next = e.key === 'ArrowDown' ? at + 1 : at - 1;
+    items[(next + items.length) % items.length]?.focus();
+  };
+
+  if (!places?.length) return null;
+
+  return (
+    <div
+      ref={root}
+      onKeyDown={onKeyDown}
+      className="absolute z-10 bottom-(--screen-margin) left-(--screen-margin) flex flex-col items-start"
+    >
+      {open ? (
+        <ul
+          ref={list}
+          role="listbox"
+          aria-label="Go to"
+          data-scroll-ok
+          className="rail-none glass mb-[0.6em] w-[min(17rem,calc(100vw-var(--screen-margin)*2))] overflow-y-auto p-[0.45em]"
+          style={{
+            // Never taller than the room between the trigger below it and the Back
+            // control above: on a landscape phone 46vh would open straight through them.
+            // The floor keeps two rows visible on the shortest screen, scrolling for the
+            // rest; the 11rem reserve is the trigger plus the top-left stack.
+            maxHeight:
+              'max(7.5rem, min(24rem, calc(100dvh - var(--screen-margin) * 2 - 11rem)))',
+            border: '1px solid rgb(var(--gold-rgb) / 0.3)',
+            boxShadow: '0 30px 70px -30px rgb(2 12 11 / 0.85)',
+            borderTopLeftRadius: 'clamp(2rem, 5.4vw, 2.6rem)',
+            borderTopRightRadius: 'clamp(2rem, 5.4vw, 2.6rem)',
+          }}
+        >
+          {places.map((p) => {
+            const on = p.label === here;
+            return (
+              <li key={p.id}>
+                <button
+                  type="button"
+                  data-place-option
+                  role="option"
+                  aria-selected={on}
+                  data-here={String(on)}
+                  onClick={() => onPick(p.id)}
+                  className="group/p flex w-full items-center gap-[0.6em] px-[0.9em] py-[0.5em] text-left"
+                >
+                  <span
+                    aria-hidden="true"
+                    className={`h-px shrink-0 bg-w-gold transition-all duration-300 ease-out ${
+                      on ? 'w-[1.2em] opacity-100' : 'w-[0.4em] opacity-35 group-hover/p:w-[0.9em] group-hover/p:opacity-70'
+                    }`}
+                  />
+                  <span
+                    className={`min-w-0 truncate text-caption uppercase tracking-[0.12em] transition-colors duration-300 ${
+                      on ? 'text-w-gold' : 'text-w-cream/70 group-hover/p:text-w-cream'
+                    }`}
+                  >
+                    {p.label}
+                  </span>
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      ) : null}
+
+      <button
+        type="button"
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        onClick={() => onOpenChange(!open)}
+        className="glass group/t flex max-w-[min(17rem,calc(100vw-var(--screen-margin)*2))] items-center gap-[0.8em] px-[1.1em] py-[0.7em] max-md:gap-[0.6em] max-md:px-[0.9em] max-md:py-[0.55em]"
+        style={{
+          border: '1px solid rgb(var(--gold-rgb) / 0.3)',
+          boxShadow: '0 20px 50px -24px rgb(2 12 11 / 0.8)',
+          borderTopLeftRadius: 'clamp(1.4rem, 3.4vw, 1.8rem)',
+          borderTopRightRadius: 'clamp(1.4rem, 3.4vw, 1.8rem)',
+        }}
+      >
+        <span className="flex min-w-0 flex-col items-start gap-[0.15em]">
+          <span className="text-micro uppercase tracking-[0.2em] text-w-gold/80">Go to</span>
+          <span className="min-w-0 truncate text-caption uppercase tracking-[0.12em] text-w-cream">
+            {here}
+          </span>
+        </span>
+        <ChevronIcon
+          size="1.1em"
+          className={`shrink-0 text-w-gold transition-transform duration-300 ease-out ${
+            open ? 'rotate-0' : 'rotate-180'
+          }`}
+        />
+      </button>
     </div>
   );
 }

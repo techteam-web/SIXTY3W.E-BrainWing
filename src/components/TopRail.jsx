@@ -184,7 +184,10 @@ export function TopRail() {
           <span
             className={`text-micro tracking-[0.24em] uppercase transition-colors duration-500 max-md:hidden ${quiet}`}
           >
-            {current?.label ?? null}
+            {/* The same rule as the corner above: in immersive mode the 360° viewer owns
+                this corner, where its jump menu stands. The section's name is no loss
+                there — the viewer is already naming the place you are standing in. */}
+            {immersive ? null : (current?.label ?? null)}
           </span>
           <span
             className={`text-micro tracking-[0.2em] uppercase transition-colors duration-500 ${quieter}`}
