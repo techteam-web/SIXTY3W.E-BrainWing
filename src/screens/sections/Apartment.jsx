@@ -8,7 +8,7 @@ import { APARTMENT } from '../../data/content';
 import { APARTMENT_ROOMS, APARTMENT_START, APARTMENT_TOUR } from '../../data/apartmentTour';
 import { useApp } from '../../app/appContext';
 
-// The sample 2 BHK, walked in 360°. The whole home from the start (Bedroom 1, then
+// The sample 2 BHK, walked in 360°. The whole home from the start (the living room, then
 // wherever its arrows lead), or straight into any one room from its card. The first room
 // — where the walk begins — stands tall at the head of the gallery.
 

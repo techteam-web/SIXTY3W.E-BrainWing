@@ -27,13 +27,16 @@ export const APARTMENT_TOUR = makeTour({
   },
 });
 
-// The walk starts in Bedroom 1 — on its second camera, which faces the bed and the
-// window; the first faces the wardrobe.
-export const APARTMENT_START = '2-bedroom_01_cam_02';
+// The walk starts in the living room, the way a visitor enters a home, with every other
+// room reachable from there by its arrows.
+export const APARTMENT_START = '12-living_cam_03';
 
+// The first room is where the walk begins, and stands tall at the head of the gallery.
+// Bedroom 1 opens on its second camera, which faces the bed and the window; the first
+// faces the wardrobe.
 export const APARTMENT_ROOMS = [
-  { id: 'bedroom-1', title: 'Bedroom 1', scene: APARTMENT_START },
-  { id: 'living', title: 'Living Room', scene: '12-living_cam_03' },
+  { id: 'living', title: 'Living Room', scene: APARTMENT_START },
+  { id: 'bedroom-1', title: 'Bedroom 1', scene: '2-bedroom_01_cam_02' },
   { id: 'kitchen', title: 'Kitchen', scene: '8-kitchen_cam_01' },
   { id: 'bedroom-2', title: 'Bedroom 2', scene: '4-bedroom_02_cam_01' },
   { id: 'balcony', title: 'Balcony', scene: '0-balcony_cam_01' },
