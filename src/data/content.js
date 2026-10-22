@@ -132,6 +132,17 @@ export const RESIDENCES = {
   ],
 };
 
+// ------------------------------------------------------------------ Apartment
+
+// The sample 2 BHK, walked in 360°. Descriptive only — which unit it was rendered from
+// isn't stated, so no area is claimed for it.
+export const APARTMENT = {
+  eyebrow: 'Sample residence',
+  headline: ['Walk through', 'a 2 BHK home'],
+  lede: 'A two-bedroom residence in 360°, room to room — the living room, kitchen, both bedrooms and the balcony.',
+  start: 'Start 360° Tour',
+};
+
 // ------------------------------------------------------------------ Amenities
 
 export const AMENITIES = {

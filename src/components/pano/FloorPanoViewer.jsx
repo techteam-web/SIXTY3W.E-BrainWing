@@ -39,20 +39,36 @@ function writeReadout(el, v) {
 // on the plan — BACK then returns to the plan), or else on the floor's first room.
 // Stepping up or down a floor keeps the same room wherever that floor has it. Floors with
 // no plan have no rooms, and their view stays a free 360°.
-export function FloorPanoViewer({ floor, room: from = null, onBack, onStep, rootRef }) {
-  const [id, setId] = useState(floor.pano.id);
+export function FloorPanoViewer({
+  floor,
+  room: from = null,
+  onBack,
+  onStep,
+  rootRef,
+  // A pano that isn't one of the building's own floors — an amenity shot stepped to
+  // directly, with no up/down and no floor plan to pull rooms from. `data`/`tiles` go
+  // with it, since its tiles live outside the floor ladder's own base path (see
+  // Level26PanoData.js and its caller). Every floor-based caller leaves these three out.
+  pano: panoOverride = null,
+  data: dataOverride = null,
+  tiles: tilesOverride = null,
+}) {
+  const [id, setId] = useState(panoOverride?.id ?? floor?.pano?.id);
   const [mode, setMode] = useState('day');
   const [areaId, setAreaId] = useState(from?.areaId ?? null);
   // The floor-info card starts collapsed to a small pill beside Back.
   const [cardOpen, setCardOpen] = useState(false);
 
-  const i = FLOOR_PANOS.findIndex((p) => p.id === id);
-  const view = FLOOR_PANOS[i];
+  const i = panoOverride ? -1 : FLOOR_PANOS.findIndex((p) => p.id === id);
+  const view = panoOverride ?? FLOOR_PANOS[i];
   const shown = view[mode] ? mode : mode === 'day' ? 'night' : 'day';
-  const up = FLOOR_PANOS[i + 1] ?? null;
-  const down = FLOOR_PANOS[i - 1] ?? null;
+  const up = panoOverride ? null : (FLOOR_PANOS[i + 1] ?? null);
+  const down = panoOverride ? null : (FLOOR_PANOS[i - 1] ?? null);
+  const panoData = dataOverride ?? PANO_DATA;
+  const panoTiles = tilesOverride ?? PANO_TILES;
 
-  // The rooms of the floor on screen — which, once stepped, need not be `floor`.
+  // The rooms of the floor on screen — which, once stepped, need not be `floor`. A
+  // standalone pano has no level to look up and so no rooms; `view.level` stays null.
   const viewPlan = useMemo(
     () => BUILDING.floors.find((f) => f.level != null && f.level === view.level)?.plan ?? null,
     [view],
@@ -65,19 +81,29 @@ export function FloorPanoViewer({ floor, room: from = null, onBack, onStep, root
   );
 
   // What the view is locked to: the room, or — on a floor with no plan — the floor
-  // itself, filed under the 'floors' group of roomViews.js.
+  // itself, filed under the 'floors' group of roomViews.js. A standalone pano is locked
+  // to whatever its own `room` prop names instead — never the floors/default fallback,
+  // which assumes the drone's own consistent orientation and means nothing for an
+  // unrelated interior shot.
   const floorKey = view.level != null ? String(view.level) : 'terrace';
   const target = useMemo(
-    () => room ?? { planId: 'floors', areaId: floorKey, label: view.label },
-    [room, floorKey, view.label],
+    () =>
+      panoOverride
+        ? (from ?? { planId: 'floors', areaId: floorKey, label: view.label })
+        : (room ?? { planId: 'floors', areaId: floorKey, label: view.label }),
+    [panoOverride, from, room, floorKey, view.label],
   );
 
   // Its view: the setup-mode draft while one exists, else roomViews.js. A plan-less floor
-  // with no entry of its own takes the floors' default.
+  // with no entry of its own takes the floors' default; a standalone pano instead takes
+  // whatever its own room is calibrated to (nothing, until it's set up), never that
+  // default.
   const drafts = useRoomDrafts();
-  const roomView = room
-    ? roomViewIn(drafts, room.planId, room.areaId)
-    : (roomViewIn(drafts, 'floors', floorKey) ?? roomViewIn(drafts, 'floors', 'default'));
+  const roomView = panoOverride
+    ? (from ? roomViewIn(drafts, from.planId, from.areaId) : null)
+    : room
+      ? roomViewIn(drafts, room.planId, room.areaId)
+      : (roomViewIn(drafts, 'floors', floorKey) ?? roomViewIn(drafts, 'floors', 'default'));
   const lock = useMemo(
     () =>
       roomView
@@ -153,8 +179,8 @@ export function FloorPanoViewer({ floor, room: from = null, onBack, onStep, root
         <PanoViewer
           view={view}
           mode={shown}
-          data={PANO_DATA}
-          tiles={PANO_TILES}
+          data={panoData}
+          tiles={panoTiles}
           onViewChange={onViewChange}
           lock={lock}
         />
@@ -198,32 +224,36 @@ export function FloorPanoViewer({ floor, room: from = null, onBack, onStep, root
             size="sm"
             iconFirst
             onClick={onBack}
-            aria-label={from ? 'Back to the floor plan' : 'Back to the building'}
+            aria-label={
+              panoOverride ? 'Back' : from ? 'Back to the floor plan' : 'Back to the building'
+            }
             icon={<ArrowIcon size="1em" className="rotate-180" />}
             className="pointer-events-auto"
           >
             Back
           </Portal>
 
-          <Portal
-            data-plan-chrome
-            size="sm"
-            onClick={() => setCardOpen((v) => !v)}
-            aria-expanded={cardOpen}
-            aria-label={cardOpen ? 'Collapse floor details' : 'Expand floor details'}
-            icon={
-              <ArrowIcon
-                size="1em"
-                className={`transition-transform duration-300 ${cardOpen ? '-rotate-90' : 'rotate-90'}`}
-              />
-            }
-            className="pointer-events-auto"
-          >
-            {view.label}
-          </Portal>
+          {panoOverride ? null : (
+            <Portal
+              data-plan-chrome
+              size="sm"
+              onClick={() => setCardOpen((v) => !v)}
+              aria-expanded={cardOpen}
+              aria-label={cardOpen ? 'Collapse floor details' : 'Expand floor details'}
+              icon={
+                <ArrowIcon
+                  size="1em"
+                  className={`transition-transform duration-300 ${cardOpen ? '-rotate-90' : 'rotate-90'}`}
+                />
+              }
+              className="pointer-events-auto"
+            >
+              {view.label}
+            </Portal>
+          )}
         </div>
 
-        {cardOpen ? (
+        {cardOpen && !panoOverride ? (
           <div
             data-plan-chrome
             className="glass pointer-events-auto flex w-[clamp(14rem,19vw,19rem)] flex-col gap-[clamp(0.7rem,1.6vh,1rem)] overflow-hidden p-[clamp(0.9rem,1.3vw,1.3rem)] pt-[clamp(1.6rem,3vw,2.2rem)]"
@@ -237,7 +267,9 @@ export function FloorPanoViewer({ floor, room: from = null, onBack, onStep, root
             }}
           >
             <div className="flex flex-col gap-[0.35em]">
-              <span className="eyebrow">{room ? `View from ${room.label}` : '360° View'}</span>
+              <span className="eyebrow">
+                {(panoOverride ? from : room) ? `View from ${(panoOverride ? from : room).label}` : '360° View'}
+              </span>
               <h2 className="text-title font-extralight leading-[1.12] tracking-[0.06em] text-w-cream">
                 {view.label}
               </h2>
@@ -279,10 +311,12 @@ export function FloorPanoViewer({ floor, room: from = null, onBack, onStep, root
               </div>
             ) : null}
 
-            <div className="flex flex-col border-t border-w-line/60 pt-[0.4em]">
-              <Step dir="up" to={up} onStep={step} />
-              <Step dir="down" to={down} onStep={step} />
-            </div>
+            {panoOverride ? null : (
+              <div className="flex flex-col border-t border-w-line/60 pt-[0.4em]">
+                <Step dir="up" to={up} onStep={step} />
+                <Step dir="down" to={down} onStep={step} />
+              </div>
+            )}
           </div>
         ) : null}
       </div>

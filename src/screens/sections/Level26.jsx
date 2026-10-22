@@ -1,10 +1,28 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Screen } from '../../layout/Screen';
 import { SectionHead } from './SectionHead';
 import { Render } from '../../components/Primitives';
+import { FloorPanoViewer } from '../../components/pano/FloorPanoViewer';
 import { LEVEL26 } from '../../data/content';
 import { getRender } from '../../data/renders';
 import { useFitBox } from '../../hooks/useFitBox';
+import { useApp } from '../../app/appContext';
+import Level26PanoData from '../../data/Level26PanoData';
+
+// The Games Room's own 360° shot (cam_03), opened directly from its spot — no floor to
+// step through, so FloorPanoViewer takes it as a standalone `pano` rather than one of
+// BUILDING.floors' own entries. See FloorPanoViewer.jsx for what that override skips.
+const GAMES_ROOM_PANO = {
+  id: '0-cam_03',
+  level: null,
+  label: 'Games Room',
+  height: null,
+  day: '0-cam_03',
+  night: null,
+};
+const GAMES_ROOM_DATA = { day: Level26PanoData, night: Level26PanoData };
+const GAMES_ROOM_TILES = { day: '/assets/level26/tiles', night: '/assets/level26/tiles' };
+const GAMES_ROOM_TARGET = { planId: 'level26', areaId: 'games_room', label: 'Games Room' };
 
 // The centrepiece of the brochure, made live.
 //
@@ -37,16 +55,34 @@ export function Level26() {
   // under the pointer.
   const [selected, setSelected] = useState(null);
   const [hovered, setHovered] = useState(null);
+  const [panoOpen, setPanoOpen] = useState(false);
   const active = hovered ?? selected;
   const area = useRef(null);
   const plate = useRef(null);
+  const panoRoot = useRef(null);
+  const { setImmersive } = useApp();
 
   useFitBox(area, plate, ASPECT, 'contain');
 
+  // The Games Room view owns its own corner (just Back) the way the floor pano viewer
+  // does — MENU/HOME have no room here and were overlapping the pill beside them.
+  useEffect(() => {
+    setImmersive(panoOpen);
+    return () => setImmersive(false);
+  }, [panoOpen, setImmersive]);
+
   const onEnter = useCallback((n) => setHovered(n), []);
   const onLeave = useCallback(() => setHovered(null), []);
+  // Every spot but Games Room just pins its own dot. Games Room has a 360° shot to show
+  // instead — chosen by name against the one spot that has one, not a generic "does this
+  // spot have a pano" flag, since it is the only one so far.
   const onSelect = useCallback((n) => {
     setHovered(null);
+    const spot = spots.find((s) => s.n === n);
+    if (spot?.name === 'Games Room') {
+      setPanoOpen(true);
+      return;
+    }
     setSelected((prev) => (prev === n ? null : n));
   }, []);
 
@@ -117,6 +153,22 @@ export function Level26() {
           compact
         />
       </div>
+
+      {/* Overlaid, not swapped in for the whole screen: the plate stays mounted behind
+          it, so Back needs no re-measuring — see useFitBox's own note about refs not
+          being reactive. An early-return here once left the plate's ref attached to a
+          node that had already unmounted, and useFitBox had no dependency telling it to
+          run again, so the plate came back with no size at all. */}
+      {panoOpen ? (
+        <FloorPanoViewer
+          pano={GAMES_ROOM_PANO}
+          data={GAMES_ROOM_DATA}
+          tiles={GAMES_ROOM_TILES}
+          room={GAMES_ROOM_TARGET}
+          onBack={() => setPanoOpen(false)}
+          rootRef={panoRoot}
+        />
+      ) : null}
     </Screen>
   );
 }
