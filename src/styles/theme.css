@@ -158,6 +158,13 @@
      term takes over. */
   --chrome-top: clamp(2.9rem, 3.4vw, 4.2rem);
   --chrome-bottom: clamp(1.5rem, 2vw, 2.4rem);
+
+  /* The corner lockup is taller than the rail's reservation: BrandCorner's width
+     (clamp(5.5rem, 7.4vw, 10rem)) times the stacked mark's 102.5 / 151.6 aspect, against
+     --chrome-top. A column that runs up the right-hand side from lg — the 360° galleries —
+     is pushed down by the difference, plus a breath, so its top-right card clears the
+     mark instead of running under it. */
+  --corner-clear: max(0px, calc(clamp(5.5rem, 7.4vw, 10rem) * 0.676 - var(--chrome-top) + 0.75rem));
 }
 
 @media (max-width: 767px) {

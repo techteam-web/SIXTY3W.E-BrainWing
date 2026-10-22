@@ -210,7 +210,12 @@ export function PanoViewer({
 // zero-size anchor and the visible button is centred on it from inside.
 function addLinks(scene, hotspots, link, label) {
   const container = scene.hotspotContainer();
+  // One arrow per destination. The export sometimes sets two on the same scene, which
+  // would put the same name on screen twice for one place to go.
+  const drawn = new Set();
   for (const h of hotspots ?? []) {
+    if (drawn.has(h.target)) continue;
+    drawn.add(h.target);
     const name = label.current?.(h.target) ?? h.target;
 
     const anchor = document.createElement('div');

@@ -8,7 +8,8 @@ import { AMENITIES } from '../../data/content';
 import { AMENITY_SCENES, AMENITY_TOUR, TOUR_START, thumbFor } from '../../data/galleryTour';
 import { useApp } from '../../app/appContext';
 
-// Ten amenities, and a 360° gallery of the eight that were shot in the round.
+// The Level 26 section: ten amenities, and a 360° gallery of the eight that were shot in
+// the round.
 //
 // The list stays as the index — every amenity, by name — and points at the gallery:
 // pointing at a name lights its card. The gallery is where a visitor steps in: a card
@@ -39,7 +40,7 @@ export function Amenities() {
   }, []);
 
   return (
-    <Screen id="amenities">
+    <Screen id="level-26">
       <div className="grid h-full min-h-0 grid-cols-[minmax(0,29%)_1fr] gap-[clamp(1.5rem,3%,3.4rem)] max-xl:grid-cols-[minmax(0,34%)_1fr] max-lg:grid-cols-1 max-lg:grid-rows-[auto_minmax(0,1fr)] max-lg:gap-[clamp(1rem,2.4vh,1.8rem)]">
         <div className="flex min-h-0 flex-col justify-center gap-[clamp(1rem,3vh,2.4rem)]">
           <SectionHead eyebrow={eyebrow} headline={headline} lede={lede} />
@@ -131,13 +132,13 @@ function List({ items, active, onPoint, onOpen }) {
 // Four across, two down, filling the column — sized by the grid, never by the picture,
 // so it can't push the screen past its own height. The thumbnail is the scene's own
 // lowest tile on the face it opens facing (thumbFor), so a card shows what stepping in
-// will show.
+// will show. From lg it starts below the corner lockup (--corner-clear in theme.css).
 function Gallery({ cards, active, onPoint, onOpen }) {
   return (
     <ul
       data-stagger
       data-ring-focus
-      className="grid h-full min-h-0 grid-cols-4 grid-rows-2 gap-[clamp(0.6rem,1.1vw,1.2rem)] max-md:grid-cols-2 max-md:grid-rows-4"
+      className="grid h-full min-h-0 grid-cols-4 grid-rows-2 gap-[clamp(0.6rem,1.1vw,1.2rem)] max-md:grid-cols-2 max-md:grid-rows-4 lg:pt-(--corner-clear)"
     >
       {cards.map((item) => (
         <li key={item.id} className="min-h-0 min-w-0">

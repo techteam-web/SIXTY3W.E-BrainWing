@@ -25,7 +25,7 @@ const VIEWPORTS = (process.env.VP ?? '1920x1080').split(',').map((v) => {
 
 const SECTIONS = (
   process.env.SECTIONS ??
-  'overview,residences,amenities,level-26,plans,location,specifications'
+  'overview,residences,level-26,plans,location,specifications'
 )
   .split(',')
   .filter(Boolean);

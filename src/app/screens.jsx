@@ -5,7 +5,6 @@ import { Panorama } from '../screens/sections/Panorama';
 import { Residences } from '../screens/sections/Residences';
 import { Apartment } from '../screens/sections/Apartment';
 import { Amenities } from '../screens/sections/Amenities';
-import { Level26 } from '../screens/sections/Level26';
 import { FloorPlans } from '../screens/sections/FloorPlans';
 import { Location } from '../screens/sections/Location';
 import { Specifications } from '../screens/sections/Specifications';
@@ -18,8 +17,8 @@ export const SECTION_SCREENS = {
   'views-360': Panorama,
   residences: Residences,
   apartment: Apartment,
-  amenities: Amenities,
-  'level-26': Level26,
+  // The amenities gallery is the Level 26 section.
+  'level-26': Amenities,
   plans: FloorPlans,
   location: Location,
   specifications: Specifications,

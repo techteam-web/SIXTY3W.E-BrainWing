@@ -39,7 +39,7 @@ export function Apartment() {
         <ul
           data-stagger
           data-ring-focus
-          className="grid h-full min-h-0 grid-cols-3 grid-rows-2 gap-[clamp(0.6rem,1.1vw,1.2rem)] max-md:grid-cols-2 max-md:grid-rows-3"
+          className="grid h-full min-h-0 grid-cols-3 grid-rows-2 gap-[clamp(0.6rem,1.1vw,1.2rem)] max-md:grid-cols-2 max-md:grid-rows-3 lg:pt-(--corner-clear)"
         >
           {APARTMENT_ROOMS.map((room, i) => (
             <li
