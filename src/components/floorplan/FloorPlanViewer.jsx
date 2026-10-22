@@ -4,6 +4,7 @@ import { FloorPlanSVG } from './FloorPlanSVG';
 import { PanZoomControls } from './PanZoomControls';
 import { AreaDetails } from './AreaDetails';
 import { MiniBuilding } from '../building/MiniBuilding';
+import { CompareLaunch } from '../compare/CompareParts';
 import { ArrowIcon } from '../Icons';
 import { Portal } from '../Primitives';
 import { planAreas } from '../../data/floors';
@@ -51,7 +52,9 @@ function PlanTitle({ floor, plan, centred = false }) {
   );
 }
 
-export function FloorPlanViewer({ floor, building, onBack, onSwitch, onRoomView, rootRef }) {
+// `onCompare(tab, area)`, optional: opens the comparison on 'floors' or 'units', taking
+// the apartment open in the details panel with it.
+export function FloorPlanViewer({ floor, building, onBack, onSwitch, onRoomView, onCompare, rootRef }) {
   const plan = floor.plan;
   const areas = useMemo(() => planAreas(plan), [plan]);
   const [, , fw, fh] = plan.frame;
@@ -186,7 +189,7 @@ export function FloorPlanViewer({ floor, building, onBack, onSwitch, onRoomView,
                 size container so the sheet can fit itself to it — the smaller of the width
                 and the height times its own aspect — in CSS alone. */}
             <div
-              className="grid h-full w-full place-items-center pb-[calc(var(--screen-margin)+var(--chrome-bottom))] pt-[calc(var(--screen-margin)+var(--chrome-top)+clamp(7rem,15vh,9rem))] px-(--screen-margin) lg:px-[clamp(4.5rem,6vw,7rem)] lg:pb-[clamp(1.2rem,2.5vh,2rem)] lg:pt-[clamp(5.5rem,12vh,8rem)]"
+              className="grid h-full w-full place-items-center pb-[calc(var(--screen-margin)+var(--chrome-bottom))] pt-[calc(var(--screen-margin)+var(--chrome-top)+clamp(7rem,15vh,9rem))] px-(--screen-margin) max-md:pt-[calc(var(--screen-margin)+var(--chrome-top)+clamp(10rem,21vh,12.5rem))] lg:px-[clamp(4.5rem,6vw,7rem)] lg:pb-[clamp(1.2rem,2.5vh,2rem)] lg:pt-[clamp(5.5rem,12vh,8rem)]"
               style={{ containerType: 'size' }}
               onClick={(e) => {
                 if (e.target.closest('[data-area]') || wasDrag(e)) return;
@@ -232,20 +235,26 @@ export function FloorPlanViewer({ floor, building, onBack, onSwitch, onRoomView,
         <MiniBuilding building={building} currentId={floor.id} onSelect={onSwitch} />
       </aside>
 
-      {/* Back, and — below lg — what this is. */}
+      {/* Back and Compare, and — below lg — what this is. */}
       <div className="pointer-events-none absolute z-20 left-(--screen-margin) top-[calc(var(--screen-margin)+var(--chrome-top))] flex flex-col items-start gap-[clamp(0.8rem,2.2vh,1.5rem)]">
-        {/* The rail's own control — MENU and HOME's twin, gold fill on hover and all. */}
-        <Portal
-          data-plan-chrome
-          size="sm"
-          iconFirst
-          onClick={onBack}
-          aria-label="Back to the building"
-          icon={<ArrowIcon size="1em" className="rotate-180" />}
-          className="pointer-events-auto"
-        >
-          Back
-        </Portal>
+        {/* One row while it fits; on a phone the two Compare choices drop beneath BACK
+            together rather than one at a time. */}
+        <div className="flex flex-wrap items-center gap-[0.6em]">
+          {/* The rail's own control — MENU and HOME's twin, gold fill on hover and all. */}
+          <Portal
+            data-plan-chrome
+            size="sm"
+            iconFirst
+            onClick={onBack}
+            aria-label="Back to the building"
+            icon={<ArrowIcon size="1em" className="rotate-180" />}
+            className="pointer-events-auto"
+          >
+            Back
+          </Portal>
+
+          {onCompare ? <CompareLaunch onCompare={(tab) => onCompare(tab, active)} /> : null}
+        </div>
 
         <div data-plan-chrome className="lg:hidden">
           <PlanTitle floor={floor} plan={plan} />

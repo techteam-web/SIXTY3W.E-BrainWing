@@ -4,6 +4,8 @@ import { BuildingSVG } from './BuildingSVG';
 import { FloorTooltip, FloorCard } from './FloorTooltip';
 import { FloorPlanViewer } from '../floorplan/FloorPlanViewer';
 import { FloorPanoViewer } from '../pano/FloorPanoViewer';
+import { CompareViewer } from '../compare/CompareViewer';
+import { EMPTY_COMPARE, enterCompare } from '../../data/compare';
 import { gsap, useGSAP, E, prefersReducedMotion, durationScale } from '../../gsap/Gsapconfig';
 import { useEventListener } from '../../hooks/useEventListener';
 import { useApp } from '../../app/appContext';
@@ -20,6 +22,9 @@ import { useApp } from '../../app/appContext';
 // chooses: the floor stays lit, and its card offers what that floor has. The view opens
 // with the same film as the plan. On a phone the card docks at the foot of the screen,
 // since a slab there is about sixteen pixels tall.
+//
+// From an open plan, Compare puts up to three floors' plans, or up to three apartments
+// and the views out of them, side by side (see CompareViewer).
 
 const LEGEND = Object.values(PLANS).map((p) => ({
   id: p.id,
@@ -43,8 +48,12 @@ export function BuildingExplorer() {
   const [hostWidth, setHostWidth] = useState(0);
   const [selectedId, setSelectedId] = useState(null);
   const [open, setOpen] = useState(null);
-  // What the open floor is showing: 'plan' or 'pano'.
+  // What the open floor is showing: 'plan', 'pano' or 'compare'.
   const [openKind, setOpenKind] = useState(null);
+  // What is being compared — floors, units, and which of the two (or the units' views)
+  // is on screen. Kept here, not in the comparison, so stepping back to the plan and in
+  // again finds it as it was left; let go only when the floor is closed.
+  const [compare, setCompare] = useState(EMPTY_COMPARE);
   const { setImmersive } = useApp();
   // The pano viewer owns its own corner (BACK plus the floor-info card) — the rail's
   // MENU/HOME would only compete with it there. Restored the moment it's not showing,
@@ -247,6 +256,18 @@ export function BuildingExplorer() {
       setOpenKind('plan');
     });
 
+  // From the plan to the comparison, and back — the same swap as a room's view. The open
+  // floor goes into the comparison, and so does the apartment open on its plan, if any.
+  const openCompare = (tab, area) => {
+    if (!open?.plan) return;
+    swapView(() => {
+      setCompare((c) => enterCompare(c, tab, open, area));
+      setOpenKind('compare');
+    });
+  };
+
+  const backFromCompare = () => swapView(() => setOpenKind('plan'));
+
   useGSAP(
     () => {
       if (!swapping.current || !viewer.current) return;
@@ -283,6 +304,7 @@ export function BuildingExplorer() {
       setOpen(null);
       setOpenKind(null);
       setRoom(null);
+      setCompare(EMPTY_COMPARE);
       setSelectedId(null);
     };
 
@@ -401,6 +423,9 @@ export function BuildingExplorer() {
     'keydown',
     (e) => {
       if (e.defaultPrevented || e.metaKey || e.ctrlKey || e.altKey) return;
+      // A dropdown has the keys while it has focus — the comparison's floor pickers walk
+      // their options on up and down.
+      if (e.target instanceof Element && e.target.closest('select, input, textarea')) return;
       // A chosen floor lets go on Escape before Escape means "back to the menu".
       if (!open && hover?.pinned && e.key === 'Escape') {
         e.preventDefault();
@@ -410,8 +435,12 @@ export function BuildingExplorer() {
       if (!open) return;
       if (e.key === 'Escape') {
         e.preventDefault();
-        // A room's view steps back to its plan; anything else back to the building.
-        if (room) backToPlan();
+        // The compared views step back to the compared units, the comparison and a room's
+        // view back to the plan, and anything else back to the building.
+        if (openKind === 'compare') {
+          if (compare.tab === 'views') setCompare((c) => ({ ...c, tab: 'units' }));
+          else backFromCompare();
+        } else if (room) backToPlan();
         else closeFloor();
       } else if (BLOCKED_WHILE_OPEN.has(e.key)) {
         e.preventDefault();
@@ -497,6 +526,17 @@ export function BuildingExplorer() {
           onBack={closeFloor}
           onSwitch={switchFloor}
           onRoomView={openRoomView}
+          onCompare={openCompare}
+          rootRef={viewer}
+        />
+      ) : null}
+
+      {open && openKind === 'compare' ? (
+        <CompareViewer
+          floor={open}
+          compare={compare}
+          onChange={setCompare}
+          onBack={backFromCompare}
           rootRef={viewer}
         />
       ) : null}

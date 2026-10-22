@@ -61,9 +61,16 @@ export function PanoViewer({
         controls: { mouseViewMode: 'drag' },
       });
 
+      // Marzipano re-measures only when the window resizes. A pane that changes size on
+      // its own — a compared view when the grid gains or loses a column — would otherwise
+      // go on rendering at its old size, stretched.
+      const sizer = typeof ResizeObserver === 'function' ? new ResizeObserver(() => viewer.updateSize()) : null;
+      sizer?.observe(host.current);
+
       ctx.current = {
         Marzipano,
         viewer,
+        sizer,
         views: new Map(),
         scenes: new Map(),
         // Each view's own resolution/fov limiter, kept so a lock can be composed onto it,
@@ -76,6 +83,7 @@ export function PanoViewer({
 
     return () => {
       cancelled = true;
+      ctx.current?.sizer?.disconnect();
       ctx.current?.unfollow?.();
       ctx.current?.viewer?.destroy?.();
       ctx.current = null;

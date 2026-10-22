@@ -144,3 +144,489 @@
     stroke: var(--color-w-gold-deep);
   }
 }
+
+/* Compare — floors, units and views side by side (src/components/compare).
+
+   Its controls are the Rooms chips' material — a gold hairline, gold fill for the one
+   chosen — set at BACK's height so they can stand in BACK's row. Its columns are the plan
+   viewer's framed panels, with a shallower crown: three of them share a screen. */
+@layer components {
+  .bw-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6em;
+    min-height: 2.75rem;
+    padding: 0.6em 1.1em;
+    font-size: var(--text-eyebrow);
+    font-weight: 500;
+    line-height: 1.5;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--color-w-cream);
+    border: 1px solid rgb(var(--gold-rgb) / 0.45);
+    background: linear-gradient(180deg, rgb(12 59 57 / 0.82), rgb(4 26 25 / 0.76));
+    box-shadow:
+      inset 0 1px 0 rgb(240 234 224 / 0.07),
+      0 6px 20px rgb(4 26 25 / 0.35);
+    cursor: pointer;
+    transition:
+      color 0.3s cubic-bezier(0.33, 1, 0.68, 1),
+      background-color 0.3s cubic-bezier(0.33, 1, 0.68, 1),
+      border-color 0.3s cubic-bezier(0.33, 1, 0.68, 1);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .bw-btn:hover:not(:disabled) {
+    color: var(--color-w-gold);
+    border-color: var(--color-w-gold);
+  }
+  .bw-btn:focus-visible {
+    outline: 1px solid var(--color-w-gold-lit);
+    outline-offset: 3px;
+  }
+  .bw-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  .bw-btn[aria-selected='true'],
+  .bw-btn[aria-selected='true']:hover {
+    color: var(--color-w-deep);
+    background: var(--color-w-gold);
+    border-color: var(--color-w-gold);
+  }
+  /* The way on to the next step — "360° View from here"'s own gesture: gold at rest, gold
+     filled under the pointer. */
+  .bw-btn--cta {
+    color: var(--color-w-gold);
+    border-color: rgb(var(--gold-rgb) / 0.75);
+  }
+  .bw-btn--cta:hover:not(:disabled) {
+    color: var(--color-w-deep);
+    background: var(--color-w-gold);
+  }
+
+  /* How many are chosen, beside a tab's name. */
+  .bw-count {
+    display: inline-grid;
+    place-items: center;
+    min-width: 1.7em;
+    height: 1.7em;
+    padding: 0 0.3em;
+    letter-spacing: 0;
+    font-variant-numeric: tabular-nums;
+    border: 1px solid currentColor;
+    border-top-left-radius: 0.54em;
+    border-top-right-radius: 0.54em;
+  }
+
+  /* A column's number — and an apartment's, on the plans — as a small arch: the corner is
+     the crown ratio of its width. */
+  .bw-num {
+    display: inline-grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 1.9em;
+    height: 2.1em;
+    font-size: var(--text-micro);
+    font-weight: 600;
+    letter-spacing: 0;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-w-deep);
+    background: var(--color-w-gold);
+    border-top-left-radius: 0.6em;
+    border-top-right-radius: 0.6em;
+  }
+
+  /* An apartment as a switch, under its floor's plan. */
+  .bw-pick {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.15em;
+    min-width: 0;
+    min-height: 2.75rem;
+    padding: 0.45em 0.3em;
+    color: var(--color-w-cream);
+    border: 1px solid rgb(var(--gold-rgb) / 0.32);
+    background: rgb(4 26 25 / 0.35);
+    cursor: pointer;
+    transition:
+      color 0.3s cubic-bezier(0.33, 1, 0.68, 1),
+      background-color 0.3s cubic-bezier(0.33, 1, 0.68, 1),
+      border-color 0.3s cubic-bezier(0.33, 1, 0.68, 1);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .bw-pick-name {
+    font-size: var(--text-micro);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .bw-pick-meta {
+    font-size: var(--text-micro);
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+    opacity: 0.6;
+  }
+  .bw-pick:hover:not(:disabled):not([aria-pressed='true']) {
+    color: var(--color-w-gold);
+    border-color: var(--color-w-gold);
+  }
+  .bw-pick:focus-visible {
+    outline: 1px solid var(--color-w-gold-lit);
+    outline-offset: 2px;
+  }
+  .bw-pick[aria-pressed='true'] {
+    color: var(--color-w-deep);
+    background: var(--color-w-gold);
+    border-color: var(--color-w-gold);
+  }
+  .bw-pick[aria-pressed='true'] .bw-pick-meta {
+    opacity: 0.85;
+  }
+  .bw-pick:disabled {
+    cursor: not-allowed;
+  }
+  .bw-pick:disabled:not([aria-pressed='true']) {
+    opacity: 0.35;
+  }
+
+  /* A chosen unit in the tray. */
+  .bw-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6em;
+    padding: 0.2em 0.2em 0.2em 0.35em;
+    font-size: var(--text-micro);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--color-w-cream);
+    border: 1px solid rgb(var(--gold-rgb) / 0.35);
+    background: rgb(4 26 25 / 0.45);
+  }
+
+  /* A native select in the app's type. Only as wide as its words, so the chevron sits
+     beside them even in a column. */
+  .bw-select {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
+    max-width: 100%;
+  }
+  .bw-select select {
+    appearance: none;
+    -webkit-appearance: none;
+    max-width: 100%;
+    padding: 0.05em 1.5em 0.15em 0;
+    font: inherit;
+    letter-spacing: inherit;
+    text-transform: inherit;
+    color: inherit;
+    text-overflow: ellipsis;
+    background: transparent;
+    border: 0;
+    border-bottom: 1px solid rgb(var(--gold-rgb) / 0.4);
+    border-radius: 0;
+    cursor: pointer;
+    transition: border-color 0.3s cubic-bezier(0.33, 1, 0.68, 1);
+    /* Where the browser draws the list itself (see the themed list below), it still opens
+       dark: its scrollbar follows the colour scheme. */
+    color-scheme: dark;
+  }
+  .bw-select select:hover,
+  .bw-select select:focus-visible {
+    border-color: var(--color-w-gold);
+    outline: none;
+  }
+  .bw-select option,
+  .bw-select optgroup {
+    color: var(--color-w-cream);
+    background: var(--color-w-deep);
+  }
+  .bw-select > svg {
+    position: absolute;
+    right: 0;
+    pointer-events: none;
+    color: var(--color-w-gold);
+  }
+  .bw-select--box {
+    font-size: var(--text-caption);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-w-cream);
+  }
+  .bw-select--box select {
+    min-height: 2.75rem;
+    padding: 0.65em 2.8em 0.65em 1em;
+    border: 1px solid rgb(var(--gold-rgb) / 0.45);
+    background: rgb(4 26 25 / 0.55);
+  }
+  .bw-select--box > svg {
+    right: 0.95em;
+  }
+
+  /* THE LIST, THEMED. Where a browser lets a select's list be styled (appearance:
+     base-select), it opens as one of the app's own panels — the deep teal under a gold
+     hairline, a thin gold scrollbar, gold for the floor under the pointer and for the one
+     chosen, the plan groups in the eyebrow's voice. Anywhere else the platform's own
+     list opens, dark. */
+  @supports (appearance: base-select) {
+    .bw-select select,
+    .bw-select select::picker(select) {
+      appearance: base-select;
+    }
+    /* The select's own arrow; the chevron beside it is ours. */
+    .bw-select select::picker-icon {
+      display: none;
+    }
+    .bw-select > svg {
+      transition: transform 0.3s cubic-bezier(0.33, 1, 0.68, 1);
+    }
+    .bw-select:has(select:open) > svg {
+      transform: rotate(180deg);
+    }
+
+    /* Opaque, not glass: the list opens over the plans' bright ivory, and any of it
+       showing through reads as a ghost of the drawing behind the floors. */
+    .bw-select select::picker(select) {
+      margin-block: 0.45rem;
+      padding-block: 0.35rem;
+      max-block-size: min(22rem, 62vh);
+      overflow-y: auto;
+      color: var(--color-w-cream);
+      background: linear-gradient(180deg, var(--color-w-teal), var(--color-w-deep));
+      border: 1px solid rgb(var(--gold-rgb) / 0.45);
+      box-shadow: 0 26px 60px -24px rgb(2 12 11 / 0.9);
+      scrollbar-width: thin;
+      scrollbar-color: rgb(var(--gold-rgb) / 0.6) var(--color-w-void);
+    }
+
+    /* Where the floor names start, so the group labels can start there too. */
+    .bw-select {
+      --opt-x: clamp(0.85rem, 0.8vw, 1.25rem);
+    }
+
+    /* The group's label is its own first line: indented to the options' start — less the
+       half-em the browser already pads it by — and the options, which would inherit the
+       indent, take it back. */
+    .bw-select optgroup {
+      padding-block: 0.7em 0.15em;
+      text-indent: calc(var(--opt-x) - 0.5em);
+      font-size: var(--text-micro);
+      font-weight: 500;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--color-w-gold);
+      background: transparent;
+    }
+    .bw-select optgroup + optgroup {
+      margin-top: 0.35em;
+      border-top: 1px solid rgb(var(--gold-rgb) / 0.18);
+    }
+
+    .bw-select option {
+      gap: 0.8em;
+      padding: 0.55em 1.2em 0.55em var(--opt-x);
+      text-indent: 0;
+      font-size: var(--text-caption);
+      font-weight: 400;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--color-w-cream);
+      background: transparent;
+      cursor: pointer;
+      transition:
+        color 0.2s cubic-bezier(0.33, 1, 0.68, 1),
+        background-color 0.2s cubic-bezier(0.33, 1, 0.68, 1);
+    }
+    .bw-select option:hover,
+    .bw-select option:focus-visible {
+      color: var(--color-w-gold-lit);
+      background: rgb(var(--gold-rgb) / 0.14);
+      outline: none;
+    }
+    .bw-select option:checked {
+      color: var(--color-w-gold);
+    }
+    /* The tick on the chosen floor, at the end of its line rather than before it. */
+    .bw-select option::checkmark {
+      order: 1;
+      margin-inline-start: auto;
+      color: var(--color-w-gold);
+    }
+    .bw-select option:disabled {
+      color: rgb(240 234 224 / 0.3);
+      background: transparent;
+      cursor: not-allowed;
+    }
+    /* "Choose a floor" is what the closed select says, not a choice in its list. */
+    .bw-select option[value='']:disabled {
+      display: none;
+    }
+  }
+
+  /* --------------------------------------------------------------- columns */
+  .bw-slot {
+    --slot-crown: clamp(1.6rem, 2.6vw, 3rem);
+    border: 1px solid rgb(var(--gold-rgb) / 0.28);
+    background: linear-gradient(180deg, rgb(12 59 57 / 0.55), rgb(4 26 25 / 0.45));
+    box-shadow:
+      inset 0 1px 0 rgb(240 234 224 / 0.05),
+      0 30px 70px -34px rgb(2 12 11 / 0.8);
+    border-top-left-radius: var(--slot-crown);
+    border-top-right-radius: var(--slot-crown);
+  }
+  .bw-slot--add {
+    border-style: dashed;
+    border-color: rgb(var(--gold-rgb) / 0.42);
+    background: rgb(4 26 25 / 0.3);
+    box-shadow: none;
+  }
+
+  /* The grid's columns are worked out per tab (--cmp-cols); a lone column is centred. */
+  .bw-cmp-grid {
+    display: grid;
+    gap: clamp(0.7rem, 1.2vw, 1.6rem);
+    grid-template-columns: var(--cmp-cols, minmax(0, 1fr));
+    grid-template-rows: minmax(0, 1fr);
+    justify-content: center;
+    min-height: 0;
+  }
+
+  /* A sheet as large as its box allows at its own aspect — the plan viewer's fit. */
+  .bw-cmp-sheet-box {
+    display: grid;
+    place-items: center;
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 0;
+    container-type: size;
+  }
+  .bw-cmp-sheet {
+    aspect-ratio: var(--aspect);
+    width: min(100cqw, calc(100cqh * var(--aspect)));
+    box-shadow: 0 24px 60px -30px rgb(4 26 25 / 0.75);
+  }
+
+  /* ------------------------------------------------------------ the plans */
+  .bw-area[data-locked] {
+    cursor: not-allowed;
+  }
+  .bw-plan-num {
+    fill: var(--color-w-gold);
+    stroke: var(--color-w-deep);
+    stroke-width: 1px;
+    vector-effect: non-scaling-stroke;
+  }
+  .bw-plan-num-text {
+    fill: var(--color-w-deep);
+    font-family: var(--font-display);
+    font-weight: 600;
+  }
+  /* One apartment's plan: what is around it veiled in the sheet's own ivory. */
+  .bw-unit-veil {
+    fill: var(--color-w-ivory);
+    fill-opacity: 0.8;
+  }
+  .bw-unit-outline {
+    fill: var(--color-w-gold);
+    fill-opacity: 0.12;
+    stroke: var(--color-w-gold-deep);
+    stroke-width: 2px;
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
+  }
+  .bw-key-unit {
+    fill: var(--color-w-gold);
+    fill-opacity: 0.85;
+    stroke: var(--color-w-gold-deep);
+    stroke-width: 1px;
+    vector-effect: non-scaling-stroke;
+  }
+}
+
+/* The comparison's layouts by screen. In the utilities layer because they re-shape
+   elements that carry Tailwind's own display and flex utilities, which outrank anything
+   in components. */
+@layer utilities {
+  /* The views: side by side on a landscape screen, one above the other on a portrait
+     one — a panorama is wider than it is tall. */
+  .bw-cmp-grid--views {
+    grid-template-columns: var(--cmp-cols);
+    grid-template-rows: minmax(0, 1fr);
+  }
+  @media (orientation: portrait) {
+    .bw-cmp-grid--views {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-rows: var(--cmp-rows);
+    }
+  }
+
+  /* A phone, or a tablet held upright: three columns side by side would leave each plan a
+     thumbnail, so floors and units stack instead. */
+  @media (max-width: 47.99rem), (orientation: portrait) and (max-width: 63.99rem) {
+    /* Floors: one plan above the next, the column scrolling under the tray. */
+    .bw-cmp-grid--floors {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-rows: none;
+      /* max-content, not auto: in a box of fixed height, auto rows over items with no
+         minimum height are squeezed to fit it, and the plans overlap instead of scroll. */
+      grid-auto-rows: max-content;
+      align-content: start;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+    }
+    .bw-cmp-grid--floors .bw-cmp-sheet-box {
+      flex: none;
+      container-type: normal;
+    }
+    .bw-cmp-grid--floors .bw-cmp-sheet {
+      width: 100%;
+    }
+
+    /* Units on a phone: one above the next, each its name across the top, its plan on the
+       left and its figures on the right — and the next choice a bar beneath them. A lone
+       unit keeps the column's own layout, plan above figures, and the whole height. */
+    .bw-cmp-grid--units {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-rows: var(--cmp-rows, max-content);
+      align-content: start;
+    }
+    .bw-cmp-grid--units:not([data-count='1']) .bw-unit-slot {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      grid-template-rows: auto minmax(0, 1fr);
+      column-gap: 0.2rem;
+    }
+    .bw-cmp-grid--units:not([data-count='1']) .bw-unit-head {
+      grid-column: 1 / -1;
+      grid-row: 1;
+    }
+    .bw-cmp-grid--units:not([data-count='1']) .bw-unit-slot > .bw-cmp-sheet-box {
+      grid-column: 1;
+      grid-row: 2;
+    }
+    .bw-cmp-grid--units:not([data-count='1']) .bw-unit-rows {
+      grid-column: 2;
+      grid-row: 2;
+      align-self: center;
+      padding-left: 0;
+      overflow: hidden;
+    }
+    /* The next choice is a bar here, with no height to give a plan; its buttons pick. */
+    .bw-cmp-grid--units .bw-add-plan {
+      display: none;
+    }
+  }
+
+  @media (min-width: 48rem) {
+    .bw-btn {
+      min-height: 0;
+    }
+  }
+}

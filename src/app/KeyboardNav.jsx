@@ -17,8 +17,9 @@ export function KeyboardNav() {
       return;
     }
     if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.altKey) return;
-    const tag = document.activeElement?.tagName;
-    if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return;
+    // A form control keeps its keys — including the options of a styled select's open
+    // list, which take focus themselves (see .bw-select in plans.css).
+    if (document.activeElement?.closest?.('input, select, textarea')) return;
 
     if (event.key === 'Escape' && stage === 'section') {
       goToMenu();

@@ -313,7 +313,9 @@ function Step({ dir, to, onStep }) {
   );
 }
 
-function ModeToggle({ view, mode, onChange }) {
+// Also the time of day for the compared views (CompareViewer), where `view` says only
+// which of the two any of the chosen floors were shot at.
+export function ModeToggle({ view, mode, onChange }) {
   const options = [
     { id: 'day', label: 'Day', icon: <SunIcon size="1em" /> },
     { id: 'night', label: 'Night', icon: <MoonIcon size="1em" /> },

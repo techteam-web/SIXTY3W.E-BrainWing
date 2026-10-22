@@ -53,6 +53,29 @@ export const CloseIcon = (p) => (
   </Icon>
 );
 
+// Two ways at once — the comparison's mark.
+export const CompareIcon = (p) => (
+  <Icon {...p}>
+    <path d="M4 8h14" />
+    <path d="M14.5 4.5L18 8l-3.5 3.5" />
+    <path d="M20 16H6" />
+    <path d="M9.5 12.5L6 16l3.5 3.5" />
+  </Icon>
+);
+
+export const PlusIcon = (p) => (
+  <Icon {...p}>
+    <path d="M12 5v14" />
+    <path d="M5 12h14" />
+  </Icon>
+);
+
+export const ChevronIcon = (p) => (
+  <Icon {...p}>
+    <path d="M6.5 9.5l5.5 5.5 5.5-5.5" />
+  </Icon>
+);
+
 export const SunIcon = (p) => (
   <Icon {...p}>
     <circle cx="12" cy="12" r="4.2" />
