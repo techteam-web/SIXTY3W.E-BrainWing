@@ -29,6 +29,10 @@ const APP_DATA = { day: DAY_DATA, night: NIGHT_DATA };
 // from one room. The limits are applied live whenever they change; the camera is only
 // moved to `start` when `key` changes, i.e. when a different room is chosen, never while
 // a room's own limits are being edited.
+//
+// `onLink(targetSceneId)`, optional: makes a scene's own linkHotspots (the Marzipano
+// Tool's walk-through arrows) into clickable markers. `linkLabel(targetSceneId)` names
+// each one. Without `onLink` no markers are drawn — the floor ladder has none anyway.
 export function PanoViewer({
   view,
   mode,
@@ -36,17 +40,25 @@ export function PanoViewer({
   tiles = TILE_BASE,
   onViewChange,
   lock = null,
+  onLink = null,
+  linkLabel = null,
 }) {
   const host = useRef(null);
   const ctx = useRef(null);
   const [ready, setReady] = useState(false);
   const report = useRef(onViewChange);
+  // Scenes are built once and cached, so their markers read the latest handlers
+  // through refs rather than whatever was current when the scene was first made.
+  const link = useRef(onLink);
+  const label = useRef(linkLabel);
 
   useGSAP(
     () => {
       report.current = onViewChange;
+      link.current = onLink;
+      label.current = linkLabel;
     },
-    { dependencies: [onViewChange] },
+    { dependencies: [onViewChange, onLink, linkLabel] },
   );
 
   useIdleTask(() => {
@@ -129,6 +141,7 @@ export function PanoViewer({
 
         scene = viewer.createScene({ source, geometry, view: sceneView, pinFirstLevel: true });
         scenes.set(key, scene);
+        if (link.current) addLinks(scene, sceneData.linkHotspots, link, label);
       }
 
       scene.switchTo({ transitionDuration: 500 });
@@ -190,4 +203,55 @@ export function PanoViewer({
       aria-label={view ? `360° view of the ${view.label}` : '360° panoramic view'}
     />
   );
+}
+
+// One marker per walk-through arrow, built as plain DOM because Marzipano owns where it
+// sits: it writes its own transform onto the element it is given, so that element is a
+// zero-size anchor and the visible button is centred on it from inside.
+function addLinks(scene, hotspots, link, label) {
+  const container = scene.hotspotContainer();
+  for (const h of hotspots ?? []) {
+    const name = label.current?.(h.target) ?? h.target;
+
+    const anchor = document.createElement('div');
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.setAttribute('aria-label', `Go to ${name}`);
+    button.className =
+      'group absolute left-0 top-0 flex -translate-x-1/2 -translate-y-1/2 cursor-pointer flex-col items-center gap-[0.45em]';
+
+    // The glow: a steady gold halo on the ring, and behind it a soft pulse that keeps
+    // ringing out so an arrow is found at a glance against a busy, bright render — the
+    // one moving thing in the scene. Stilled for visitors who ask for reduced motion.
+    const pulse = document.createElement('span');
+    pulse.setAttribute('aria-hidden', 'true');
+    pulse.className =
+      'pointer-events-none absolute left-1/2 top-[1.3rem] h-[2.6rem] w-[2.6rem] -translate-x-1/2 -translate-y-1/2 animate-ping rounded-full bg-w-gold/45 [animation-duration:1.8s] motion-reduce:hidden';
+
+    const ring = document.createElement('span');
+    ring.className =
+      'relative grid h-[2.6rem] w-[2.6rem] place-items-center rounded-full border border-w-gold-lit bg-w-deep/70 text-w-gold-lit shadow-[0_0_18px_4px_rgb(var(--gold-rgb)/0.6),0_0_42px_10px_rgb(var(--gold-rgb)/0.25)] backdrop-blur-sm transition-all duration-300 group-hover:scale-110 group-hover:bg-w-gold group-hover:text-w-deep group-hover:shadow-[0_0_26px_8px_rgb(var(--gold-rgb)/0.8)]';
+    ring.innerHTML =
+      '<svg viewBox="0 0 24 24" width="1.15em" height="1.15em" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5"/><path d="M6 11l6-6 6 6"/></svg>';
+
+    const text = document.createElement('span');
+    text.className =
+      'whitespace-nowrap rounded-full bg-w-deep/85 px-[0.75em] py-[0.25em] text-[0.62rem] uppercase tracking-[0.18em] text-w-cream opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-visible:opacity-100';
+    text.textContent = name;
+
+    button.append(pulse, ring, text);
+    anchor.append(button);
+
+    // Marzipano drags the view from any press inside it; a press on a marker must stay a
+    // click, not start a drag.
+    for (const type of ['mousedown', 'touchstart', 'pointerdown', 'wheel']) {
+      button.addEventListener(type, (e) => e.stopPropagation(), { passive: type !== 'mousedown' });
+    }
+    button.addEventListener('click', (e) => {
+      e.stopPropagation();
+      link.current?.(h.target);
+    });
+
+    container.createHotspot(anchor, { yaw: h.yaw, pitch: h.pitch });
+  }
 }

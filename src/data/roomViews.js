@@ -75,5 +75,6 @@ export const floorViewFor = (key) => ROOM_VIEWS.floors[key] ?? ROOM_VIEWS.floors
 // staring straight down at the drone's own shadow.
 export const DEFAULT_PITCH = [-35, 20];
 
+
 export const roomViewFor = (planId, areaId) => ROOM_VIEWS[planId]?.[areaId] ?? null;
 

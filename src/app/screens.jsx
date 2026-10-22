@@ -3,6 +3,7 @@ import { Menu } from '../screens/Menu';
 import { Overview } from '../screens/sections/Overview';
 import { Panorama } from '../screens/sections/Panorama';
 import { Residences } from '../screens/sections/Residences';
+import { Apartment } from '../screens/sections/Apartment';
 import { Amenities } from '../screens/sections/Amenities';
 import { Level26 } from '../screens/sections/Level26';
 import { FloorPlans } from '../screens/sections/FloorPlans';
@@ -16,6 +17,7 @@ export const SECTION_SCREENS = {
   overview: Overview,
   'views-360': Panorama,
   residences: Residences,
+  apartment: Apartment,
   amenities: Amenities,
   'level-26': Level26,
   plans: FloorPlans,

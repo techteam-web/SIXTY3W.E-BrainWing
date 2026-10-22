@@ -1,140 +1,155 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Screen } from '../../layout/Screen';
 import { SectionHead } from './SectionHead';
-import { Crossfade } from '../../components/Crossfade';
+import { TourViewer } from '../../components/pano/TourViewer';
+import { TourCard } from '../../components/pano/TourCard';
+import { Portal } from '../../components/Primitives';
 import { AMENITIES } from '../../data/content';
-import { gsap, useGSAP, E } from '../../gsap/Gsapconfig';
+import { AMENITY_SCENES, AMENITY_TOUR, TOUR_START, thumbFor } from '../../data/galleryTour';
+import { useApp } from '../../app/appContext';
 
-// Ten amenities and one frame. A grid of ten thumbnails would give each of them a
-// postage stamp and the visitor a decision to make; a list beside one large arch-topped
-// window gives them a name to read and a picture worth looking at.
+// Ten amenities, and a 360° gallery of the eight that were shot in the round.
 //
-// The window is cut to the logo's crown — the same radius as the mark, the portal and
-// the transition — so the brand's one shape is doing the framing rather than a rounded
-// rectangle chosen by eye.
+// The list stays as the index — every amenity, by name — and points at the gallery:
+// pointing at a name lights its card. The gallery is where a visitor steps in: a card
+// opens the walkable tour on that space, and the tour's own arrows lead on from there
+// (src/data/galleryTour.js). Reading Nook and Bonsai Garden weren't shot in 360, so they
+// are names in the list with no card.
 
 const { items, eyebrow, headline, lede } = AMENITIES;
+const CARDS = items.filter((item) => AMENITY_SCENES[item.id]);
 
 export function Amenities() {
-  const [i, setI] = useState(0);
-  const item = items[i];
+  const [active, setActive] = useState(CARDS[0]?.id ?? null);
+  const [tour, setTour] = useState(null);
+  const tourRoot = useRef(null);
+  const { setImmersive } = useApp();
 
-  const onEnter = useCallback((next) => setI(next), []);
+  // The tour owns its corner (Back alone), the way the other 360° views do.
+  useEffect(() => {
+    setImmersive(tour != null);
+    return () => setImmersive(false);
+  }, [tour, setImmersive]);
+
+  const point = useCallback((id) => setActive(id), []);
+  const open = useCallback((id) => {
+    const scene = AMENITY_SCENES[id];
+    if (scene) setTour(scene);
+    else setActive(id);
+  }, []);
 
   return (
     <Screen id="amenities">
-      <div className="grid h-full min-h-0 grid-cols-[minmax(0,29%)_1fr] gap-[clamp(1.5rem,3%,3.4rem)] max-xl:grid-cols-[minmax(0,34%)_1fr] max-lg:grid-cols-1 max-lg:grid-rows-[auto_1fr] max-lg:items-start max-lg:gap-[clamp(1rem,2.4vh,1.8rem)]">
+      <div className="grid h-full min-h-0 grid-cols-[minmax(0,29%)_1fr] gap-[clamp(1.5rem,3%,3.4rem)] max-xl:grid-cols-[minmax(0,34%)_1fr] max-lg:grid-cols-1 max-lg:grid-rows-[auto_minmax(0,1fr)] max-lg:gap-[clamp(1rem,2.4vh,1.8rem)]">
         <div className="flex min-h-0 flex-col justify-center gap-[clamp(1rem,3vh,2.4rem)]">
           <SectionHead eyebrow={eyebrow} headline={headline} lede={lede} />
-          <List items={items} active={i} onEnter={onEnter} />
+          <List items={items} active={active} onPoint={point} onOpen={open} />
+          {/* The whole level from the beginning: out of the lift, then wherever the
+              arrows lead. The cards drop a visitor straight into one space instead. */}
+          <div data-stagger>
+            <Portal onClick={() => setTour(TOUR_START)} className="self-start">
+              Start 360° Tour
+            </Portal>
+          </div>
         </div>
 
-        <Window item={item} index={i} />
+        <Gallery cards={CARDS} active={active} onPoint={point} onOpen={open} />
       </div>
+
+      {/* Overlaid, not swapped in for the whole screen: the gallery stays mounted behind,
+          so coming Back needs nothing re-laid-out. */}
+      {tour ? (
+        <TourViewer
+          tour={AMENITY_TOUR}
+          start={tour}
+          onBack={() => setTour(null)}
+          backLabel="Back to the amenities"
+          rootRef={tourRoot}
+        />
+      ) : null}
     </Screen>
   );
 }
 
 /* -------------------------------------------------------------------- list */
 
-function List({ items, active, onEnter }) {
+function List({ items, active, onPoint, onOpen }) {
   return (
     <ul
       data-stagger
-      className="grid grid-cols-2 gap-x-[clamp(0.8rem,1.4vw,1.8rem)] gap-y-[0.1em] max-lg:grid-cols-3 max-md:grid-cols-2"
+      className="grid grid-cols-2 gap-x-[clamp(0.8rem,1.4vw,1.8rem)] gap-y-[0.1em] max-lg:grid-cols-3 max-md:hidden"
     >
-      {items.map((item, i) => (
-        <li key={item.id} className="min-w-0">
-          <button
-            type="button"
-            aria-current={i === active}
-            onPointerEnter={(e) => {
-              if (e.pointerType === 'touch') return;
-              onEnter(i);
-            }}
-            onFocus={() => onEnter(i)}
-            onClick={() => onEnter(i)}
-            className="group flex w-full min-w-0 items-center gap-[0.6em] py-[clamp(0.28rem,0.85vh,0.6rem)] text-left"
-          >
-            <span
-              aria-hidden="true"
-              className={`h-px shrink-0 bg-w-gold transition-all duration-400 ease-out ${
-                i === active ? 'w-[1.5em] opacity-100' : 'w-[0.5em] opacity-40'
-              }`}
-            />
-            <span
-              className={`min-w-0 truncate text-caption uppercase tracking-[0.14em] transition-colors duration-300 ${
-                i === active ? 'text-w-cream' : 'text-w-cream/50 group-hover:text-w-cream/85'
-              }`}
+      {items.map((item) => {
+        const on = item.id === active;
+        const has360 = !!AMENITY_SCENES[item.id];
+        return (
+          <li key={item.id} className="min-w-0">
+            <button
+              type="button"
+              aria-current={on}
+              aria-label={has360 ? `${item.title} — open 360° view` : item.title}
+              onPointerEnter={(e) => {
+                if (e.pointerType === 'touch') return;
+                onPoint(item.id);
+              }}
+              onFocus={() => onPoint(item.id)}
+              onClick={() => onOpen(item.id)}
+              className="group flex w-full min-w-0 items-center gap-[0.6em] py-[clamp(0.28rem,0.85vh,0.6rem)] text-left"
             >
-              {item.title}
-            </span>
-          </button>
-        </li>
-      ))}
+              <span
+                aria-hidden="true"
+                className={`h-px shrink-0 bg-w-gold transition-all duration-400 ease-out ${
+                  on ? 'w-[1.5em] opacity-100' : 'w-[0.5em] opacity-40'
+                }`}
+              />
+              <span
+                className={`min-w-0 truncate text-caption uppercase tracking-[0.14em] transition-colors duration-300 ${
+                  on ? 'text-w-cream' : 'text-w-cream/50 group-hover:text-w-cream/85'
+                }`}
+              >
+                {item.title}
+              </span>
+              {has360 ? (
+                <span
+                  className={`shrink-0 text-micro tracking-[0.12em] transition-colors duration-300 ${
+                    on ? 'text-w-gold' : 'text-w-gold/40'
+                  }`}
+                >
+                  360°
+                </span>
+              ) : null}
+            </button>
+          </li>
+        );
+      })}
     </ul>
   );
 }
 
-/* ------------------------------------------------------------------ window */
+/* ----------------------------------------------------------------- gallery */
 
-function Window({ item, index }) {
-  const root = useRef(null);
-
-  useGSAP(
-    () => {
-      gsap.fromTo(
-        '[data-window-part]',
-        { y: 18, autoAlpha: 0 },
-        { y: 0, autoAlpha: 1, duration: 0.62, ease: E.out, stagger: 0.06, overwrite: 'auto' },
-      );
-    },
-    { dependencies: [index], scope: root, revertOnUpdate: false },
-  );
-
+// Four across, two down, filling the column — sized by the grid, never by the picture,
+// so it can't push the screen past its own height. The thumbnail is the scene's own
+// lowest tile on the face it opens facing (thumbFor), so a card shows what stepping in
+// will show.
+function Gallery({ cards, active, onPoint, onOpen }) {
   return (
-    <div
+    <ul
       data-stagger
-      ref={root}
-      className="relative flex min-h-0 w-full flex-col justify-center"
+      data-ring-focus
+      className="grid h-full min-h-0 grid-cols-4 grid-rows-2 gap-[clamp(0.6rem,1.1vw,1.2rem)] max-md:grid-cols-2 max-md:grid-rows-4"
     >
-      {/* The screen's subject: the page transition's ring opens around it. As large as
-          the screen allows — the picture is the argument here, so the name and caption
-          sit ON it, over a foot scrim, rather than taking height away from it below. */}
-      <div data-ring-focus className="relative min-h-0">
-        {/* A gold hairline standing just outside the frame, offset the way a mount board
-            sits behind a print. It is the only decoration on this screen. */}
-        <span
-          aria-hidden="true"
-          className="crown pointer-events-none absolute -inset-[0.7em] border border-w-gold/25 max-md:-inset-[0.45em]"
-        />
-        <Crossfade
-          id={item.render}
-          sizes="(max-width: 1024px) 92vw, 52vw"
-          className="crown relative aspect-[16/10] max-h-[73vh] w-full max-lg:max-h-[46vh]"
-          position="50% 50%"
-          priority
-        />
-        <span
-          aria-hidden="true"
-          className="crown pointer-events-none absolute inset-0"
-          style={{
-            background:
-              'linear-gradient(0deg, rgb(4 26 25 / 0.82) 0%, rgb(4 26 25 / 0.5) 16%, rgb(4 26 25 / 0) 34%)',
-          }}
-        />
-        <div className="absolute inset-x-0 bottom-0 flex min-w-0 flex-col gap-[0.35em] overflow-hidden px-[clamp(1rem,2.2vw,2.6rem)] pb-[clamp(0.9rem,2.4vh,2rem)] [text-shadow:0_1px_18px_rgb(0_0_0/0.5)]">
-          <span
-            data-window-part
-            className="text-title font-light uppercase tracking-[0.13em] text-w-cream"
-          >
-            {item.title}
-          </span>
-          <span data-window-part className="text-caption text-w-cream/80">
-            {item.caption}
-          </span>
-        </div>
-      </div>
-    </div>
+      {cards.map((item) => (
+        <li key={item.id} className="min-h-0 min-w-0">
+          <TourCard
+            title={item.title}
+            image={thumbFor(AMENITY_SCENES[item.id])}
+            on={item.id === active}
+            onPoint={() => onPoint(item.id)}
+            onOpen={() => onOpen(item.id)}
+          />
+        </li>
+      ))}
+    </ul>
   );
 }
