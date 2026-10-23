@@ -39,16 +39,16 @@
 // Pool 11. Fine-tune any of them with ?calibrate and paste the result over its line.
 export const ROOM_VIEWS = {
   'typical-low': {
-          _1: { start: { yaw: -119.7, pitch: -2.5, fov: 55 }, yaw: [-170.4, -67] },
-         _2: { start: { yaw: -169.4, pitch: -2.5, fov: 55 }, yaw: [121.1, -113.6] },
-          _3: { start: { yaw: 175.4, pitch: -2.5, fov: 55 }, yaw: [113.2, -125] },
-         _4: { start: { yaw: 114.4, pitch: -2.5, fov: 55 }, yaw: [59.6, 169.9] },
+               _1: { start: { yaw: -119.7, pitch: -2.5, fov: 55 }, yaw: [-170.4, -67], pitch: [-11.4, 43.6] },
+              _2: { start: { yaw: -169.4, pitch: -2.5, fov: 55 }, yaw: [121.1, -113.6], pitch: [-18.1, 36.9] },
+              _3: { start: { yaw: 175.4, pitch: -2.5, fov: 55 }, yaw: [113.2, -125], pitch: [-14, 41] },
+              _4: { start: { yaw: 114.4, pitch: -2.5, fov: 55 }, yaw: [59.6, 169.9], pitch: [-17.9, 37.1] },
   },
   'typical-high': {
-    _1: { start: { yaw: -115.4, pitch: -7.5, fov: 55 }, yaw: [-163, -63.4] },
-    _2: { start: { yaw: -163.2, pitch: -7.5, fov: 55 }, yaw: [129.7, -113.3] },
-    _3: { start: { yaw: 156.2, pitch: -7.5, fov: 55 }, yaw: [112.5, -134.2] },
-    _4: { start: { yaw: 99.8, pitch: -7.5, fov: 55 }, yaw: [57.2, 159.9] },
+         _1: { start: { yaw: -115.4, pitch: -7.5, fov: 55 }, yaw: [-163, -63.4], pitch: [-23, 32] },
+         _2: { start: { yaw: -163.2, pitch: -7.5, fov: 55 }, yaw: [129.7, -113.3], pitch: [-24.7, 30.3] },
+          _3: { start: { yaw: 156.2, pitch: -7.5, fov: 55 }, yaw: [112.5, -134.2], pitch: [-20.7, 34.3] },
+          _4: { start: { yaw: 99.8, pitch: -7.5, fov: 55 }, yaw: [57.2, 159.9], pitch: [-22.8, 32.2] },
   },
   amenity: {
     Games_Room: { start: { yaw: -95, pitch: -8, fov: 180 }, yaw: [-165, -25] },
@@ -78,3 +78,8 @@ export const DEFAULT_PITCH = [-35, 20];
 
 export const roomViewFor = (planId, areaId) => ROOM_VIEWS[planId]?.[areaId] ?? null;
 
+
+
+      // _4: { start: { yaw: 99.8, pitch: -7.5, fov: 55 }, yaw: [57.2, 159.9] },
+
+            // _4: { pitch: [-20.8, 34.2] },

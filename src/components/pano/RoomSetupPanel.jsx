@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { editRoom, allRoomViews, useRoomDrafts } from '../../data/roomViewDraft';
+import { DEFAULT_PITCH } from '../../data/roomViews';
 import { complete, pitchToSetup, toDeg } from '../../features/pano/panoLimits';
 
 // SETUP MODE — shown only with ?calibrate on the URL, on every floor's 360° view, for
@@ -9,7 +10,8 @@ import { complete, pitchToSetup, toDeg } from '../../features/pano/panoLimits';
 //
 // The edge buttons record the EDGE OF THE SCREEN in that direction: turn until the left
 // edge of the screen sits where the room's outlook should stop, press "Left edge", and
-// the same for the right.
+// the same for the right. Tilt works the same way: tilt until the top edge of the screen
+// is as high as the view should go, press "Top edge", and likewise for the bottom.
 
 export const SETUP_MODE =
   typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('calibrate');
@@ -40,6 +42,8 @@ export function RoomSetupPanel({ room, roomView, getView, readoutRef }) {
 
   const { planId, areaId, label } = room;
   const yaw = roomView?.yaw ?? [null, null];
+  // [bottom, top], up positive. Unset means the room falls back to DEFAULT_PITCH.
+  const pitch = roomView?.pitch ?? null;
 
   const capture = (fn) => () => {
     const v = getView();
@@ -61,6 +65,24 @@ export function RoomSetupPanel({ room, roomView, getView, readoutRef }) {
     capture((v) => {
       const edge = wrap180(toDeg(side === 'left' ? v.yaw - v.hfov / 2 : v.yaw + v.hfov / 2));
       editRoom(planId, areaId, { yaw: side === 'left' ? [edge, yaw[1]] : [yaw[0], edge] }, roomView);
+    });
+
+  // The screen's top or bottom edge, in the setup's own terms (degrees, up positive).
+  // Until both ends are set the range is half-set, and a half-set range locks nothing —
+  // which is what lets a visitor tilt past the default to find the edge in the first
+  // place. "Unlock" frees it the same way, rather than dropping back to the default.
+  const setTilt = (side) =>
+    capture((v) => {
+      const centre = pitchToSetup(v.pitch);
+      const half = toDeg(v.vfov) / 2;
+      const edge = r1(side === 'top' ? centre + half : centre - half);
+      const [bottom, top] = pitch ?? [null, null];
+      editRoom(
+        planId,
+        areaId,
+        { pitch: side === 'top' ? [bottom, edge] : [edge, top] },
+        roomView,
+      );
     });
 
   const copy = async (text, what) => {
@@ -124,6 +146,21 @@ export function RoomSetupPanel({ room, roomView, getView, readoutRef }) {
         <Btn onClick={setEdge('left')}>Left edge</Btn>
         <Btn onClick={setEdge('right')}>Right edge</Btn>
         <Btn onClick={() => editRoom(planId, areaId, { yaw: null }, roomView)} quiet>
+          Unlock
+        </Btn>
+      </Section>
+
+      <Section
+        title="Tilt bottom → top"
+        value={
+          pitch
+            ? `${fmt(pitch[0])} → ${fmt(pitch[1])}`
+            : `Default ${fmt(DEFAULT_PITCH[0])} → ${fmt(DEFAULT_PITCH[1])}`
+        }
+      >
+        <Btn onClick={setTilt('bottom')}>Bottom edge</Btn>
+        <Btn onClick={setTilt('top')}>Top edge</Btn>
+        <Btn onClick={() => editRoom(planId, areaId, { pitch: [null, null] }, roomView)} quiet>
           Unlock
         </Btn>
       </Section>
