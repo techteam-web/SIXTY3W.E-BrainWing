@@ -19,7 +19,9 @@ export function TourMap({ map, here, onPick }) {
   );
   const [hover, setHover] = useState(null);
 
-  const render = getRender(map.render);
+  // The picture: an image of its own (`map.image`: { src, width, height }), or one of the
+  // app's renders by id (`map.render`).
+  const render = map.image ?? getRender(map.render);
   // The window shows only `crop` of the render; the render itself (and every dot, placed
   // against it) is drawn at full size behind the window and shifted, so a dot still sits
   // exactly on its spot however tight the crop.
@@ -75,7 +77,17 @@ export function TourMap({ map, here, onPick }) {
 
       <div className="relative w-full overflow-hidden" style={{ aspectRatio: aspect }}>
        <div className="absolute" style={layer}>
-        <Render id={map.render} sizes="(max-width: 767px) 20rem, 30vw" className="h-full w-full" />
+        {map.image ? (
+          <img
+            src={map.image.src}
+            alt=""
+            draggable={false}
+            decoding="async"
+            className="block h-full w-full object-cover"
+          />
+        ) : (
+          <Render id={map.render} sizes="(max-width: 767px) 20rem, 30vw" className="h-full w-full" />
+        )}
         {/* A whisper of shade, so cream numbers and gold dots hold up on a bright deck. */}
         <span aria-hidden="true" className="absolute inset-0 bg-w-deep/25" />
 

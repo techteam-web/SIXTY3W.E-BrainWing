@@ -7,7 +7,7 @@
 
 const FACES = ['f', 'r', 'b', 'l'];
 
-// `map`, optional: `{ render, title, points: [{ place, n, u, v }] }` — a picture of the
+// `map`, optional: `{ render | image, title, crop, points: [{ place, n, u, v }] }` — a picture of the
 // whole tour with a numbered dot per place, at u/v normalised against that render. Each
 // dot is given the place's first camera, so clicking it lands where the jump menu would.
 //

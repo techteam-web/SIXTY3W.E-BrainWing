@@ -1,42 +1,40 @@
 import GALLERY_DATA from './GalleryPanoData';
-import { LEVEL26 } from './content';
+import levelMap from '../assets/mini map/level-26-map.webp?url';
 import { makeTour } from './tours';
 
 // The amenity level's tour: what its scenes are called, where the full walk begins, and
 // which scene each amenity's card opens on. Names come from looking at each scene.
 
-// The tour's map is the Level 26 aerial render, with each place on the brochure's own
-// numbered callout for it (LEVEL26.spots — lifted from the PDF, not placed by eye), so the
+// The tour's map: the supplied top-down render of Level 26 (src/assets/mini map), drawn
+// straight down so every amenity reads from above. Each place's dot is set on what the
+// render shows there — the pool, the deck and its umbrella, the play structure, the
+// raked-sand zen garden, the cabana pods, the cinema lawn (the screen is on the tower
+// wall at its foot, as the cinema camera shows), the games floor, the gym, the yoga mats
+// and the toddlers' room — and numbered with the brochure's own callout number, so the
 // numbers match the Level 26 page. Lift Lobby, Passage to Terrace and Sky Lawn have no
-// callout in the brochure, so they have no dot rather than a guessed one.
-const SPOT_FOR_PLACE = {
-  'Fitness Centre': 1,
-  'Yoga & Pilates': 2,
-  'Toddlers Room': 5,
-  'Kids Play Area': 8,
-  'Infinity Pool': 10,
-  'Pool Deck': 11,
-  'Cabana Seating': 13,
-  'Outdoor Cinema': 16,
-  'Zen Rock Garden': 17,
-  'Games Room': 18,
-};
-
-const SPOT = Object.fromEntries(LEVEL26.spots.map((s) => [s.n, s]));
+// callout in the brochure, so they have no dot. u/v are fractions of the render.
+const MAP_POINTS = [
+  { place: 'Fitness Centre', n: 1, u: 0.493, v: 0.861 },
+  { place: 'Yoga & Pilates', n: 2, u: 0.637, v: 0.85 },
+  { place: 'Toddlers Room', n: 5, u: 0.742, v: 0.537 },
+  { place: 'Kids Play Area', n: 8, u: 0.529, v: 0.191 },
+  { place: 'Infinity Pool', n: 10, u: 0.423, v: 0.239 },
+  { place: 'Pool Deck', n: 11, u: 0.44, v: 0.398 },
+  { place: 'Cabana Seating', n: 13, u: 0.556, v: 0.082 },
+  { place: 'Outdoor Cinema', n: 16, u: 0.529, v: 0.34 },
+  { place: 'Zen Rock Garden', n: 17, u: 0.589, v: 0.186 },
+  { place: 'Games Room', n: 18, u: 0.3, v: 0.606 },
+];
 
 export const AMENITY_TOUR = makeTour({
   map: {
-    render: 'level26',
+    // A web copy (1100 wide, sharp) of "level 26.png", which is 3.5 MB.
+    image: { src: levelMap, width: 1672, height: 941 },
     title: 'Euphoria · Level 26',
-    // [u0, v0, u1, v1]: just the deck. The render is mostly road and trees around it, and
-    // a map this small can't spend its width on those.
-    crop: [0.2, 0.1, 0.72, 0.7],
-    points: Object.entries(SPOT_FOR_PLACE).map(([place, n]) => ({
-      place,
-      n,
-      u: SPOT[n].u,
-      v: SPOT[n].v,
-    })),
+    // [u0, v0, u1, v1]: the deck and the building, without most of the road and trees
+    // around it, which a map this small can't spend its width on.
+    crop: [0.15, 0, 0.83, 1],
+    points: MAP_POINTS,
   },
   data: GALLERY_DATA,
   // The folder really is spelt "Gallary" on disk, and a production server is
