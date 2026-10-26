@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Screen } from '../../layout/Screen';
 import { PanoViewer } from '../../features/pano/PanoViewer';
-import { PANO_VIEWS } from '../../data/panoViews';
+import { PANO_VIEWS, AAREY_START } from '../../data/panoViews';
 import { SunIcon, MoonIcon } from '../../components/Icons';
 
 // The brochure has no page for this — it is the one thing a printed document cannot
@@ -13,6 +13,9 @@ import { SunIcon, MoonIcon } from '../../components/Icons';
 // this screen; the tour explains itself the moment a visitor drags it.
 
 const TERRACE_VIEW = PANO_VIEWS.find((v) => v.id === 'terrace');
+// Opens facing Aarey rather than the tiler's own yaw 0, which faces the nallah. A start
+// only: no limits, the whole 360° stays free to turn.
+const OPEN_ON_AAREY = { key: 'aarey', start: AAREY_START };
 
 export function Panorama() {
   const [mode, setMode] = useState('day');
@@ -20,7 +23,7 @@ export function Panorama() {
   return (
     <Screen id="views-360" padded={false}>
       <div className="absolute inset-0 z-0">
-        <PanoViewer view={TERRACE_VIEW} mode={mode} />
+        <PanoViewer view={TERRACE_VIEW} mode={mode} lock={OPEN_ON_AAREY} />
       </div>
 
       <div

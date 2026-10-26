@@ -58,7 +58,7 @@ export const OVERVIEW = {
     { initial: 'W', rest: 'onderful Living,' },
     { initial: 'E', rest: 'xclusive Lifestyle' },
   ],
-  lede: "At Sixty3 W.E. Residences, luxury living is redefined. Wake up to breathtaking views where the morning light dances across premium finishes, and nature's charm flows effortlessly into your living space. Thoughtfully designed with airy layouts and floor-to-ceiling views, your home is a sanctuary that embraces the sky, the greens, and the city in perfect harmony.",
+  // lede: "At Sixty3 W.E. Residences, luxury living is redefined. Wake up to breathtaking views where the morning light dances across premium finishes, and nature's charm flows effortlessly into your living space. Thoughtfully designed with airy layouts and floor-to-ceiling views, your home is a sanctuary that embraces the sky, the greens, and the city in perfect harmony.",
   // The two outlooks the tower is sold on.
   views: [
     { id: 'aarey', title: 'Aarey Views', label: 'Panoramic green vistas over the Aarey forest' },

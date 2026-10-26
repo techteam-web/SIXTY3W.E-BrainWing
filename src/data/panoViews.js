@@ -5,6 +5,11 @@
 // `day` and `night` are that scene's id in the matching APP_DATA file, which is also the
 // name of its tile folder under /panos/Daytiles and /panos/Nighttiles.
 
+// Where each view opens, in degrees (setup convention: pitch up positive). The tiler's
+// own yaw 0 looks straight down the nallah; Aarey — the forest and the hills beyond the
+// highway — spans roughly 120°–220° in these drone shots, so the views open on it.
+export const AAREY_START = { yaw: 160, pitch: -4 };
+
 export const PANO_VIEWS = [
   { id: '32nd-floor', label: '32nd Floor', day: '0-day_32nd_floor', night: '0-night_32nd_floor' },
   { id: '31st-floor', label: '31st Floor', day: '1-day_31st_floor', night: '1-night_31st_floor' },

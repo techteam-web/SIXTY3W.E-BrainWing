@@ -122,7 +122,7 @@ function FloorSlot({ floor, n, floors, twin, units, full, onPick, onReplace, onR
                   className="bw-pick"
                 >
                   <span className="bw-pick-name">Apt {a.short}</span>
-                  <span className="bw-pick-meta">{a.carpet} sq.ft.</span>
+                  <span className="bw-pick-meta">{a.carpet != null ? `${a.carpet} sq.ft.` : a.type}</span>
                 </button>
               );
             })}

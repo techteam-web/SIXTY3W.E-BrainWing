@@ -32,6 +32,8 @@ export function CompareUnits({ units, onUnits, defaultFloor }) {
   const lead = (get) => {
     if (list.length < 2) return null;
     const values = list.map(get);
+    // A figure not published for one of them leads nowhere.
+    if (values.some((v) => v == null)) return null;
     const top = Math.max(...values);
     return values.every((v) => v === top) ? null : top;
   };
@@ -73,7 +75,9 @@ function UnitSlot({ unit, n, topCarpet, topLevel, onRemove }) {
   const [, , w, h] = unitFrame(area);
 
   const rows = [
-    ['RERA carpet area', `${area.carpet} sq.ft.`, topCarpet === area.carpet ? 'Largest' : null],
+    area.carpet != null
+      ? ['RERA carpet area', `${area.carpet} sq.ft.`, topCarpet === area.carpet ? 'Largest' : null]
+      : null,
     ['Type', area.type],
     ['Floor', ordinal(floor.level), topLevel === floor.level ? 'Highest' : null],
     ['Typical floors', plan.floorsLabel, null, true],
@@ -180,7 +184,7 @@ function AddUnitSlot({ taken, first, defaultFloor, onAdd }) {
               className="bw-pick"
             >
               <span className="bw-pick-name">Apt {a.short}</span>
-              <span className="bw-pick-meta">{on ? 'Added' : `${a.carpet} sq.ft.`}</span>
+              <span className="bw-pick-meta">{on ? 'Added' : a.carpet != null ? `${a.carpet} sq.ft.` : a.type}</span>
             </button>
           );
         })}

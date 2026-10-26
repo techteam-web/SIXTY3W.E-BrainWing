@@ -14,7 +14,7 @@
 //   · An amenity with a photograph in the render ladder links to it by render id.
 //
 // A floor opens a plan, a 360° view from its height, or both. Floors with a view but no
-// plan (6th, 13th, 20th, 27th–32nd) open the view only; the Ground and 1st floors have
+// plan (6th, 13th, 20th, 27th, 32nd) open the view only; the Ground and 1st floors have
 // neither and say so. The podium slab is not offered. See BUILDING below for how the SVG's
 // shapes map to real floor numbers.
 
@@ -30,20 +30,58 @@ import typicalHighSvg from '../assets/floorplans/TYPICAL FLOOR PLAN 11TH TO 12TH
 import typicalHighImage from '../assets/floorplans/TYPICAL FLOOR PLAN 11TH TO 12TH ,14TH TO 19TH , 21ST TO 25TH FLOOR-23.png?url';
 import amenitySvg from '../assets/floorplans/AMENITY PLAN 26TH FLOOR-24.svg?raw';
 import amenityImage from '../assets/floorplans/AMENITY PLAN 26TH FLOOR-24.PNG?url';
+import topSvg from '../assets/floorplans/Typical 28th to 31st Floor Plan-4.svg?raw';
+// Web copies of the supplied 7500×4500 PNGs (7–12 MB each), made with sharp: the whole
+// plate at 2880×1728 — the same artboard, so the traced shapes stay registered — and each
+// apartment's own sheet (A-1, A-2, A-3) cropped to its drawing.
+import topImage from '../assets/floorplans/web/typical-top-plan.webp?url';
+import topApt01 from '../assets/floorplans/web/typical-top-apt-01.webp?url';
+import topApt02 from '../assets/floorplans/web/typical-top-apt-02.webp?url';
+import topApt04 from '../assets/floorplans/web/typical-top-apt-04.webp?url';
 
 const range = (a, b) => Array.from({ length: b - a + 1 }, (_, i) => a + i);
 
-const residence = (no, carpet) => ({
+// `carpet` null: the RERA figure isn't published for that apartment yet, and every screen
+// that prints carpet area leaves the line out rather than guess one.
+const residence = (no, carpet, { type = '2 BHK', sheet = null } = {}) => ({
   kind: 'unit',
   label: `Apartment ${no}`,
   short: no,
-  type: '2 BHK',
+  type,
   carpet,
+  // The apartment's own plan sheet, shown in its details panel.
+  sheet,
 });
+
+// The 28th–31st plate came from a different export than the others: a 1800×1080
+// artboard, with its three apartments traced as untitled paths. It is brought into the
+// house convention here, on import, rather than by editing the supplied file — so a
+// re-export drops straight in:
+//   · scaled to the 460.8-wide artboard every other plan and the radar are drawn in
+//     (the stroke widths, the radar's rings and the frames all assume that size), and
+//   · its paths given the ids the app keys on, in the file's own order.
+// Only straight lines and curves occur in it; an arc's flags would not survive scaling.
+function conform(raw, ids, width = 460.8) {
+  const box = /viewBox="([^"]+)"/.exec(raw)[1].trim().split(/[\s,]+/).map(Number);
+  const k = width / box[2];
+  // Each number comes back with a space before it: path data packs ".76.32" as two
+  // numbers, and "0.195" + "0.082" written back to back would read as other numbers.
+  const scale = (s) =>
+    s.replace(/-?(?:\d+\.?\d*|\.\d+)(?:e-?\d+)?/gi, (n) => ` ${+(Number(n) * k).toFixed(3)}`);
+  let i = 0;
+  return raw
+    .replace(/viewBox="[^"]+"/, () => `viewBox="${box.map((v) => +(v * k).toFixed(3)).join(' ')}"`)
+    .replace(/<path\b/g, () => `<path id="${ids[i++]}"`)
+    .replace(/\sd="([^"]+)"/g, (_, d) => ` d="${scale(d)}"`);
+}
 
 // `frame` is the part of the 460.8×259.2 artboard the viewer opens on: the drawing's own
 // bounds, measured off the render's alpha channel, with a margin wide enough that the
 // sheet's arch crown never cuts into the linework. It frames; it moves nothing.
+//
+// `opensOn` is the room a floor's 360° view opens on when it is opened from the tower
+// rather than from a room: the one looking out over Aarey (the road side, roughly
+// 120°–220° in the drone shots). Apartment 01 looks the other way, down the nallah.
 export const PLANS = {
   'typical-low': {
     id: 'typical-low',
@@ -55,6 +93,7 @@ export const PLANS = {
     alt: 'Typical floor plan, 2nd to 5th and 7th to 10th floors',
     layer: parseSvgLayer(typicalLowSvg),
     frame: [66, 26, 329, 200],
+    opensOn: '_3', // Apartment 02, on the road side
     areas: {
       _1: residence('04', 579),
       _2: residence('03', 599),
@@ -72,11 +111,35 @@ export const PLANS = {
     alt: 'Typical floor plan, 11th to 12th, 14th to 19th and 21st to 25th floors',
     layer: parseSvgLayer(typicalHighSvg),
     frame: [66, 26, 329, 200],
+    opensOn: '_3', // Apartment 02, on the road side
     areas: {
       _1: residence('04', 634),
       _2: residence('03', 686),
       _3: residence('02', 686),
       _4: residence('01', 634),
+    },
+  },
+  // The top residential floors: three apartments where the floors below have four — the
+  // two wings, and Apartment 02 running the width of the deck side. The drawing numbers
+  // them itself (4 left, 1 right, 2 at the foot), and the supplied paths are in that
+  // order. Bedrooms counted off the sheets: the wings have two, Apartment 02 has four.
+  'typical-top': {
+    id: 'typical-top',
+    kind: 'residential',
+    title: 'Typical Floor Plan',
+    floorsLabel: '28th – 31st',
+    floors: range(28, 31),
+    image: topImage,
+    alt: 'Typical floor plan, 28th to 31st floors',
+    layer: parseSvgLayer(conform(topSvg, ['_4', '_1', '_2'])),
+    // The drawing's bounds off the PNG's alpha (219, 189 → 1580, 890 on the 1800-wide
+    // board), scaled, with the same margin the other plates leave for the arch crown.
+    frame: [42, 30, 377, 214],
+    opensOn: '_2', // Apartment 02, the whole deck side
+    areas: {
+      _1: residence('01', null, { sheet: topApt01 }),
+      _2: residence('02', null, { type: '4 BHK', sheet: topApt02 }),
+      _4: residence('04', null, { sheet: topApt04 }),
     },
   },
   amenity: {
@@ -90,6 +153,7 @@ export const PLANS = {
     alt: 'Amenity plan, 26th floor',
     layer: parseSvgLayer(amenitySvg),
     frame: [100, 14, 262, 226],
+    opensOn: 'F_I_T_N_E_S_S_C_E_N_T_R_E', // faces Aarey; the Lounge looks down the nallah
     areas: {
       Games_Room: { kind: 'amenity', label: 'Games Room', sqm: 79.18, sqft: 852.29, render: 'games' },
       F_I_T_N_E_S_S_C_E_N_T_R_E: {

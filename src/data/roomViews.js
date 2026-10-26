@@ -50,6 +50,15 @@ export const ROOM_VIEWS = {
           _3: { start: { yaw: 156.2, pitch: -7.5, fov: 55 }, yaw: [112.5, -134.2], pitch: [-20.7, 34.3] },
           _4: { start: { yaw: 99.8, pitch: -7.5, fov: 55 }, yaw: [57.2, 159.9], pitch: [-22.8, 32.2] },
   },
+  // 28th–31st: not calibrated on its own yet. Each wing takes the 11th–25th calibration of
+  // the wing in the same place (Apartment 04 left, 01 right). Apartment 02 runs the whole
+  // deck side where the floors below have 02 and 03, so it faces the road straight on
+  // across both their outlooks. Re-set any of them with ?calibrate.
+  'typical-top': {
+    _4: { start: { yaw: -115.4, pitch: -7.5, fov: 55 }, yaw: [-163, -63.4], pitch: [-23, 32] },
+    _1: { start: { yaw: 99.8, pitch: -7.5, fov: 55 }, yaw: [57.2, 159.9], pitch: [-22.8, 32.2] },
+    _2: { start: { yaw: 165, pitch: -7.5, fov: 55 }, yaw: [112.5, -113.3], pitch: [-24.7, 30.3] },
+  },
   amenity: {
     Games_Room: { start: { yaw: -95, pitch: -8, fov: 180 }, yaw: [-165, -25] },
     F_I_T_N_E_S_S_C_E_N_T_R_E: { start: { yaw: 179, pitch: -8, fov: 80 }, yaw: [109, -111] },
@@ -58,13 +67,13 @@ export const ROOM_VIEWS = {
     pool: { start: { yaw: 11, pitch: -8, fov: 80 }, yaw: [-69, 91] },
   },
 
-  // FLOORS WITH NO PLAN — the 6th, 13th, 20th, 27th–32nd and the terrace have no rooms
+  // FLOORS WITH NO PLAN — the 6th, 13th, 20th, 27th, 32nd and the terrace have no rooms
   // to look out of, so the whole floor gets one view. Keyed by floor number (or
   // 'terrace'); `default` covers every such floor without its own entry. The default
-  // faces the main road (yaw 180°, the side the radar was measured against) with the
+  // faces Aarey across the main road (yaw 165°; the forest spans ~120°–220°) with the
   // same 140° outlook as a room.
   floors: {
-    default: { start: { yaw: 180, pitch: -8, fov: 80 }, yaw: [110, -110] },
+    default: { start: { yaw: 165, pitch: -8, fov: 80 }, yaw: [110, -110] },
   },
 };
 

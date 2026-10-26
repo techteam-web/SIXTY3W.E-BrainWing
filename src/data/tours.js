@@ -7,11 +7,31 @@
 
 const FACES = ['f', 'r', 'b', 'l'];
 
-export function makeTour({ data, tiles, labels, fallback }) {
+// `map`, optional: `{ render, title, points: [{ place, n, u, v }] }` — a picture of the
+// whole tour with a numbered dot per place, at u/v normalised against that render. Each
+// dot is given the place's first camera, so clicking it lands where the jump menu would.
+//
+// `names`, optional: `{ sceneId: 'Reception Desk' }` — a camera's own name, for a place
+// big enough that "Point 4" tells a visitor nothing (a lobby that winds past half the
+// level). It replaces the numbered name for that camera only; the place it belongs to,
+// and so the jump menu and the map, are unchanged.
+//
+// `views`, optional: `{ sceneId: { yaw, pitch } }` (radians) — where a camera opens
+// facing, over the export's own, for a camera named after something it doesn't open on.
+// Applied to a copy; the export itself stays exactly as the Marzipano Tool wrote it.
+export function makeTour({ data: raw, tiles, labels, fallback, names: own = {}, views = {}, map = null }) {
+  const data = {
+    ...raw,
+    scenes: raw.scenes.map((s) =>
+      views[s.id]
+        ? { ...s, initialViewParameters: { ...s.initialViewParameters, ...views[s.id] } }
+        : s,
+    ),
+  };
   const byId = Object.fromEntries(data.scenes.map((s) => [s.id, s]));
 
-  // A place shot from more than one camera gets each one numbered — "Lift Lobby · Point
-  // 1" to "· Point 7" — in the export's own order, so no two arrows in a tour say the
+  // A place shot from more than one camera gets each one numbered — "Games Room · Point
+  // 1" to "· Point 3" — in the export's own order, so no two arrows in a tour say the
   // same thing and the name under Back says which spot you are standing on. A place
   // with one camera keeps its plain name.
   const place = (id) => labels[id] ?? fallback;
@@ -22,7 +42,7 @@ export function makeTour({ data, tiles, labels, fallback }) {
   for (const s of data.scenes) {
     const p = place(s.id);
     seen[p] = (seen[p] ?? 0) + 1;
-    names[s.id] = total[p] > 1 ? `${p} · Point ${seen[p]}` : p;
+    names[s.id] = own[s.id] ?? (total[p] > 1 ? `${p} · Point ${seen[p]}` : p);
   }
 
   // Every PLACE in the tour, once, in the export's own order, each pointing at the first
@@ -39,6 +59,14 @@ export function makeTour({ data, tiles, labels, fallback }) {
   }
 
   return {
+    map: map
+      ? {
+          ...map,
+          points: map.points
+            .filter((pt) => firstOf[pt.place])
+            .map((pt) => ({ ...pt, id: firstOf[pt.place] })),
+        }
+      : null,
     // The shape PanoViewer takes: one tile set, offered as "day" only.
     data: { day: data, night: data },
     tiles: { day: tiles, night: tiles },

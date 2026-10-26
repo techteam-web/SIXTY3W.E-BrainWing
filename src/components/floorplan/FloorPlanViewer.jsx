@@ -29,7 +29,9 @@ const DRAG = 6;
 
 const summary = (a) =>
   a.kind === 'unit'
-    ? `${a.type} · ${a.carpet} sq.ft.`
+    ? a.carpet != null
+      ? `${a.type} · ${a.carpet} sq.ft.`
+      : a.type
     : a.sqft != null
       ? `${a.sqft.toFixed(2)} sq.ft.`
       : 'View details';

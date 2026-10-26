@@ -4,6 +4,7 @@ import { useIdleTask } from '../../hooks/useEventListener';
 import { PROJECT, LANDMARKS, LANDMARK_BY_ID, ALWAYS_ON, HOME_VIEW } from '../../data/landmarks';
 import { buildMapStyle } from './mapStyle';
 import { fetchRoute } from './routing';
+import { addHighway, animateHighway } from './highway';
 
 // MapLibre is imported dynamically so ~1 MB of map code and CSS stays out of the initial
 // bundle, and it mounts only on the first visit to this section. Until it lands, the
@@ -98,10 +99,15 @@ const PROJECT_MARK =
     .join('') +
   '</svg>';
 
-export function EstateMap({ activeCategory, focusId, highlightId, onRoute }) {
+// `onPick(id)`, optional: a landmark dot on the map was clicked — the same choice as its
+// row in the panel, so the caller toggles focus exactly as the row does.
+export function EstateMap({ activeCategory, focusId, highlightId, onRoute, onPick }) {
   const host = useRef(null);
   const map = useRef(null);
   const markers = useRef(new Map());
+  // The markers are built once, on load; they call the latest handler through this.
+  const pick = useRef(onPick);
+  pick.current = onPick;
   const draw = useRef({ t: 0 });
   const abort = useRef(null);
   const routeFade = useRef({ o: 0 });
@@ -216,6 +222,10 @@ export function EstateMap({ activeCategory, focusId, highlightId, onRoute }) {
           },
         });
 
+        // The highway, drawn by the app as one clean line (see highway.js). Under the
+        // route, which must always read as the line on top.
+        addHighway(m);
+
         m.addSource(ROUTE_SRC, { type: 'geojson', data: EMPTY });
 
         // The routed line, in three passes: a faint halo, a dark casing and the gold
@@ -265,6 +275,15 @@ export function EstateMap({ activeCategory, focusId, highlightId, onRoute }) {
             '<span class="w63-landmark__spark" style="--a: 155deg"></span>' +
             '<span class="w63-landmark__spark" style="--a: 265deg"></span>' +
             `<span class="w63-landmark__label">${l.name}</span>`;
+          // A lit dot is clickable, the same as its row. A dimmed one (another
+          // category) and the orientation nodes are not.
+          if (!ALWAYS_ON.has(l.cat)) {
+            el.addEventListener('click', (e) => {
+              if (el.getAttribute('data-dim') === 'true') return;
+              e.stopPropagation();
+              pick.current?.(l.id);
+            });
+          }
           new maplibregl.Marker({ element: el, anchor: 'center' })
             .setLngLat([l.lng, l.lat])
             .addTo(m);
@@ -301,6 +320,17 @@ export function EstateMap({ activeCategory, focusId, highlightId, onRoute }) {
     { dependencies: [loaded] },
   );
 
+  // The highway draws itself out from the tower and then carries its lights, every time
+  // this screen opens (the map is built fresh with the screen). Stopped on unmount.
+  useGSAP(
+    () => {
+      const m = map.current?.m;
+      if (!loaded || !m) return undefined;
+      return animateHighway(m);
+    },
+    { dependencies: [loaded] },
+  );
+
   // Only the chosen category is drawn, plus the orientation nodes. Thirty dots at once
   // is a map nobody can read — and their NAMES stay off until a dot or its row in the
   // panel is pointed at, because five connectivity landmarks inside one kilometre put
@@ -322,9 +352,12 @@ export function EstateMap({ activeCategory, focusId, highlightId, onRoute }) {
     () => {
       for (const [id, el] of markers.current) {
         el.setAttribute('data-active', String(id === highlightId));
+        // The chosen place: its own dot steps aside for the beacon (showDest) drawn on
+        // the same spot, so there is one mark there, not two.
+        el.setAttribute('data-focus', String(id === focusId));
       }
     },
-    { dependencies: [highlightId, loaded] },
+    { dependencies: [highlightId, focusId, loaded] },
   );
 
   /* ------------------------------------------------------------- directions */
@@ -356,9 +389,18 @@ export function EstateMap({ activeCategory, focusId, highlightId, onRoute }) {
 
     const el = document.createElement('div');
     el.className = 'w63-dest';
+    // A beacon on the place itself: two rings rippling out, a bright core, and its name
+    // and drive time in a tag beside it — readable at a glance across the room.
     el.innerHTML =
-      '<span class="w63-dest__pin"></span>' + `<span class="w63-dest__name">${dest.name}</span>`;
-    destMarker.current = new maplibregl.Marker({ element: el, anchor: 'bottom' })
+      '<span class="w63-dest__ring"></span>' +
+      '<span class="w63-dest__ring w63-dest__ring--late"></span>' +
+      '<span class="w63-dest__halo"></span>' +
+      '<span class="w63-dest__pin"></span>' +
+      '<span class="w63-dest__tag">' +
+      `<span class="w63-dest__name">${dest.name}</span>` +
+      `<span class="w63-dest__mins">${dest.mins} min</span>` +
+      '</span>';
+    destMarker.current = new maplibregl.Marker({ element: el, anchor: 'center' })
       .setLngLat([dest.lng, dest.lat])
       .addTo(m);
 
@@ -481,7 +523,8 @@ export function EstateMap({ activeCategory, focusId, highlightId, onRoute }) {
 // double-count it and squeeze the route off screen entirely.
 function fitPadding() {
   const w = window.innerWidth;
-  if (w < 768) return { top: 96, bottom: 56, left: 26, right: 26 };
+  // Right: the zoom buttons, which the destination's tag would otherwise slide under.
+  if (w < 768) return { top: 110, bottom: 56, left: 40, right: 100 };
   if (w < 1280) return { top: 110, bottom: 120, left: 340, right: 70 };
   return { top: 130, bottom: 130, left: 440, right: 110 };
 }

@@ -3,6 +3,7 @@ import { Screen } from '../layout/Screen';
 import { Portal, Render } from '../components/Primitives';
 import { Lockup } from '../components/Lockup';
 import { VisitorCard } from '../components/VisitorCard';
+import { TowerGlow } from '../components/building/TowerGlow';
 import { LANDING, PROJECT } from '../data/content';
 import { useApp } from '../app/appContext';
 import { sessionVisitor } from '../app/visitor';
@@ -45,9 +46,16 @@ export function Landing() {
           ring opens around when a visitor comes back here. */}
       <div data-ring-focus data-ring-box="0.242 0.117 0.439 0.844" className="absolute inset-0">
         <Render id="tower-dusk" priority sizes="100vw" position={portrait ? '42% 30%' : 'center'} />
+        {/* The Floor Plans screen's light running up the floors, held until the intro
+            has put the tower on screen. */}
+        <TowerGlow position={portrait ? '42% 30%' : 'center'} delay={3} />
       </div>
 
-      {/* Which scrim does the work depends on where the copy is. Landscape: the copy is
+      {/* The shade is a neutral near-black, not the app's teal scrim: over a dusk sky
+          the teal turned the whole right half green. Lighter, too — the sky there is
+          already dark enough to carry the copy.
+
+          Which scrim does the work depends on where the copy is. Landscape: the copy is
           on the right, so it runs right to left. Portrait: the copy is at the foot, so it
           runs bottom up. They are mutually exclusive rather than layered — an inline
           `background` cannot be overridden by a `max-md:` class, so each one is simply
@@ -58,7 +66,7 @@ export function Landing() {
         className="absolute inset-0 max-md:hidden"
         style={{
           background:
-            'linear-gradient(255deg, rgb(var(--scrim-rgb) / 0.95) 0%, rgb(var(--scrim-rgb) / 0.84) 26%, rgb(var(--scrim-rgb) / 0.34) 56%, transparent 78%)',
+            'linear-gradient(255deg, rgb(6 9 16 / 0.62) 0%, rgb(6 9 16 / 0.46) 26%, rgb(6 9 16 / 0.14) 56%, transparent 74%)',
         }}
       />
       <div
@@ -66,7 +74,7 @@ export function Landing() {
         className="absolute inset-0 md:hidden"
         style={{
           background:
-            'linear-gradient(0deg, rgb(var(--scrim-rgb) / 0.97) 0%, rgb(var(--scrim-rgb) / 0.95) 38%, rgb(var(--scrim-rgb) / 0.62) 58%, rgb(var(--scrim-rgb) / 0.15) 80%, transparent 100%)',
+            'linear-gradient(0deg, rgb(6 9 16 / 0.92) 0%, rgb(6 9 16 / 0.85) 38%, rgb(6 9 16 / 0.5) 58%, rgb(6 9 16 / 0.1) 80%, transparent 100%)',
         }}
       />
       <div
@@ -74,7 +82,7 @@ export function Landing() {
         className="absolute inset-0 max-md:hidden"
         style={{
           background:
-            'linear-gradient(180deg, rgb(var(--scrim-rgb) / 0.5) 0%, transparent 22%, transparent 74%, rgb(var(--scrim-rgb) / 0.55) 100%)',
+            'linear-gradient(180deg, rgb(6 9 16 / 0.3) 0%, transparent 18%, transparent 80%, rgb(6 9 16 / 0.35) 100%)',
         }}
       />
 
@@ -119,9 +127,9 @@ export function Landing() {
           <div data-landing-meta className="flex items-center gap-[0.9em]">
             <span
               aria-hidden="true"
-              className="h-px w-[clamp(1.4rem,3vw,3.4rem)] shrink-0 bg-w-gold"
+              className="h-px w-[clamp(1.4rem,3vw,3.4rem)] shrink-0 bg-w-cream"
             />
-            <span className="min-w-0 text-caption tracking-[0.2em] text-w-gold uppercase max-mob:tracking-[0.1em]">
+            <span className="min-w-0 text-caption tracking-[0.2em] text-w-cream uppercase [text-shadow:0_1px_10px_rgb(0_0_0/0.45)] max-mob:tracking-[0.1em]">
               {LANDING.meta}
             </span>
           </div>

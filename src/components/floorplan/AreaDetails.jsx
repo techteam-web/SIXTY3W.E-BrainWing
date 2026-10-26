@@ -21,10 +21,11 @@ const sqft = (v) => `${Number.isInteger(v) ? v : v.toFixed(2)} sq.ft.`;
 function rowsFor(area, plan, floor) {
   if (area.kind === 'unit') {
     return [
-      ['RERA carpet area', sqft(area.carpet)],
+      // Left out, not guessed, where the RERA figure isn't published yet.
+      area.carpet != null ? ['RERA carpet area', sqft(area.carpet)] : null,
       ['Floor', ordinal(floor.level)],
       ['Typical floors', plan.floorsLabel],
-    ];
+    ].filter(Boolean);
   }
   const rows = [];
   if (area.sqm != null) rows.push(['Area', `${sqm(area.sqm)} · ${sqft(area.sqft)}`]);
@@ -113,6 +114,21 @@ export function AreaDetails({ area, plan, floor, onClose, onRoomView }) {
           className="crown relative aspect-[16/10] w-full shrink-0 overflow-hidden max-md:aspect-[16/7]"
         >
           <Render id={area.render} sizes="(max-width: 767px) 94vw, 24vw" />
+        </div>
+      ) : null}
+
+      {/* The apartment's own plan sheet, where one was supplied (the 28th–31st). */}
+      {area.sheet ? (
+        <div
+          data-detail-row
+          className="relative aspect-[16/10] w-full shrink-0 overflow-hidden border border-w-gold/25 bg-w-void/40 p-[0.5em] max-md:aspect-[16/7]"
+        >
+          <img
+            src={area.sheet}
+            alt={`${area.label}, plan`}
+            className="h-full w-full object-contain"
+            draggable={false}
+          />
         </div>
       ) : null}
 

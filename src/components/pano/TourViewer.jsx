@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { PanoViewer } from '../../features/pano/PanoViewer';
 import { ArrowIcon, ChevronIcon } from '../Icons';
 import { Portal } from '../Primitives';
+import { TourMap } from './TourMap';
 import { useEventListener } from '../../hooks/useEventListener';
 import { gsap, useGSAP, E, prefersReducedMotion } from '../../gsap/Gsapconfig';
 
@@ -100,6 +101,9 @@ export function TourViewer({ tour, start, onBack, rootRef, backLabel = 'Back' })
         onOpenChange={setMenuOpen}
         onPick={jump}
       />
+
+      {/* Bottom-right, for a tour that has one: the same jump, by where it is. */}
+      {tour.map ? <TourMap map={tour.map} here={tour.placeOf(sceneId)} onPick={jump} /> : null}
     </div>
   );
 }

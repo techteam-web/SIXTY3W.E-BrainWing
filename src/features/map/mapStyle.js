@@ -50,6 +50,10 @@ export const MAP = {
   road: '#28625b',
   arterial: '#4f877c',
   motorway: '#c8a16b', // --color-w-gold
+  // The highway's own carriageways, slips and flyovers: a quiet warm bed under the one
+  // clean gold line EstateMap draws over them (weHighway.js). In full gold they were a
+  // bundle of overlapping strands.
+  highwayBed: '#3d6a5c',
   rail: '#6f978c',
   building: '#12484b',
   labelPlace: '#f0eae0', // --color-w-cream
@@ -222,14 +226,12 @@ export const buildMapStyle = () => ({
       filter: CLASS('primary', 'trunk'),
       layout: { 'line-cap': 'round', 'line-join': 'round' },
       paint: {
-        // Trunk roads take the highway's gold; ordinary arterials stay in the teal range,
-        // so gold marks the spine of the network rather than every main road in it.
-        'line-color': ['match', ['get', 'class'], 'trunk', MAP.motorway, MAP.arterial],
-        'line-width': width([[8, 1], [12, 2.8], [18, 16]]),
+        // Trunk roads sit a warm step above the arterials, as the bed the highway's gold
+        // line is drawn over; the gold itself is EstateMap's, drawn once, cleanly.
+        'line-color': ['match', ['get', 'class'], 'trunk', MAP.highwayBed, MAP.arterial],
+        'line-width': width([[8, 1], [12, 2.4], [18, 14]]),
       },
     },
-    // The Western Express Highway is the address, so it is the widest thing the basemap
-    // draws, and it is drawn in gold with the trunk roads; ordinary arterials stay teal.
     {
       id: 'road-motorway',
       type: 'line',
@@ -237,7 +239,7 @@ export const buildMapStyle = () => ({
       'source-layer': 'transportation',
       filter: CLASS('motorway'),
       layout: { 'line-cap': 'round', 'line-join': 'round' },
-      paint: { 'line-color': MAP.motorway, 'line-width': width([[7, 1.6], [12, 4.6], [18, 22]]) },
+      paint: { 'line-color': MAP.highwayBed, 'line-width': width([[7, 1.2], [12, 2.8], [18, 16]]) },
     },
     // Metro Line 7 runs the length of the highway, and the walk to it is half the pitch.
     // Dashed, as the brochure draws it.
@@ -285,7 +287,13 @@ export const buildMapStyle = () => ({
       source: 'omt',
       'source-layer': 'transportation_name',
       minzoom: 13.5,
-      filter: CLASS('motorway', 'trunk', 'primary', 'secondary'),
+      // Not the highway: its name is set once along EstateMap's own line, where the
+      // basemap would repeat it on every carriageway and slip road.
+      filter: [
+        'all',
+        CLASS('motorway', 'trunk', 'primary', 'secondary'),
+        ['!=', ['get', 'name'], 'Western Express Highway'],
+      ],
       layout: {
         'symbol-placement': 'line',
         'text-field': ['coalesce', ['get', 'name:en'], ['get', 'name']],

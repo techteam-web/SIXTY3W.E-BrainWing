@@ -221,7 +221,7 @@ export function PickPlan({ floor, picked, locked = false, onPick }) {
             tabIndex={off ? -1 : 0}
             aria-pressed={!!n}
             aria-disabled={off || undefined}
-            aria-label={`${a.label}, ${a.type}, ${a.carpet} sq.ft.`}
+            aria-label={`${a.label}, ${a.type}${a.carpet != null ? `, ${a.carpet} sq.ft.` : ''}`}
             onPointerEnter={(e) => e.pointerType !== 'touch' && setHoverId(a.id)}
             onPointerLeave={() => setHoverId((id) => (id === a.id ? null : id))}
             onClick={() => !off && onPick(a)}

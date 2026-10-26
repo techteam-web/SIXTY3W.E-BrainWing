@@ -25,8 +25,8 @@ const APP_DATA = { day: DAY_DATA, night: NIGHT_DATA };
 // and what setup mode reads. Called straight from Marzipano's change event, so the caller
 // should write to the DOM rather than set React state sixty times a second.
 //
-// `lock`, optional: `{ key, start, limits }` in degrees (see panoLimits.js) — the view
-// from one room. The limits are applied live whenever they change; the camera is only
+// `lock`, optional: `{ key, start, limits, keep }` in degrees (see panoLimits.js) — the
+// view from one room, or with no limits just where a view opens. The limits are applied live whenever they change; the camera is only
 // moved to `start` when `key` changes, i.e. when a different room is chosen, never while
 // a room's own limits are being edited.
 //
@@ -158,7 +158,10 @@ export function PanoViewer({
       const roomKey = lock?.key ?? null;
       if (aimed.get(view.id) !== roomKey) {
         aimed.set(view.id, roomKey);
-        if (lock?.start) {
+        // `keep`: a key change leaves the camera where it is. Letting go of a room's lock
+        // (FloorPanoViewer's free 360°) should free the view, not swing it somewhere
+        // else; `start` then only aims a view built fresh, e.g. on another floor.
+        if (lock?.start && !lock.keep) {
           sv.setParameters(
             startParams(lock.start, { yaw: sv.yaw(), pitch: sv.pitch(), fov: sv.fov() }),
           );

@@ -31,6 +31,8 @@ export function Location() {
   const panel = useRef(null);
 
   const onRoute = useCallback((r) => setRoute(r), []);
+  // A dot clicked on the map: the same toggle as its row.
+  const onPick = useCallback((id) => setFocus((f) => (f === id ? null : id)), []);
 
   const rows = LANDMARKS.filter((l) => l.cat === category && !ALWAYS_ON.has(l.cat));
 
@@ -62,6 +64,7 @@ export function Location() {
           focusId={focus}
           highlightId={highlight}
           onRoute={onRoute}
+          onPick={onPick}
         />
       </div>
 
@@ -156,7 +159,11 @@ export function Location() {
                   onFocus={() => setHighlight(l.id)}
                   onBlur={() => setHighlight(null)}
                   aria-pressed={on}
-                  className="group/r grid w-full grid-cols-[auto_1fr_auto] items-baseline gap-[0.6em] border-t border-w-line/50 py-[clamp(0.3rem,0.85vh,0.55rem)] text-left"
+                  className={`group/r grid w-full grid-cols-[auto_1fr_auto] items-baseline gap-[0.6em] border-t py-[clamp(0.3rem,0.85vh,0.55rem)] text-left transition-[background-color,box-shadow,padding] duration-300 ease-out ${
+                    on
+                      ? 'border-w-gold/50 bg-w-gold/12 px-[0.55em] shadow-[inset_2px_0_0_var(--color-w-gold)]'
+                      : 'border-w-line/50'
+                  }`}
                 >
                   <span
                     aria-hidden="true"
@@ -173,7 +180,9 @@ export function Location() {
                   >
                     {l.name}
                   </span>
-                  <span className="shrink-0 text-caption tabular-nums tracking-[0.1em] text-w-gold">
+                  <span
+                    className={`shrink-0 text-caption tabular-nums tracking-[0.1em] ${on ? 'text-w-gold-lit' : 'text-w-gold'}`}
+                  >
                     {l.mins} min
                   </span>
                 </button>

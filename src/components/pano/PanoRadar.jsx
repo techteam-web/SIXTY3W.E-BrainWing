@@ -116,7 +116,24 @@ export function drawCone(els, geo, { yaw, hfov }) {
 
 // `rooms`, `activeAreaId`, `onSelectRoom`: the plan's own rooms, drawn on the map so one
 // can be chosen from here too — the same switch the Rooms row under the card makes.
-export function PanoRadar({ pano, geo, coneRef, readoutRef, rooms = [], activeAreaId, onSelectRoom }) {
+//
+// `locked`, `lookLabel`, `onLock`, `onFree`, optional: the free/locked switch under the
+// plan. Free, the view turns all the way round and pressing a home only chooses it;
+// "Look from" then locks the view to that home's outlook. Locked, pressing another home
+// moves the lock there, and "Free 360° view" lets go.
+export function PanoRadar({
+  pano,
+  geo,
+  coneRef,
+  readoutRef,
+  rooms = [],
+  activeAreaId,
+  onSelectRoom,
+  locked = true,
+  lookLabel = null,
+  onLock = null,
+  onFree = null,
+}) {
   const [hidden, setHidden] = useState(false);
   const [hoverId, setHoverId] = useState(null);
   const [x, y, w, h] = geo.frame;
@@ -269,6 +286,28 @@ export function PanoRadar({ pano, geo, coneRef, readoutRef, rooms = [], activeAr
           />
         </svg>
       </div>
+
+      {onLock && onFree && rooms.length ? (
+        <div className="flex flex-col gap-[0.45em]">
+          <button
+            type="button"
+            onClick={locked ? onFree : onLock}
+            disabled={!locked && !lookLabel}
+            className={`group/l flex min-h-[2.75rem] items-center justify-center gap-[0.6em] border px-[0.9em] py-[0.55em] text-micro uppercase tracking-[0.2em] transition-colors duration-300 md:min-h-0 ${
+              locked
+                ? 'border-w-gold/45 text-w-cream/80 hover:border-w-gold hover:text-w-gold'
+                : 'border-w-gold bg-w-gold text-w-deep hover:bg-w-gold-lit'
+            }`}
+          >
+            {locked ? 'Free 360° view' : `Look from ${lookLabel ?? 'this home'}`}
+          </button>
+          <span className="text-[0.6rem] uppercase leading-[1.5] tracking-[0.14em] text-w-cream/50">
+            {locked
+              ? `Locked to ${lookLabel ?? 'this home'}'s outlook · press another home to switch`
+              : 'Press a home on the plan, then look out from it · direction indicative'}
+          </span>
+        </div>
+      ) : null}
 
       {CALIBRATE ? (
         <span ref={readoutRef} className="text-micro tabular-nums tracking-[0.1em] text-w-gold" />
