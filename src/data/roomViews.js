@@ -44,11 +44,15 @@ export const ROOM_VIEWS = {
               _3: { start: { yaw: 175.4, pitch: -2.5, fov: 55 }, yaw: [113.2, -125], pitch: [-14, 41] },
               _4: { start: { yaw: 114.4, pitch: -2.5, fov: 55 }, yaw: [59.6, 169.9], pitch: [-17.9, 37.1] },
   },
+  // Keyed by the re-issued plate's ids, which follow the drawing's own apartment numbers
+  // (1 right wing, 2 bottom right, 3 bottom left, 4 left wing). The settings are the ones
+  // calibrated on the previous plate, carried over apartment by apartment — its ids ran
+  // the other way round (its _1 was the left wing, Apartment 04).
   'typical-high': {
-         _1: { start: { yaw: -115.4, pitch: -7.5, fov: 55 }, yaw: [-163, -63.4], pitch: [-23, 32] },
-         _2: { start: { yaw: -163.2, pitch: -7.5, fov: 55 }, yaw: [129.7, -113.3], pitch: [-24.7, 30.3] },
-          _3: { start: { yaw: 156.2, pitch: -7.5, fov: 55 }, yaw: [112.5, -134.2], pitch: [-20.7, 34.3] },
-          _4: { start: { yaw: 99.8, pitch: -7.5, fov: 55 }, yaw: [57.2, 159.9], pitch: [-22.8, 32.2] },
+    _1: { start: { yaw: 99.8, pitch: -7.5, fov: 55 }, yaw: [57.2, 159.9], pitch: [-22.8, 32.2] },
+    _2: { start: { yaw: 156.2, pitch: -7.5, fov: 55 }, yaw: [112.5, -134.2], pitch: [-20.7, 34.3] },
+    _3: { start: { yaw: -163.2, pitch: -7.5, fov: 55 }, yaw: [129.7, -113.3], pitch: [-24.7, 30.3] },
+    _4: { start: { yaw: -115.4, pitch: -7.5, fov: 55 }, yaw: [-163, -63.4], pitch: [-23, 32] },
   },
   // 28th–31st: not calibrated on its own yet. Each wing takes the 11th–25th calibration of
   // the wing in the same place (Apartment 04 left, 01 right). Apartment 02 runs the whole

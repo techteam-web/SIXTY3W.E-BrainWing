@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState } from 'react';
 import { useApp } from '../app/appContext';
-import { useMediaQuery } from '../hooks/useEventListener';
+import { useEventListener, useMediaQuery } from '../hooks/useEventListener';
 import { SECTIONS } from '../data/sections';
 import { gsap, useGSAP, E } from '../gsap/Gsapconfig';
 import { BrandCorner } from './Lockup';
@@ -33,9 +33,26 @@ function NavButton({ label, onClick, disabled, icon }) {
 
 // MENU opens the menu page as before, and on hover or focus also drops the sections down
 // beneath it — so a visitor already in a section can jump straight to the next one.
+//
+// A touch screen has no hover, so there the first tap on MENU drops the list instead;
+// a second tap, or the list's own "Menu page" row, opens the menu page, and a tap
+// anywhere else closes it. The mouse and the keyboard behave exactly as before.
 function MenuChip({ current, goTo, goToMenu, disabled }) {
   const [open, setOpen] = useState(false);
+  const [touch, setTouch] = useState(false);
   const panel = useRef(null);
+  const root = useRef(null);
+  // Read at the moment of pressing: a tap focuses the button (which opens the list)
+  // before its click lands, so by click time `open` no longer says what was on screen.
+  const press = useRef({ touch: false, wasOpen: false });
+
+  useEventListener(
+    'pointerdown',
+    (e) => {
+      if (open && !root.current?.contains(e.target)) setOpen(false);
+    },
+    document,
+  );
 
   useGSAP(
     () => {
@@ -51,7 +68,13 @@ function MenuChip({ current, goTo, goToMenu, disabled }) {
 
   return (
     <div
+      ref={root}
       className="pointer-events-auto relative"
+      onPointerDownCapture={(e) => {
+        const t = e.pointerType !== 'mouse';
+        press.current = { touch: t, wasOpen: open };
+        setTouch(t);
+      }}
       onPointerEnter={(e) => e.pointerType === 'mouse' && setOpen(true)}
       onPointerLeave={(e) => e.pointerType === 'mouse' && setOpen(false)}
       onFocus={() => setOpen(true)}
@@ -59,7 +82,21 @@ function MenuChip({ current, goTo, goToMenu, disabled }) {
         if (!e.currentTarget.contains(e.relatedTarget)) setOpen(false);
       }}
     >
-      <NavButton label="Menu" onClick={goToMenu} disabled={disabled} icon={<MenuIcon size="1em" />} />
+      <NavButton
+        label="Menu"
+        onClick={() => {
+          const { touch: t, wasOpen } = press.current;
+          press.current = { touch: false, wasOpen: false };
+          if (t && !wasOpen) {
+            setOpen(true);
+            return;
+          }
+          setOpen(false);
+          goToMenu();
+        }}
+        disabled={disabled}
+        icon={<MenuIcon size="1em" />}
+      />
 
       {open ? (
         <div className="absolute left-0 top-full pt-[0.6em]">
@@ -104,6 +141,22 @@ function MenuChip({ current, goTo, goToMenu, disabled }) {
                 );
               })}
             </ul>
+            {/* Touch only: with no hover, MENU's tap opened this list, so the menu page
+                itself needs a way in from here. */}
+            {touch ? (
+              <button
+                type="button"
+                disabled={disabled}
+                onClick={() => {
+                  setOpen(false);
+                  goToMenu();
+                }}
+                className="mt-[0.3em] flex w-full items-center justify-between border-t border-w-gold/25 px-[1.1em] pb-[0.3em] pt-[0.8em] text-left text-micro uppercase tracking-[0.2em] text-w-gold disabled:opacity-40"
+              >
+                Menu page
+                <MenuIcon size="1em" />
+              </button>
+            ) : null}
           </nav>
         </div>
       ) : null}

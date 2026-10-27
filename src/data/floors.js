@@ -26,8 +26,11 @@ import buildingImage from '../assets/building/Sixty3w.e.png?url';
 
 import typicalLowSvg from '../assets/floorplans/TYPICAL FLOOR PLAN 2ND TO 5TH,7TH TO 10TH FLOOR-22.svg?raw';
 import typicalLowImage from '../assets/floorplans/TYPICAL FLOOR PLAN 2ND TO 5TH,7TH TO 10TH FLOOR-22.png?url';
-import typicalHighSvg from '../assets/floorplans/TYPICAL FLOOR PLAN 11TH TO 12TH ,14TH TO 19TH , 21ST TO 25TH FLOOR-23.svg?raw';
-import typicalHighImage from '../assets/floorplans/TYPICAL FLOOR PLAN 11TH TO 12TH ,14TH TO 19TH , 21ST TO 25TH FLOOR-23.png?url';
+// The 11th–25th plate as re-issued (Typical 11th to 25th FloorsPlan-5): the same 1800×1080
+// export as the 28th–31st, brought in through conform() below. Its PNG is 7500×4500 and
+// 11 MB; the web copy beside the others is the same artboard at 2880×1728.
+import typicalHighSvg from '../assets/floorplans/Typical 11th to 25th FloorsPlan-5.svg?raw';
+import typicalHighImage from '../assets/floorplans/web/typical-high-plan.webp?url';
 import amenitySvg from '../assets/floorplans/AMENITY PLAN 26TH FLOOR-24.svg?raw';
 import amenityImage from '../assets/floorplans/AMENITY PLAN 26TH FLOOR-24.PNG?url';
 import topSvg from '../assets/floorplans/Typical 28th to 31st Floor Plan-4.svg?raw';
@@ -59,9 +62,11 @@ const residence = (no, carpet, { type = '2 BHK', sheet = null } = {}) => ({
 // re-export drops straight in:
 //   · scaled to the 460.8-wide artboard every other plan and the radar are drawn in
 //     (the stroke widths, the radar's rings and the frames all assume that size), and
-//   · its paths given the ids the app keys on, in the file's own order.
-// Only straight lines and curves occur in it; an arc's flags would not survive scaling.
-function conform(raw, ids, width = 460.8) {
+//   · its paths given the ids the app keys on, in the file's own order, where it has
+//     none (`ids`; a file that already names its shapes passes nothing).
+// Polygons and paths are both scaled. Only straight lines and curves occur in them; an
+// arc's flags would not survive scaling.
+function conform(raw, ids = null, width = 460.8) {
   const box = /viewBox="([^"]+)"/.exec(raw)[1].trim().split(/[\s,]+/).map(Number);
   const k = width / box[2];
   // Each number comes back with a space before it: path data packs ".76.32" as two
@@ -71,8 +76,9 @@ function conform(raw, ids, width = 460.8) {
   let i = 0;
   return raw
     .replace(/viewBox="[^"]+"/, () => `viewBox="${box.map((v) => +(v * k).toFixed(3)).join(' ')}"`)
-    .replace(/<path\b/g, () => `<path id="${ids[i++]}"`)
-    .replace(/\sd="([^"]+)"/g, (_, d) => ` d="${scale(d)}"`);
+    .replace(/<path\b/g, (m) => (ids ? `<path id="${ids[i++]}"` : m))
+    .replace(/\sd="([^"]+)"/g, (_, d) => ` d="${scale(d)}"`)
+    .replace(/\spoints="([^"]+)"/g, (_, pts) => ` points="${scale(pts).trim()}"`);
 }
 
 // `frame` is the part of the 460.8×259.2 artboard the viewer opens on: the drawing's own
@@ -109,14 +115,17 @@ export const PLANS = {
     floors: [...range(11, 12), ...range(14, 19), ...range(21, 25)],
     image: typicalHighImage,
     alt: 'Typical floor plan, 11th to 12th, 14th to 19th and 21st to 25th floors',
-    layer: parseSvgLayer(typicalHighSvg),
-    frame: [66, 26, 329, 200],
-    opensOn: '_3', // Apartment 02, on the road side
+    // The re-issued file names each apartment by the number printed on the drawing:
+    // 1 the right wing, 2 bottom right, 3 bottom left, 4 the left wing. Carpet areas
+    // as before, by apartment: the wings 634, the road-side pair 686.
+    layer: parseSvgLayer(conform(typicalHighSvg)),
+    frame: [42, 30, 377, 214],
+    opensOn: '_2', // Apartment 02, on the road side
     areas: {
-      _1: residence('04', 634),
-      _2: residence('03', 686),
-      _3: residence('02', 686),
-      _4: residence('01', 634),
+      _1: residence('01', 634),
+      _2: residence('02', 686),
+      _3: residence('03', 686),
+      _4: residence('04', 634),
     },
   },
   // The top residential floors: three apartments where the floors below have four — the
