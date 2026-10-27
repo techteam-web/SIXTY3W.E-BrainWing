@@ -362,7 +362,8 @@ export function EstateMap({ activeCategory, focusId, highlightId, onRoute, onPic
 
   /* ------------------------------------------------------------- directions */
 
-  // Draws the line from the tower outward, once. ~1.2s, eased so it lands softly.
+  // Draws the line from the tower outward, once: ~3s, slow enough to follow the route
+  // from the tower to the place, eased so it lands softly.
   const drawRoute = useCallback((m, coordinates) => {
     const state = draw.current;
     gsap.killTweensOf(state);
@@ -375,7 +376,7 @@ export function EstateMap({ activeCategory, focusId, highlightId, onRoute, onPic
     src()?.setData(lineFeature(upTo(coordinates, 0)));
     gsap.to(state, {
       t: 1,
-      duration: 1.2,
+      duration: 3,
       ease: E.out,
       onUpdate() {
         src()?.setData(lineFeature(upTo(coordinates, state.t)));

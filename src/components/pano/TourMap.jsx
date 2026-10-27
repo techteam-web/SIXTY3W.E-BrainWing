@@ -56,7 +56,7 @@ export function TourMap({ map, here, onPick }) {
 
   return (
     <div
-      className={`${panel} flex w-[clamp(11rem,15vw,16rem)] flex-col gap-[0.5em] p-[clamp(0.45rem,0.6vw,0.7rem)] max-md:w-[10rem]`}
+      className={`${panel} flex w-[clamp(14rem,20vw,21rem)] flex-col gap-[0.5em] p-[clamp(0.5rem,0.7vw,0.8rem)] max-md:w-[12rem]`}
       style={{ ...border, boxShadow: '0 30px 70px -30px rgb(2 12 11 / 0.85)' }}
     >
       <div className="flex items-center justify-between gap-[0.8em]">
@@ -109,7 +109,7 @@ export function TourMap({ map, here, onPick }) {
               style={{ left: `${pt.u * 100}%`, top: `${pt.v * 100}%` }}
             >
               <span
-                className={`relative grid h-[1.05rem] w-[1.05rem] place-items-center rounded-full text-[0.48rem] font-medium tabular-nums transition-all duration-300 ${
+                className={`relative grid h-[1.2rem] w-[1.2rem] place-items-center rounded-full text-[0.55rem] font-medium tabular-nums transition-all duration-300 ${
                   on
                     ? 'scale-110 bg-w-gold text-w-deep shadow-[0_0_14px_3px_rgb(var(--gold-rgb)/0.75)]'
                     : 'bg-w-deep/85 text-w-cream ring-1 ring-w-gold/75 group-hover:bg-w-gold group-hover:text-w-deep'
@@ -128,7 +128,7 @@ export function TourMap({ map, here, onPick }) {
                   the middle, so a label on the right-hand spots never leaves the map. */}
               <span
                 aria-hidden="true"
-                className={`pointer-events-none absolute top-1/2 -translate-y-1/2 whitespace-nowrap px-[0.55em] py-[0.2em] text-[0.5rem] uppercase tracking-[0.14em] text-w-cream transition-opacity duration-300 ${
+                className={`pointer-events-none absolute top-1/2 -translate-y-1/2 whitespace-nowrap px-[0.55em] py-[0.2em] text-[0.56rem] uppercase tracking-[0.14em] text-w-cream transition-opacity duration-300 ${
                   pt.u > (u0 + u1) / 2 ? 'right-[calc(100%+0.4em)]' : 'left-[calc(100%+0.4em)]'
                 } ${shown ? 'opacity-100' : 'opacity-0'}`}
                 style={{

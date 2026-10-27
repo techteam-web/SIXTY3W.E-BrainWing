@@ -185,10 +185,10 @@ export function animateHighway(m, { delay = 0.4 } = {}) {
       { light: 0 },
       {
         light: 1,
-        duration: 3.4,
+        duration: 2.6,
         ease: 'sine.inOut',
         repeat: -1,
-        repeatDelay: 1.6,
+        repeatDelay: 0.25,
         onUpdate: () => m.getLayer('weh-flow') && m.setPaintProperty('weh-flow', 'line-gradient', lights(state.light)),
       },
     ),
