@@ -10,20 +10,24 @@ import { makeTour } from './tours';
 // render shows there — the pool, the deck and its umbrella, the play structure, the
 // raked-sand zen garden, the cabana pods, the cinema lawn (the screen is on the tower
 // wall at its foot, as the cinema camera shows), the games floor, the gym, the yoga mats
-// and the toddlers' room — and numbered with the brochure's own callout number, so the
-// numbers match the Level 26 page. Lift Lobby, Passage to Terrace and Sky Lawn have no
-// callout in the brochure, so they have no dot. u/v are fractions of the render.
+// and the toddlers' room — and the lift lobby, the sky lawn's paved corner and the foot
+// of the glass passage where the client marked them. Every place in the tour has one.
+// The numbers aren't set here: each dot takes its place's number in the "Go to" menu
+// (tours.js), 1 upwards. u/v are fractions of the render.
 const MAP_POINTS = [
-  { place: 'Fitness Centre', n: 1, u: 0.493, v: 0.861 },
-  { place: 'Yoga & Pilates', n: 2, u: 0.637, v: 0.85 },
-  { place: 'Toddlers Room', n: 5, u: 0.742, v: 0.537 },
-  { place: 'Kids Play Area', n: 8, u: 0.529, v: 0.191 },
-  { place: 'Infinity Pool', n: 10, u: 0.423, v: 0.239 },
-  { place: 'Pool Deck', n: 11, u: 0.44, v: 0.398 },
-  { place: 'Cabana Seating', n: 13, u: 0.556, v: 0.082 },
-  { place: 'Outdoor Cinema', n: 16, u: 0.529, v: 0.34 },
-  { place: 'Zen Rock Garden', n: 17, u: 0.589, v: 0.186 },
-  { place: 'Games Room', n: 18, u: 0.3, v: 0.606 },
+  { place: 'Games Room', u: 0.3, v: 0.606 },
+  { place: 'Fitness Centre', u: 0.493, v: 0.861 },
+  { place: 'Lift Lobby', u: 0.501, v: 0.685 },
+  { place: 'Passage to Terrace', u: 0.636, v: 0.428 },
+  { place: 'Sky Lawn', u: 0.581, v: 0.42 },
+  { place: 'Zen Rock Garden', u: 0.589, v: 0.186 },
+  { place: 'Pool Deck', u: 0.44, v: 0.398 },
+  { place: 'Kids Play Area', u: 0.529, v: 0.191 },
+  { place: 'Outdoor Cinema', u: 0.529, v: 0.34 },
+  { place: 'Infinity Pool', u: 0.423, v: 0.239 },
+  { place: 'Toddlers Room', u: 0.742, v: 0.537 },
+  { place: 'Yoga & Pilates', u: 0.637, v: 0.85 },
+  { place: 'Cabana Seating', u: 0.556, v: 0.082 },
 ];
 
 export const AMENITY_TOUR = makeTour({
@@ -57,14 +61,15 @@ export const AMENITY_TOUR = makeTour({
     '12-lift-cam_07': 'Lift Lobby',
     '13-passage-to-terrace': 'Passage to Terrace',
     '14-cam_01': 'Sky Lawn',
-    '15-cam_02': 'Infinity Pool',
+    // 15 stands mid-lawn with the pool far off; 22 stands on the deck beside the pool.
+    '15-cam_02': 'Sky Lawn',
     '16-cam_03': 'Zen Rock Garden',
     '17-cam_10': 'Pool Deck',
     '18-cam04': 'Zen Rock Garden',
     '19-cam06': 'Kids Play Area',
     '20-cam07': 'Kids Play Area',
     '21-cam08': 'Outdoor Cinema',
-    '22-cam09': 'Sky Lawn',
+    '22-cam09': 'Infinity Pool',
     '23-toddler': 'Toddlers Room',
     '24-yoga_cam_01': 'Yoga & Pilates',
     '25-yoga_cam_02': 'Yoga & Pilates',
@@ -92,7 +97,22 @@ export const AMENITY_TOUR = makeTour({
   // The Pool Table camera's export opens on the table-tennis table, with the pool table
   // off to the right; turn it to face the table it's named for, looking a little down.
   views: {
+    // Each place opens facing what it is named for, read off the browser: the chess
+    // table, the cinema screen (it sat left of centre, the pool filling the right) and
+    // the raked sand of the zen garden (the play area filled the frame).
+    '0-gameroom_cam01': { yaw: -0.1 },
+    '21-cam08': { yaw: -1.52 },
+    '16-cam_03': { yaw: -0.03 },
     '1-gameroom_cam02': { yaw: 1.0, pitch: -0.12 },
+    // The pool camera's export opens facing the lawn; turn it round onto the water.
+    '22-cam09': { yaw: 3.02, pitch: -0.15 },
+  },
+  // Arrows moved off the export's spot. At the pool, the export has two arrows to the
+  // Kids Play Area's second camera, and the first — the one the viewer keeps — stood
+  // over the pool steps. It now stands on the paved path into the play area, where the
+  // other one was.
+  links: {
+    '22-cam09': { '20-cam07': { yaw: -1.7583, pitch: 0.224 } },
   },
 });
 
@@ -103,7 +123,7 @@ export const TOUR_START = '6-lift-cam_01';
 // AMENITIES.items id → the scene its card opens on. Reading Nook and Bonsai Garden
 // weren't shot in 360, so they have no entry and stay list-only.
 export const AMENITY_SCENES = {
-  pool: '15-cam_02',
+  pool: '22-cam09',
   fitness: '3-gym_01',
   games: '0-gameroom_cam01',
   yoga: '24-yoga_cam_01',

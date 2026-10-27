@@ -7,7 +7,7 @@ import { getRender } from '../../data/renders';
 // for the visitor who wants the pool now — one click, no walking through the lift lobby
 // to get there. Where you are standing glows.
 //
-// The numbers are the brochure's (see the tour's `map`), so they match the Level 26 page.
+// The numbers are the places' own in the tour's "Go to" menu (tours.js), 1 upwards.
 // The dots are positioned against the render itself, so the box is always exactly the
 // render's shape and a dot can never drift off its spot.
 

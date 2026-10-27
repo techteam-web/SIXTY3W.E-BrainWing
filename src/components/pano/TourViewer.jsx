@@ -5,6 +5,7 @@ import { Portal } from '../Primitives';
 import { TourMap } from './TourMap';
 import { useEventListener } from '../../hooks/useEventListener';
 import { gsap, useGSAP, E, prefersReducedMotion } from '../../gsap/Gsapconfig';
+import { pitchToSetup, toDeg } from '../../features/pano/panoLimits';
 
 // A walkable 360° tour (src/data/tours.js): one scene full screen, with the Marzipano
 // Tool's own arrows to step to the next. Back sits top-left, and the name of where
@@ -31,10 +32,26 @@ export function TourViewer({ tour, start, onBack, rootRef, backLabel = 'Back' })
 
   const onLink = useCallback((target) => setSceneId(target), []);
 
+  // A place picked from the map or the menu opens on its own starting view, every time.
+  // The viewer otherwise keeps each scene's last orientation, so a place visited before
+  // came back turned wherever it was left — the cinema camera facing the pool. Walking
+  // in by an arrow still finds a scene as it was left, the way a room stays put.
+  const [jumped, setJumped] = useState(null);
   const jump = useCallback((target) => {
     setSceneId(target);
+    setJumped((j) => ({ scene: target, n: (j?.n ?? 0) + 1 }));
     setMenuOpen(false);
   }, []);
+
+  const lock = useMemo(() => {
+    if (!jumped || jumped.scene !== sceneId) return null;
+    const ivp = tour.data.day.scenes.find((s) => s.id === sceneId)?.initialViewParameters;
+    if (!ivp) return null;
+    return {
+      key: `jump-${jumped.n}`,
+      start: { yaw: toDeg(ivp.yaw), pitch: pitchToSetup(ivp.pitch), fov: toDeg(ivp.fov) },
+    };
+  }, [jumped, sceneId, tour]);
 
   // On the document, so it runs before KeyboardNav on the window and can claim the key.
   // Escape closes the jump menu first and only then leaves the tour: one Escape, one
@@ -65,6 +82,7 @@ export function TourViewer({ tour, start, onBack, rootRef, backLabel = 'Back' })
           tiles={tour.tiles}
           onLink={onLink}
           linkLabel={tour.label}
+          lock={lock}
         />
       </div>
 
@@ -207,6 +225,14 @@ function ScenePicker({ places, here, open, onOpenChange, onPick }) {
                       on ? 'w-[1.2em] opacity-100' : 'w-[0.4em] opacity-35 group-hover/p:w-[0.9em] group-hover/p:opacity-70'
                     }`}
                   />
+                  {/* The place's number, the same one its dot carries on the map. */}
+                  <span
+                    className={`w-[1.4em] shrink-0 text-micro tabular-nums tracking-[0.06em] ${
+                      on ? 'text-w-gold' : 'text-w-gold/60'
+                    }`}
+                  >
+                    {String(p.n).padStart(2, '0')}
+                  </span>
                   <span
                     className={`min-w-0 truncate text-caption uppercase tracking-[0.12em] transition-colors duration-300 ${
                       on ? 'text-w-gold' : 'text-w-cream/70 group-hover/p:text-w-cream'

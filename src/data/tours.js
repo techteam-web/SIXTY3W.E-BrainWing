@@ -7,9 +7,10 @@
 
 const FACES = ['f', 'r', 'b', 'l'];
 
-// `map`, optional: `{ render | image, title, crop, points: [{ place, n, u, v }] }` — a picture of the
-// whole tour with a numbered dot per place, at u/v normalised against that render. Each
-// dot is given the place's first camera, so clicking it lands where the jump menu would.
+// `map`, optional: `{ render | image, title, crop, points: [{ place, u, v }] }` — a picture of
+// the whole tour with a numbered dot per place, at u/v normalised against that picture.
+// Each dot is given the place's first camera, so clicking it lands where the jump menu
+// would, and the place's number in that menu.
 //
 // `names`, optional: `{ sceneId: 'Reception Desk' }` — a camera's own name, for a place
 // big enough that "Point 4" tells a visitor nothing (a lobby that winds past half the
@@ -19,14 +20,43 @@ const FACES = ['f', 'r', 'b', 'l'];
 // `views`, optional: `{ sceneId: { yaw, pitch } }` (radians) — where a camera opens
 // facing, over the export's own, for a camera named after something it doesn't open on.
 // Applied to a copy; the export itself stays exactly as the Marzipano Tool wrote it.
-export function makeTour({ data: raw, tiles, labels, fallback, names: own = {}, views = {}, map = null }) {
+//
+// `links`, optional: `{ sceneId: { targetId: { yaw, pitch } } }` (radians) — where a
+// camera's arrow to a scene stands, over the export's. The viewer draws one arrow per
+// destination, so this also settles which of an export's duplicate arrows is the one:
+// all of them collapse to this single position.
+export function makeTour({
+  data: raw,
+  tiles,
+  labels,
+  fallback,
+  names: own = {},
+  views = {},
+  links = {},
+  map = null,
+}) {
+  const moveLinks = (s) => {
+    const moved = links[s.id];
+    if (!moved) return s.linkHotspots;
+    const out = [];
+    const placed = new Set();
+    for (const h of s.linkHotspots ?? []) {
+      const to = moved[h.target];
+      if (!to) out.push(h);
+      else if (!placed.has(h.target)) {
+        placed.add(h.target);
+        out.push({ ...h, ...to });
+      }
+    }
+    return out;
+  };
   const data = {
     ...raw,
-    scenes: raw.scenes.map((s) =>
-      views[s.id]
-        ? { ...s, initialViewParameters: { ...s.initialViewParameters, ...views[s.id] } }
-        : s,
-    ),
+    scenes: raw.scenes.map((s) => ({
+      ...s,
+      initialViewParameters: { ...s.initialViewParameters, ...views[s.id] },
+      linkHotspots: moveLinks(s),
+    })),
   };
   const byId = Object.fromEntries(data.scenes.map((s) => [s.id, s]));
 
@@ -48,14 +78,15 @@ export function makeTour({ data: raw, tiles, labels, fallback, names: own = {}, 
   // Every PLACE in the tour, once, in the export's own order, each pointing at the first
   // camera shot there. This is what the viewer's jump menu offers: a visitor thinks in
   // places ("the pool"), not in cameras, and a menu listing "Lift Lobby · Point 1"
-  // through "· Point 7" is a menu nobody reads to the end.
+  // through "· Point 7" is a menu nobody reads to the end. Numbered 1, 2, 3… in that
+  // order: the map's dots carry the same numbers, so the two read as one list.
   const places = [];
   const firstOf = {};
   for (const s of data.scenes) {
     const p = place(s.id);
     if (firstOf[p]) continue;
     firstOf[p] = s.id;
-    places.push({ id: s.id, label: p });
+    places.push({ id: s.id, label: p, n: places.length + 1 });
   }
 
   return {
@@ -64,7 +95,10 @@ export function makeTour({ data: raw, tiles, labels, fallback, names: own = {}, 
           ...map,
           points: map.points
             .filter((pt) => firstOf[pt.place])
-            .map((pt) => ({ ...pt, id: firstOf[pt.place] })),
+            .map((pt) => {
+              const at = places.find((p) => p.label === pt.place);
+              return { ...pt, id: at.id, n: at.n };
+            }),
         }
       : null,
     // The shape PanoViewer takes: one tile set, offered as "day" only.
