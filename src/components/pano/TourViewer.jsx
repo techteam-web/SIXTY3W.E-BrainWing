@@ -30,18 +30,25 @@ export function TourViewer({ tour, start, onBack, rootRef, backLabel = 'Back' })
   // The shape PanoViewer takes: one scene id under "day", none under "night".
   const view = useMemo(() => ({ id: sceneId, day: sceneId, night: null, label }), [sceneId, label]);
 
-  const onLink = useCallback((target) => setSceneId(target), []);
-
-  // A place picked from the map or the menu opens on its own starting view, every time.
-  // The viewer otherwise keeps each scene's last orientation, so a place visited before
-  // came back turned wherever it was left — the cinema camera facing the pool. Walking
-  // in by an arrow still finds a scene as it was left, the way a room stays put.
+  // Every arrival opens on the scene's own starting view — by an arrow, the map or the
+  // menu. The viewer otherwise keeps each scene's last orientation, so a place visited
+  // before came back turned wherever it was left: the cinema camera facing the pool, the
+  // balcony looking back into the living room.
   const [jumped, setJumped] = useState(null);
-  const jump = useCallback((target) => {
+  const arrive = useCallback((target) => {
     setSceneId(target);
     setJumped((j) => ({ scene: target, n: (j?.n ?? 0) + 1 }));
-    setMenuOpen(false);
   }, []);
+
+  const onLink = arrive;
+
+  const jump = useCallback(
+    (target) => {
+      arrive(target);
+      setMenuOpen(false);
+    },
+    [arrive],
+  );
 
   const lock = useMemo(() => {
     if (!jumped || jumped.scene !== sceneId) return null;
@@ -83,6 +90,7 @@ export function TourViewer({ tour, start, onBack, rootRef, backLabel = 'Back' })
           onLink={onLink}
           linkLabel={tour.label}
           lock={lock}
+          autorotate={false}
         />
       </div>
 

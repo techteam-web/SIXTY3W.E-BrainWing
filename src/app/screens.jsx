@@ -8,6 +8,7 @@ import { Amenities } from '../screens/sections/Amenities';
 import { FloorPlans } from '../screens/sections/FloorPlans';
 import { Location } from '../screens/sections/Location';
 import { Specifications } from '../screens/sections/Specifications';
+import { comingSoon } from '../screens/sections/ComingSoon';
 
 // Every screen is statically imported: the incoming screen must be mounted and laid out
 // before the transition timeline is built, because the arch panels clone it. A screen
@@ -22,6 +23,9 @@ export const SECTION_SCREENS = {
   plans: FloorPlans,
   location: Location,
   specifications: Specifications,
+  // In the menu, not built yet.
+  legacy: comingSoon('legacy'),
+  'master-layout': comingSoon('master-layout'),
 };
 
 // Stage → component. 'gate' mounts nothing: the gate is an overlay outside the stage,

@@ -287,11 +287,11 @@ export function PanoRadar({
         </svg>
       </div>
 
-      {onLock && onFree && rooms.length ? (
+      {onLock && rooms.length ? (
         <div className="flex flex-col gap-[0.45em]">
           <button
             type="button"
-            onClick={locked ? onFree : onLock}
+            onClick={locked && onFree ? onFree : onLock}
             disabled={!locked && !lookLabel}
             className={`group/l flex min-h-[2.75rem] items-center justify-center gap-[0.6em] border px-[0.9em] py-[0.55em] text-micro uppercase tracking-[0.2em] transition-colors duration-300 md:min-h-0 ${
               locked
@@ -304,7 +304,9 @@ export function PanoRadar({
           <span className="text-[0.6rem] uppercase leading-[1.5] tracking-[0.14em] text-w-cream/50">
             {locked
               ? `Locked to ${lookLabel ?? 'this home'}'s outlook · press another home to switch`
-              : 'Press a home on the plan, then look out from it · direction indicative'}
+              : onFree
+                ? 'Press a home on the plan, then look out from it · direction indicative'
+                : 'Press a home on the plan, then look out from it · the view stays free to turn'}
           </span>
         </div>
       ) : null}

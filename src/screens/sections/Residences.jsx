@@ -131,14 +131,34 @@ function RoomCaption({ room, index, eyebrow }) {
         </span>
       </div>
 
-      <div className="overflow-hidden pt-[0.5em]">
-        <span
-          data-caption-part
-          className="block text-caption tracking-[0.2em] text-w-gold/75 uppercase"
-        >
-          {room.note}
-        </span>
-      </div>
+      {room.note ? (
+        <div className="overflow-hidden pt-[0.5em]">
+          <span
+            data-caption-part
+            className="block text-caption tracking-[0.2em] text-w-gold/75 uppercase"
+          >
+            {room.note}
+          </span>
+        </div>
+      ) : null}
+
+      {/* A room's selling points, where it has them (the lobby): each on its own line
+          behind a short gold rule, rising in after the caption like the lines above. */}
+      {room.features?.length ? (
+        <ul className="mt-[1.1em] flex flex-col gap-[0.5em]">
+          {room.features.map((f) => (
+            <li key={f} className="overflow-hidden py-[0.05em]">
+              <span data-caption-part className="flex items-baseline gap-[0.8em]">
+                <span
+                  aria-hidden="true"
+                  className="h-px w-[0.9em] shrink-0 translate-y-[-0.3em] bg-w-gold"
+                />
+                <span className="min-w-0 text-body text-w-cream/90">{f}</span>
+              </span>
+            </li>
+          ))}
+        </ul>
+      ) : null}
     </div>
   );
 }

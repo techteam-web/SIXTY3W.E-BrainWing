@@ -1,12 +1,9 @@
-import { useState } from 'react';
 import { Screen } from '../layout/Screen';
 import { Portal, Render } from '../components/Primitives';
 import { Lockup } from '../components/Lockup';
-import { VisitorCard } from '../components/VisitorCard';
 import { TowerGlow } from '../components/building/TowerGlow';
 import { LANDING, PROJECT } from '../data/content';
 import { useApp } from '../app/appContext';
-import { sessionVisitor } from '../app/visitor';
 import { useMediaQuery } from '../hooks/useEventListener';
 
 // Page 3 of the brochure, rebuilt: the tower at dusk holding the left of the frame, the
@@ -26,14 +23,10 @@ import { useMediaQuery } from '../hooks/useEventListener';
 
 export function Landing() {
   const { goToMenu, isTransitioning } = useApp();
-  const [asking, setAsking] = useState(false);
 
-  // ENTER opens the visitor card (name and mobile — see VisitorCard) the first time in
-  // a session; after that, or once skipped, it goes straight to the menu.
-  const enter = () => {
-    if (sessionVisitor()) goToMenu();
-    else setAsking(true);
-  };
+  // ENTER goes straight to the menu. The visitor details card that used to open first
+  // was taken out at the client's request (components/VisitorCard.jsx is kept, unused).
+  const enter = () => goToMenu();
 
   // The tower sits left of centre in its own frame. On a portrait phone object-cover
   // crops the sides away, so the framing has to move with the viewport or the building
@@ -136,7 +129,7 @@ export function Landing() {
 
           <Portal
             onClick={enter}
-            disabled={isTransitioning || asking}
+            disabled={isTransitioning}
             data-enter
             className="mt-[0.3em] self-start"
           >
@@ -162,15 +155,6 @@ export function Landing() {
         </p>
       </div>
 
-      {asking ? (
-        <VisitorCard
-          onClose={() => setAsking(false)}
-          onDone={() => {
-            setAsking(false);
-            goToMenu();
-          }}
-        />
-      ) : null}
     </Screen>
   );
 }

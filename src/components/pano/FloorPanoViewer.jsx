@@ -25,6 +25,11 @@ import { Portal } from '../Primitives';
 // neighbour's night view — see floorPanos.js). Where one is missing the toggle says so
 // and the view stays on the other.
 
+// How much higher than calibrated every floor view opens: the client asked for the view a
+// little further up, off the ground below and onto the skyline.
+const LIFT = 6;
+const lifted = (start) => (start ? { ...start, pitch: (start.pitch ?? 0) + LIFT } : start);
+
 const levelLabel = (p) => (p.height != null ? `Shot at ${p.height} m` : null);
 
 // Setup mode's live numbers, in the setup's own terms (degrees, up positive).
@@ -34,15 +39,14 @@ function writeReadout(el, v) {
   el.textContent = `yaw ${yaw.toFixed(1)}° · pitch ${pitchToSetup(v.pitch).toFixed(1)}° · zoom ${toDeg(v.fov).toFixed(1)}°`;
 }
 
-// A floor's view opens as a FREE 360°, facing Aarey (AAREY_START), when it is opened from
-// the tower: the whole view from that height, any way round. The plan in the corner then
-// offers its homes — press one, and "Look from this home" turns the view to that home's
-// outlook and locks it left–right there (src/data/roomViews.js); "Free 360° view" lets
-// go again, leaving the camera where it is. A view opened from a room on the plan
-// (`room` — BACK then returns to the plan) opens already locked to that room. The home
-// chosen before any is pressed is the plan's `opensOn`, the one facing Aarey (floors.js).
-// Stepping up or down a floor keeps the same home and the same locked/free state wherever
-// that floor has it. Floors with no plan have no homes, and their view is always free.
+// A floor's view is always a FREE 360° — never locked to an apartment, at the client's
+// request (Nov 2026) — and never turns on its own. Opened from the tower it faces Aarey
+// (AAREY_START); the plan in the corner offers its homes, and "Look from" turns the view
+// to that home's outlook (its calibrated start, src/data/roomViews.js) without fencing it
+// in. A view opened from a room on the plan (`room` — BACK then returns to the plan)
+// opens turned to that room. Every opening view sits LIFT degrees higher than calibrated.
+// The home chosen before any is pressed is the plan's `opensOn`, the one facing Aarey
+// (floors.js). Setup mode (?calibrate) still shows each room's lock, since it edits it.
 export function FloorPanoViewer({
   floor,
   room: from = null,
@@ -60,8 +64,10 @@ export function FloorPanoViewer({
   const [id, setId] = useState(panoOverride?.id ?? floor?.pano?.id);
   const [mode, setMode] = useState('day');
   const [areaId, setAreaId] = useState(from?.areaId ?? null);
-  // Locked to the chosen home's outlook, or free. Free unless opened from a room.
-  const [locked, setLocked] = useState(!!from);
+  // The last "Look from": which press it was, so pressing again re-aims even at the same
+  // home. Opened from a room, the view starts as if it had been pressed.
+  const [look, setLook] = useState(from ? 1 : 0);
+  const lookFrom = useCallback(() => setLook((n) => n + 1), []);
   // The floor-info card starts collapsed to a small pill beside Back.
   const [cardOpen, setCardOpen] = useState(false);
 
@@ -117,11 +123,16 @@ export function FloorPanoViewer({
       : (roomViewIn(drafts, 'floors', floorKey) ?? roomViewIn(drafts, 'floors', 'default'));
   // Free: a floor of the building with no home looked from (none chosen to lock to, or
   // none on this floor). Setup mode always shows the lock, since that is what it edits.
-  const free = !panoOverride && !SETUP_MODE && (!locked || !room);
+  // Free: a floor of the building, outside setup mode. Turned to a home only once one has
+  // been looked from (and only on a floor that has it).
+  const free = !panoOverride && !SETUP_MODE;
+  const looking = free && look > 0 && !!room && !!roomView?.start;
   const lock = useMemo(
     () =>
       free
-        ? { key: 'free', start: AAREY_START, limits: null, keep: true }
+        ? looking
+          ? { key: `look-${look}`, start: lifted(roomView.start), limits: null }
+          : { key: 'free', start: lifted(AAREY_START), limits: null, keep: true }
         : roomView
           ? {
               key: `${target.planId}:${target.areaId}`,
@@ -129,7 +140,7 @@ export function FloorPanoViewer({
               limits: { yaw: roomView.yaw ?? null, pitch: roomView.pitch ?? DEFAULT_PITCH },
             }
           : null,
-    [free, target, roomView],
+    [free, looking, look, target, roomView],
   );
 
   // The radar's dot sits on the room being viewed, not the building's core: the room's
@@ -138,7 +149,9 @@ export function FloorPanoViewer({
   // measuring required, and switching rooms moves the dot (and the cone that turns from
   // it) there too. A plan-less floor has no room and keeps the floor-wide camera.
   const roomCamera =
-    room && !free ? (roomView?.camera ?? (area?.bbox ? bboxCenter(area.bbox) : null)) : null;
+    room && (!free || looking)
+      ? (roomView?.camera ?? (area?.bbox ? bboxCenter(area.bbox) : null))
+      : null;
 
   // The radar follows the view. The last view is kept so the cone can be redrawn the
   // moment its element is (re)mounted — shown again after Hide, or on a new floor — and so
@@ -199,6 +212,7 @@ export function FloorPanoViewer({
           tiles={panoTiles}
           onViewChange={onViewChange}
           lock={lock}
+          autorotate={false}
         />
       </div>
 
@@ -223,10 +237,9 @@ export function FloorPanoViewer({
           rooms={rooms}
           activeAreaId={area?.id}
           onSelectRoom={setAreaId}
-          locked={!free}
+          locked={false}
           lookLabel={area ? (area.kind === 'unit' ? `Apt ${area.short}` : area.label) : null}
-          onLock={() => setLocked(true)}
-          onFree={() => setLocked(false)}
+          onLock={free ? lookFrom : null}
         />
       ) : null}
 
@@ -292,9 +305,9 @@ export function FloorPanoViewer({
                   ? from
                     ? `View from ${from.label}`
                     : '360° View'
-                  : !free
+                  : !free || looking
                     ? `View from ${room.label}`
-                    : '360° View · free'}
+                    : '360° View'}
               </span>
               <h2 className="text-title font-extralight leading-[1.12] tracking-[0.06em] text-w-cream">
                 {view.label}
@@ -316,7 +329,7 @@ export function FloorPanoViewer({
                 </span>
                 <div className="flex flex-wrap gap-[0.4em]">
                   {[...rooms].reverse().map((a) => {
-                    const on = !free && a.id === room.areaId;
+                    const on = (!free || looking) && a.id === room.areaId;
                     return (
                       <button
                         key={a.id}
@@ -324,7 +337,7 @@ export function FloorPanoViewer({
                         aria-pressed={on}
                         onClick={() => {
                           setAreaId(a.id);
-                          setLocked(true);
+                          lookFrom();
                         }}
                         className={`border px-[0.7em] py-[0.35em] text-micro uppercase tracking-[0.14em] transition-colors duration-300 ${
                           on

@@ -52,12 +52,17 @@ export const LANDMARKS = [
   { id: 'mindspace', name: 'Mindspace', cat: 'commercial', mins: 25, lat: 19.1834447, lng: 72.8324277 },
 
   /* ------------------------------------------------------- malls & entertainment */
+  // Mega Mall and Film City were taken off at the client's request (Nov 2026), and the two
+  // Infiniti malls added. Their pins are OpenStreetMap's (the malls are spelt "Infiniti"
+  // there); their drive times are ESTIMATES from the road distance, set against the
+  // published times of their neighbours (Infinity 2 stands beside Mindspace, 25 min, at
+  // the same 6 km) — to be replaced by the developer's own figures when given.
   { id: 'hub', name: 'HUB Mall', cat: 'malls', mins: 2, lat: 19.1547995, lng: 72.8562558 },
   { id: 'oberoi-mall', name: 'Oberoi Mall · PVR', cat: 'malls', mins: 5, lat: 19.173808, lng: 72.8605943 },
-  { id: 'mega-mall', name: 'Mega Mall', cat: 'malls', mins: 10, lat: 19.1488696, lng: 72.8329435 },
-  { id: 'film-city', name: 'Film City', cat: 'malls', mins: 13, lat: 19.1620094, lng: 72.8779522 },
   { id: 'sky-city', name: 'Oberoi Sky City Mall', cat: 'malls', mins: 15, lat: 19.223302, lng: 72.8642378 },
   { id: 'inorbit', name: 'Inorbit Mall', cat: 'malls', mins: 15, lat: 19.1729281, lng: 72.8359056 },
+  { id: 'infinity-1', name: 'Infinity Mall 1, Lokhandwala', cat: 'malls', mins: 15, lat: 19.1412831, lng: 72.8309461 },
+  { id: 'infinity-2', name: 'Infinity Mall 2, Malad', cat: 'malls', mins: 25, lat: 19.1851346, lng: 72.8353721 },
 
   /* ------------------------------------------------------------------ education */
   { id: 'gokuldham', name: 'Gokuldham High School & Jr. College', cat: 'education', mins: 5, lat: 19.1736365, lng: 72.8679887 },
@@ -69,12 +74,9 @@ export const LANDMARKS = [
   { id: 'ryan', name: 'Ryan International School', cat: 'education', mins: 10, lat: 19.1723453, lng: 72.8730094 },
 
   /* ------------------------------------------------------------------ hospitals */
-  { id: 'srv', name: 'SRV Hospital', cat: 'hospitals', mins: 7, lat: 19.1591367, lng: 72.8491711 },
-  { id: 'kapadia', name: 'Kapadia Hospital', cat: 'hospitals', mins: 8, lat: 19.1630706, lng: 72.8434104 },
-  { id: 'radhakrishna', name: 'Radhakrishna Hospital', cat: 'hospitals', mins: 11, lat: 19.1728079, lng: 72.8740547 },
-  { id: 'balajee', name: 'Balajee Hospital', cat: 'hospitals', mins: 11, lat: 19.1826169, lng: 72.8567513 },
-  { id: 'lifeline', name: 'Lifeline Medicare Hospital', cat: 'hospitals', mins: 13, lat: 19.1743581, lng: 72.8446157 },
-  { id: 'holy-spirit', name: 'Holy Spirit Hospital', cat: 'hospitals', mins: 13, lat: 19.1273935, lng: 72.8671834 },
+  // Kokilaben only, at the client's request (Nov 2026). Pin from OpenStreetMap; the drive
+  // time is an ESTIMATE from the 6.7 km road distance, pending the developer's figure.
+  { id: 'kokilaben', name: 'Kokilaben Dhirubhai Ambani Hospital', cat: 'hospitals', mins: 20, lat: 19.1312557, lng: 72.8246749 },
 
   /* --------------------------------------------------------------------- hotels */
   { id: 'fern', name: 'The Fern', cat: 'hotels', mins: 3, lat: 19.1621953, lng: 72.8570176 },

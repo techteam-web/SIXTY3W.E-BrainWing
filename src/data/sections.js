@@ -1,4 +1,4 @@
-// Eight screens. This is a sales instrument, not a PDF viewer — every screen here is one
+// Ten chapters. This is a sales instrument, not a PDF viewer — every screen here is one
 // a broker actually stops on and works from, and the brochure's twenty-five pages
 // collapse onto them rather than being paged through.
 //
@@ -20,10 +20,41 @@
 // centred square crop would miss. Percentages of a square box, so it holds at every size
 // the aperture takes.
 
+// The menu, in the client's order (Nov 2026), with 360° Views straight after Location.
+// Specifications is "What to Expect".
 export const SECTIONS = [
   {
-    id: 'overview',
+    // Coming soon: in the menu at the client's request, not built yet (ComingSoon.jsx).
+    id: 'legacy',
     no: '01',
+    label: 'Legacy',
+    backdrop: 'tower-dusk',
+    // Warmed by the preloader, so the transition's arches carry the picture itself.
+    lead: { id: 'tower-dusk', sizes: '100vw' },
+    soon: true,
+  },
+  {
+    id: 'location',
+    no: '02',
+    label: 'Location',
+    backdrop: 'skyline',
+    // No lead render: this screen's ground is the live map, not a picture.
+    lead: null,
+    caption: 'Map for representation only',
+  },
+  {
+    // Straight after Location, at the client's request.
+    id: 'views-360',
+    no: '03',
+    label: '360° Views',
+    backdrop: 'deck',
+    // No lead render: this screen's ground is the live panorama, not a picture.
+    lead: null,
+    caption: 'Interactive 360° tour',
+  },
+  {
+    id: 'overview',
+    no: '04',
     label: 'The Address',
     backdrop: 'tower-night',
     // The tower stands 27% of the way across this render, so a centred square crop shows
@@ -34,34 +65,25 @@ export const SECTIONS = [
     lead: { id: 'tower-night', sizes: '100vw' },
   },
   {
-    id: 'views-360',
-    no: '02',
-    label: '360° Views',
-    backdrop: 'deck',
-    // No lead render: this screen's ground is the live panorama, not a picture.
-    lead: null,
-    caption: 'Interactive 360° tour',
+    // Coming soon: in the menu at the client's request, not built yet (ComingSoon.jsx).
+    id: 'master-layout',
+    no: '05',
+    label: 'Master Layout',
+    backdrop: 'level26',
+    lead: { id: 'level26', sizes: '100vw' },
+    soon: true,
   },
   {
     id: 'residences',
-    no: '03',
-    label: 'Residences',
-    backdrop: 'living',
+    no: '06',
+    label: 'Grand Entrance Lobby',
+    backdrop: 'lobby',
     lead: { id: 'lobby', sizes: '100vw' },
-  },
-  {
-    id: 'apartment',
-    no: '04',
-    label: 'Apartment',
-    backdrop: 'bedroom',
-    // No lead render: this screen is a gallery of 360° thumbnails, not one picture.
-    lead: null,
-    caption: 'Interactive 360° tour',
   },
   {
     // The amenity level — its 360° gallery of the amenities, under the level's own name.
     id: 'level-26',
-    no: '05',
+    no: '07',
     label: 'Level 26',
     backdrop: 'pool',
     // No lead render: this screen is a gallery of 360° thumbnails, not one picture.
@@ -69,7 +91,7 @@ export const SECTIONS = [
   },
   {
     id: 'plans',
-    no: '06',
+    no: '08',
     label: 'Floor Plans',
     backdrop: 'lobby',
     // No lead render: this screen's ground is the building elevation, a bundled asset
@@ -77,18 +99,19 @@ export const SECTIONS = [
     lead: null,
   },
   {
-    id: 'location',
-    no: '07',
-    label: 'Location',
-    backdrop: 'skyline',
-    // No lead render: this screen's ground is the live map, not a picture.
+    id: 'apartment',
+    no: '09',
+    label: 'Apartment',
+    backdrop: 'bedroom',
+    // No lead render: this screen is a gallery of 360° thumbnails, not one picture.
     lead: null,
-    caption: 'Map for representation only',
+    caption: 'Interactive 360° tour',
   },
   {
+    // The Specifications sheet, under the client's name for it.
     id: 'specifications',
-    no: '08',
-    label: 'Specifications',
+    no: '10',
+    label: 'What to Expect',
     // An interior, not the tower: the sheet is finishes and fittings, and the bedroom is
     // where they show — the flooring, the panelled wall, the full-height glazing.
     backdrop: 'bedroom',

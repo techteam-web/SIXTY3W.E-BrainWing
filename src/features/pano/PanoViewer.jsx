@@ -42,6 +42,9 @@ export function PanoViewer({
   lock = null,
   onLink = null,
   linkLabel = null,
+  // false: the view never drifts on its own. The walkable tours turn it off — a
+  // walkthrough that turns by itself fights the visitor walking it.
+  autorotate = true,
 }) {
   const host = useRef(null);
   const ctx = useRef(null);
@@ -188,14 +191,14 @@ export function PanoViewer({
       // Settings.autorotateEnabled in the source data — a slow drift back to level
       // whenever the visitor lets go, never while they are holding the view. Not in a
       // room locked left–right: it would only grind against the edge.
-      if (yawLocked(lock?.limits)) {
+      if (!autorotate || yawLocked(lock?.limits)) {
         viewer.stopMovement();
         viewer.setIdleMovement(Infinity, null);
       } else {
         viewer.setIdleMovement(2600, Marzipano.autorotate({ yawSpeed: 0.028, targetPitch: 0 }));
       }
     },
-    { dependencies: [ready, view, mode, data, tiles, lock] },
+    { dependencies: [ready, view, mode, data, tiles, lock, autorotate] },
   );
 
   return (

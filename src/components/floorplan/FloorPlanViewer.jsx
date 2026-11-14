@@ -3,11 +3,13 @@ import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
 import { FloorPlanSVG } from './FloorPlanSVG';
 import { PanZoomControls } from './PanZoomControls';
 import { AreaDetails } from './AreaDetails';
+import { UnitPlanViewer } from './UnitPlanViewer';
+import { NorthArrow } from './NorthArrow';
 import { MiniBuilding } from '../building/MiniBuilding';
 import { CompareLaunch } from '../compare/CompareParts';
 import { ArrowIcon } from '../Icons';
 import { Portal } from '../Primitives';
-import { planAreas } from '../../data/floors';
+import { planAreas, PLAN_NORTH } from '../../data/floors';
 import { gsap, useGSAP, E, prefersReducedMotion } from '../../gsap/Gsapconfig';
 import { useEventListener } from '../../hooks/useEventListener';
 
@@ -64,12 +66,21 @@ export function FloorPlanViewer({ floor, building, onBack, onSwitch, onRoomView,
   const [hoverId, setHoverId] = useState(null);
   const [tipArea, setTipArea] = useState(null);
   const [activeId, setActiveId] = useState(null);
+  // The apartment whose own plan is open over the floor's, or none.
+  const [unitId, setUnitId] = useState(null);
 
   const zoom = useRef(null);
   const tip = useRef(null);
   const press = useRef(null);
 
   const active = areas.find((a) => a.id === activeId) ?? null;
+  const units = useMemo(() => areas.filter((a) => a.kind === 'unit'), [areas]);
+  const unit = units.find((a) => a.id === unitId) ?? null;
+  // Click through to an apartment's own plan, keeping it chosen on the floor beneath.
+  const openUnit = (a) => {
+    setActiveId(a.id);
+    setUnitId(a.id);
+  };
 
   // The cursor's label follows the cursor. Written straight to the transform — it is
   // position, not animation, and a React render per mousemove would be the whole plan.
@@ -105,14 +116,21 @@ export function FloorPlanViewer({ floor, building, onBack, onSwitch, onRoomView,
       if (e.pointerType === 'touch') return;
       setHoverId((id) => (id === a.id ? null : id));
     },
+    // The first click on an apartment chooses it (its details open); a second click on
+    // the chosen one goes through to its own plan. Amenities just toggle, as before.
     press: (a, e) => {
       if (wasDrag(e)) return;
+      if (a.kind === 'unit' && a.id === activeId) {
+        openUnit(a);
+        return;
+      }
       setActiveId((id) => (id === a.id ? null : a.id));
     },
     key: (a, e) => {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
-        setActiveId(a.id);
+        if (a.kind === 'unit' && a.id === activeId) openUnit(a);
+        else setActiveId(a.id);
       }
     },
   };
@@ -138,13 +156,18 @@ export function FloorPlanViewer({ floor, building, onBack, onSwitch, onRoomView,
   );
 
   // Keys the plan owns. Registered on the document so they run before the app's global
-  // navigation on the window, and marked handled so it leaves them alone.
+  // navigation on the window, and marked handled so it leaves them alone. In the CAPTURE
+  // phase: the building's own Escape (back to the tower) is on the document too, and was
+  // registered first, so in the bubble phase it ran first and took the whole plan away
+  // when Escape meant only "close this apartment".
   useEventListener(
     'keydown',
     (e) => {
       if (e.defaultPrevented || e.metaKey || e.ctrlKey || e.altKey) return;
       const z = zoom.current;
-      if (e.key === 'Escape' && activeId) {
+      if (e.key === 'Escape' && unitId) {
+        setUnitId(null);
+      } else if (e.key === 'Escape' && activeId) {
         setActiveId(null);
       } else if ((e.key === '+' || e.key === '=') && z) {
         z.zoomIn(0.6, 320, ANIM);
@@ -158,6 +181,7 @@ export function FloorPlanViewer({ floor, building, onBack, onSwitch, onRoomView,
       e.preventDefault();
     },
     document,
+    { capture: true },
   );
 
   return (
@@ -212,6 +236,11 @@ export function FloorPlanViewer({ floor, building, onBack, onSwitch, onRoomView,
                   hoverId={hoverId}
                   activeId={activeId}
                   handlers={handlers}
+                />
+                {/* North, turned true (floors.js), in the sheet's empty bottom corner. */}
+                <NorthArrow
+                  deg={PLAN_NORTH}
+                  className="absolute bottom-[3%] right-[2%] w-[clamp(3rem,4.4vw,4.6rem)]"
                 />
               </div>
             </div>
@@ -294,7 +323,7 @@ export function FloorPlanViewer({ floor, building, onBack, onSwitch, onRoomView,
                 one-line call to action, same voice as AreaDetails' own "360° View from
                 here", removes the guess. */}
             <span className="mt-[0.1em] flex items-center gap-[0.35em] border-t border-w-gold/25 pt-[0.35em] text-micro uppercase tracking-[0.18em] text-w-gold/80">
-              View details
+              {tipArea.kind === 'unit' && tipArea.id === activeId ? 'Open unit plan' : 'View details'}
               <ArrowIcon size="0.95em" />
             </span>
           </div>
@@ -307,7 +336,23 @@ export function FloorPlanViewer({ floor, building, onBack, onSwitch, onRoomView,
         floor={floor}
         onClose={() => setActiveId(null)}
         onRoomView={floor.pano && onRoomView ? onRoomView : undefined}
+        onUnitPlan={openUnit}
       />
+
+      {unit ? (
+        <UnitPlanViewer
+          floor={floor}
+          plan={plan}
+          units={units}
+          area={unit}
+          onPick={(id) => {
+            setActiveId(id);
+            setUnitId(id);
+          }}
+          onClose={() => setUnitId(null)}
+          onRoomView={floor.pano && onRoomView ? onRoomView : undefined}
+        />
+      ) : null}
     </div>
   );
 }

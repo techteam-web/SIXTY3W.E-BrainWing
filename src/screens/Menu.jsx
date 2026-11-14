@@ -102,9 +102,16 @@ function Row({ section, active, onEnter, onSelect, disabled }) {
 
       <span
         data-row-label
-        className="block truncate text-title font-light uppercase tracking-[0.13em] text-w-cream"
+        className="block truncate text-title font-light uppercase tracking-[0.13em] text-w-cream max-md:text-[0.98rem] max-md:tracking-[0.06em]"
       >
         {section.label}
+        {/* A chapter not built yet says so here, before it is opened. */}
+        {section.soon ? (
+          <span className="ml-[0.9em] align-middle text-micro font-normal tracking-[0.22em] text-w-gold/80 max-md:ml-[0.6em] max-md:tracking-[0.14em]">
+            <span className="max-md:hidden">Coming soon</span>
+            <span className="md:hidden">Soon</span>
+          </span>
+        ) : null}
       </span>
     </button>
   );

@@ -93,7 +93,7 @@ export const PLANS = {
     id: 'typical-low',
     kind: 'residential',
     title: 'Typical Floor Plan',
-    floorsLabel: '2nd – 5th · 7th – 10th',
+    floorsLabel: '2nd to 10th Floor',
     floors: [...range(2, 5), ...range(7, 10)],
     image: typicalLowImage,
     alt: 'Typical floor plan, 2nd to 5th and 7th to 10th floors',
@@ -111,7 +111,7 @@ export const PLANS = {
     id: 'typical-high',
     kind: 'residential',
     title: 'Typical Floor Plan',
-    floorsLabel: '11th – 12th · 14th – 19th · 21st – 25th',
+    floorsLabel: '11th to 25th Floor',
     floors: [...range(11, 12), ...range(14, 19), ...range(21, 25)],
     image: typicalHighImage,
     alt: 'Typical floor plan, 11th to 12th, 14th to 19th and 21st to 25th floors',
@@ -188,6 +188,15 @@ export const PLANS = {
 const PLAN_BY_FLOOR = new Map(
   Object.values(PLANS).flatMap((plan) => plan.floors.map((n) => [n, plan])),
 );
+
+// True north on every plan, in degrees clockwise from the top of the drawing. No plan
+// marks it, so it is worked out: the plan's bottom edge runs along the Western Express
+// Highway (the side the road-facing apartments' balconies look onto), the highway is EAST
+// of the tower, and beside it the road runs about 7° east of true north (weHighway.js).
+// The plan's bottom therefore faces ~97° (east by south), its top ~277°, and north lies
+// 83° clockwise from the top — right, a touch up. The drone panoramas agree: Aarey, to
+// the east, is on the plan's bottom side. All the plans share the tower's orientation.
+export const PLAN_NORTH = 83;
 
 export const ordinal = (n) => {
   const t = n % 100;

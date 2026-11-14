@@ -338,11 +338,14 @@ export function EstateMap({ activeCategory, focusId, highlightId, onRoute, onPic
   // at a row is the gesture that answers "which one is that".
   useGSAP(
     () => {
-      for (const l of LANDMARKS) {
-        const el = markers.current.get(l.id);
-        if (!el) continue;
-        const on = l.cat === activeCategory || ALWAYS_ON.has(l.cat);
+      // Every dot the map holds, not only those in today's list: one taken off the list
+      // (a hospital the client removed) while the map stayed up — a live reload — would
+      // otherwise keep showing under every category.
+      for (const [id, el] of markers.current) {
+        const l = LANDMARK_BY_ID[id];
+        const on = !!l && (l.cat === activeCategory || ALWAYS_ON.has(l.cat));
         el.setAttribute('data-dim', String(!on));
+        el.style.visibility = l ? '' : 'hidden';
       }
     },
     { dependencies: [activeCategory, loaded] },
@@ -390,6 +393,10 @@ export function EstateMap({ activeCategory, focusId, highlightId, onRoute, onPic
 
     const el = document.createElement('div');
     el.className = 'w63-dest';
+    // West of the tower, the place lands on the panel's side of the map (on a wide screen
+    // the panel stands over the map's left edge), so its tag sits to the beacon's right,
+    // away from it, rather than centred over it.
+    if (dest.lng < PROJECT.lng) el.setAttribute('data-side', 'right');
     // A beacon on the place itself: two rings rippling out, a bright core, and its name
     // and drive time in a tag beside it — readable at a glance across the room.
     el.innerHTML =
@@ -526,6 +533,24 @@ function fitPadding() {
   const w = window.innerWidth;
   // Right: the zoom buttons, which the destination's tag would otherwise slide under.
   if (w < 768) return { top: 110, bottom: 56, left: 40, right: 100 };
-  if (w < 1280) return { top: 110, bottom: 120, left: 340, right: 70 };
-  return { top: 130, bottom: 130, left: 440, right: 110 };
+  // Left: the panel's own width (Location.jsx: clamp(17rem, 23vw, 26rem)) and the screen
+  // margin it stands in from, plus room for the destination's tag, which is centred on
+  // the place. A fixed figure fell short at 1920, and a place west of the tower — the
+  // Lokhandwala mall, Kokilaben — landed under the panel.
+  const rem = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+  const panel = Math.min(Math.max(17 * rem, 0.23 * w), 26 * rem);
+  // --screen-margin is written in vw or rem (theme.css), so its unit has to be read too.
+  const raw = getComputedStyle(document.documentElement).getPropertyValue('--screen-margin').trim();
+  const n = parseFloat(raw);
+  const margin = !Number.isFinite(n)
+    ? 0.045 * w
+    : raw.endsWith('vw')
+      ? (n * w) / 100
+      : raw.endsWith('rem')
+        ? n * rem
+        : n;
+  // + half the widest tag (a long name runs ~220px, centred on the place) and a gap.
+  const left = Math.round(panel + margin + 150);
+  if (w < 1280) return { top: 110, bottom: 120, left, right: 70 };
+  return { top: 130, bottom: 130, left, right: 110 };
 }

@@ -34,7 +34,8 @@ function rowsFor(area, plan, floor) {
 }
 
 // `onRoomView(area)`, optional: offered when the floor has a 360° view.
-export function AreaDetails({ area, plan, floor, onClose, onRoomView }) {
+// `onUnitPlan(area)`, optional: an apartment's own plan, full screen.
+export function AreaDetails({ area, plan, floor, onClose, onRoomView, onUnitPlan }) {
   const box = useRef(null);
   const wide = useMediaQuery('(min-width: 48rem)');
 
@@ -144,6 +145,22 @@ export function AreaDetails({ area, plan, floor, onClose, onRoomView }) {
           </div>
         ))}
       </dl>
+
+      {/* The apartment's own plan: the click-through from the floor. */}
+      {unit && onUnitPlan ? (
+        <button
+          data-detail-row
+          type="button"
+          onClick={() => onUnitPlan(area)}
+          className="group/u flex min-h-[2.75rem] items-center justify-between gap-[1em] bg-w-gold px-[1em] py-[0.6em] text-micro uppercase tracking-[0.22em] text-w-deep transition-colors duration-300 hover:bg-w-gold-lit md:min-h-0"
+        >
+          Open unit plan
+          <ArrowIcon
+            size="1.1em"
+            className="transition-transform duration-300 group-hover/u:translate-x-[0.2em]"
+          />
+        </button>
+      ) : null}
 
       {/* The view from this room: the floor's panorama, turned to face out of it. */}
       {onRoomView ? (

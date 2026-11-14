@@ -352,6 +352,16 @@
   font-family: var(--font-display);
 }
 
+/* Beside the beacon, to its right: for a place on the panel's side of the map. */
+.w63-dest[data-side='right'] .w63-dest__tag {
+  left: 22px;
+  bottom: auto;
+  top: 0;
+  transform: translateY(-50%);
+  align-items: flex-start;
+  text-align: left;
+}
+
 .w63-dest__name {
   font-size: 11.5px;
   font-weight: 600;

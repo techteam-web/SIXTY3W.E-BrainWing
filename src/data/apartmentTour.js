@@ -25,6 +25,12 @@ export const APARTMENT_TOUR = makeTour({
     '11-living_cam_02': 'Living Room',
     '12-living_cam_03': 'Living Room',
   },
+  // Where a camera opens, over the export's own (radians; pitch down positive). The
+  // balcony opens out over the rail to Aarey, as the client framed it — fitted to their
+  // screenshot against the panorama itself, not set by eye.
+  views: {
+    '0-balcony_cam_01': { yaw: 2.4696, pitch: 0.2007, fov: 1.3265 },
+  },
 });
 
 // The walk starts in the living room, the way a visitor enters a home, at its first

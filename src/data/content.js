@@ -66,8 +66,8 @@ export const OVERVIEW = {
   ],
   hallmarks: [
     { k: '31', unit: 'storeys', label: 'Residential tower defining the skyline' },
-    { k: '3.2', unit: 'mtr', label: 'Floor-to-floor height in every home' },
-    { k: '579', unit: 'sq.ft.', label: '2 BHK RERA carpet, onwards' },
+    { k: '10.5', unit: 'ft', label: 'Floor-to-floor height in every home' },
+    { k: '574', unit: 'sq.ft.', label: '2 BHK RERA carpet, onwards' },
     { k: '26', unit: 'th floor', label: 'Euphoria, the lifestyle level' },
   ],
   marks: [
@@ -100,10 +100,17 @@ export const RESIDENCES = {
     {
       id: 'lobby',
       render: 'lobby',
-      title: 'Entrance Lobby',
+      title: 'Grand Entrance Lobby',
       short: 'Lobby',
       caption: 'Where luxury greets you first',
-      note: 'Majestic double height',
+      // What the lobby is sold on, as the client listed it. Shown as a list under the
+      // caption; it says "double-height" itself, so the room carries no separate note.
+      features: [
+        'Fully air-conditioned, double-height entrance lobby',
+        'Premium Italian marble finishes',
+        'Dedicated seating zone',
+        '24/7 concierge service',
+      ],
     },
     {
       id: 'living',
@@ -207,8 +214,9 @@ export const LOCATION = {
 // ------------------------------------------------------------- Specifications
 
 export const SPECS = {
-  eyebrow: 'At a glance',
-  headline: ['Specifications'],
+  // The sheet is the menu's "What to Expect" (Nov 2026): the specifications, renamed.
+  eyebrow: 'Specifications',
+  headline: ['What to Expect'],
   columns: [
     {
       id: 'hallmarks',

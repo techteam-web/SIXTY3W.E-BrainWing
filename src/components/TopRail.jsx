@@ -136,6 +136,11 @@ function MenuChip({ current, goTo, goToMenu, disabled }) {
                       >
                         {s.label}
                       </span>
+                      {s.soon ? (
+                        <span className="ml-auto shrink-0 text-[0.55rem] uppercase tracking-[0.18em] text-w-gold/60">
+                          Soon
+                        </span>
+                      ) : null}
                     </button>
                   </li>
                 );
