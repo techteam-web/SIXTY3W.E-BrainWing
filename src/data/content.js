@@ -49,6 +49,88 @@ export const VISITOR = {
 
 // ---------------------------------------------------------------- The Address
 
+// -------------------------------------------------------------------- Legacy
+
+// Chapter 01: who built it. Every figure, name and place is off the presenter brochure
+// (AGM_RESI_PRESENTER_A3): the four-number band on its portfolio spread, and the
+// twenty-four completed buildings on the spread before it. Nothing is estimated here.
+//
+// The twenty-four are not printed on the page. They are behind it: the chapter leads
+// with the COUNT, inside the brand's own arch, and the arch opens onto every building,
+// grouped by where it stands. A name a visitor has never heard proves nothing on its
+// own; the same name among six others in one suburb says the developer has been building
+// there for years.
+//
+// One correction only: the brochure spells the same suburb "Bhayander" seven times and
+// "Bhayandar" twice. The majority spelling is used throughout.
+export const LEGACY = {
+  eyebrow: 'Forty years in the making',
+  headline: ['Legacy'],
+  houses: ['AGM Group', 'Vijaylaxmi Realty'],
+  lede: 'Built by AGM Group and Vijaylaxmi Realty — four decades of work across the Mumbai region, Pune and Jodhpur, and four thousand homes already lived in.',
+
+  // The arch: the count, and what pressing it opens.
+  arch: {
+    k: '24',
+    unit: '+',
+    label: 'Completed projects',
+    cta: 'See every one',
+  },
+
+  // The four figures that flank it, in the brochure's own order. `k` counts up; `unit`
+  // does not.
+  figures: [
+    { k: '40', unit: '+ years', label: 'Of combined experience' },
+    { k: '2', unit: 'mn sq.ft.', label: 'Built and handed over' },
+    { k: '4000', unit: '+', label: 'Happy homes' },
+    { k: '40', unit: 'lac sq.ft.', label: 'Of land bank' },
+  ],
+
+  // The three buildings the presenter package carries photographs of, which the arch
+  // cycles through. Each is also pinned to its own name in the list below.
+  plates: [
+    { id: 'legacy-93east', name: '93 East', place: 'Andheri East' },
+    { id: 'legacy-windermere', name: 'Windermere', place: 'Bhayander West' },
+    { id: 'legacy-inizio', name: 'Inizio', place: 'Andheri East' },
+  ],
+
+  // The showcase's own words.
+  showcase: {
+    eyebrow: 'Completed projects',
+    headline: ['Twenty-four buildings,', 'ten places'],
+    close: 'Back',
+  },
+
+  // Twenty-four completed buildings, read down the brochure's four columns in turn. The
+  // showcase groups them by `place` and orders the groups by size.
+  completed: [
+    { name: '93 East', place: 'Andheri East' },
+    { name: 'Vu Imperia', place: 'Virar' },
+    { name: 'Swapnapoorti', place: 'Jogeshwari East' },
+    { name: 'Vijaylaxmi Bliss', place: 'Andheri East' },
+    { name: 'Skyline', place: 'Bhayander West' },
+    { name: 'Raj Deep', place: 'Vile Parle West' },
+    { name: 'AT', place: 'Andheri East' },
+    { name: 'Span Signature', place: 'Bhayander West' },
+    { name: 'Sai Elegance', place: 'Andheri East' },
+    { name: 'River Residency', place: 'Pune' },
+    { name: 'Raj Classic', place: 'Bhayander East' },
+    { name: 'Span Valencia', place: 'Bhayander East' },
+    { name: 'Inizio', place: 'Andheri East' },
+    { name: 'The Vinayak', place: 'Goregaon East' },
+    { name: 'Span Exitoca', place: 'Bhayander West' },
+    { name: 'Vijaylaxmi Heights', place: 'Jodhpur' },
+    { name: 'Raj Pushp', place: 'Vile Parle East' },
+    { name: 'Span Heights', place: 'Bhayander West' },
+    { name: 'Windermere', place: 'Bhayander West' },
+    { name: 'Vijaylaxmi Platinum', place: 'Jodhpur' },
+    { name: 'Span Excellency', place: 'Bhayander West' },
+    { name: 'Raj Mohan', place: 'Vile Parle East' },
+    { name: 'Raj Vastu', place: 'Vile Parle West' },
+    { name: 'Span Duplex', place: 'Bhayander West' },
+  ],
+};
+
 export const OVERVIEW = {
   eyebrow: 'The address',
   headline: ['A world of', 'integrated living', 'at 400063'],
@@ -96,45 +178,24 @@ export const PANORAMA = {
 export const RESIDENCES = {
   eyebrow: 'Wondrous & exclusive',
   headline: ['Residences'],
+  // One room, by the client's call: the lobby is the arrival, and the arrival is the
+  // whole argument of this screen. The living room, bedroom and deck plates were cut —
+  // their renders stay in the ladder, because other screens still use them as backdrops.
   rooms: [
     {
       id: 'lobby',
       render: 'lobby',
       title: 'Grand Entrance Lobby',
       short: 'Lobby',
-      caption: 'Where luxury greets you first',
-      // What the lobby is sold on, as the client listed it. Shown as a list under the
-      // caption; it says "double-height" itself, so the room carries no separate note.
+      // What the lobby is sold on, as the client listed it. Set as a four-column
+      // specification band under the title; it says "double-height" itself, so the
+      // room carries no separate note.
       features: [
         'Fully air-conditioned, double-height entrance lobby',
         'Premium Italian marble finishes',
         'Dedicated seating zone',
         '24/7 concierge service',
       ],
-    },
-    {
-      id: 'living',
-      render: 'living',
-      title: 'Living Room',
-      short: 'Living',
-      caption: 'Where grand spaces define comfort',
-      note: 'Floor-to-ceiling views',
-    },
-    {
-      id: 'bedroom',
-      render: 'bedroom',
-      title: 'Bedroom',
-      short: 'Bedroom',
-      caption: 'Where every morning feels refreshing',
-      note: 'Forest-facing',
-    },
-    {
-      id: 'deck',
-      render: 'deck',
-      title: 'The Deck',
-      short: 'Deck',
-      caption: 'Where nature and luxury exist in harmony',
-      note: 'Panoramic Aarey vistas',
     },
   ],
 };

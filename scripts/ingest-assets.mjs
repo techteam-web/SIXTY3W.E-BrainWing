@@ -21,6 +21,10 @@ import sharp from 'sharp';
 const run = promisify(execFile);
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const PDF = '/Users/Arsalan/Downloads/SIXTY3W-E-Residential_Minu Brochure.pdf';
+// The presenter deck ships as an Illustrator package whose Links folder holds the
+// photographs at full size. A source marked `links: true` is read from here instead of
+// from the PDF cache — see 'legacy-93east' below.
+const LINKS = '/Users/Arsalan/Downloads/AGM_RESI_PRESENTER_A3_Folder/Links';
 const CACHE = join(ROOT, '.cache/pdf-images');
 const OUT = join(ROOT, 'public/assets/renders');
 
@@ -51,6 +55,38 @@ const SOURCES = [
   { id: 'corridor', file: 'image-0091.jpg', alt: 'The Western Express Highway corridor' },
   { id: 'level26', file: 'image-0155.jpg', alt: 'Level 26 amenity deck from above' },
 
+  // Not from the brochure's embedded rasters but from the presenter's own packaged
+  // artwork (`links: true`): the Legacy screen's ground. It is the photograph on the
+  // presenter's Completed Projects spread — 93 East, finished and standing — and the
+  // link is the 9852x8003 CMYK original rather than the page's placed copy, so it is
+  // cropped to 16:10 here and converted to sRGB on the way through.
+  {
+    id: 'legacy-93east',
+    links: true,
+    file: '93 EAST .tif',
+    crop: [0, 850, 9852, 6158],
+    alt: '93 East, Andheri East — completed and standing',
+  },
+  // The two smaller plates beside it, both cropped to 4:3 so the three sit in one
+  // rhythm. They are never shown wider than a third of the screen, so their ladder
+  // stops at 1600.
+  {
+    id: 'legacy-windermere',
+    links: true,
+    file: 'Windermere p.tif',
+    crop: [0, 0, 3095, 2321],
+    widths: [480, 768, 1200, 1600],
+    alt: 'Windermere, Bhayander West — completed',
+  },
+  {
+    id: 'legacy-inizio',
+    links: true,
+    file: 'inizio-9.tif',
+    crop: [8, 0, 3085, 2314],
+    widths: [480, 768, 1200, 1600],
+    alt: 'Inizio, Andheri East — completed',
+  },
+
   // No plan plates: the Floor Plans screen draws its drawings straight from the traced
   // SVG layers and renders in src/assets/building and src/assets/floorplans.
 ];
@@ -78,8 +114,11 @@ async function main() {
   let total = 0;
 
   for (const src of SOURCES) {
-    const input = join(CACHE, src.file);
-    let pipe = sharp(input, { limitInputPixels: false });
+    const input = join(src.links ? LINKS : CACHE, src.file);
+    // `unlimited`: the packaged links are hundreds of megabytes of CMYK TIFF and trip
+    // libvips' default allocation ceiling, which the PDF's own JPEGs never do.
+    let pipe = sharp(input, { limitInputPixels: false, unlimited: !!src.links });
+    if (src.links) pipe = pipe.toColourspace('srgb');
     if (src.crop) {
       const [left, top, width, height] = src.crop;
       pipe = pipe.extract({ left, top, width, height });
@@ -87,9 +126,10 @@ async function main() {
     const base = await pipe.toBuffer();
     const meta = await sharp(base).metadata();
 
-    const ladder = WIDTHS.filter((w) => w <= meta.width);
+    const ladder = (src.widths ?? WIDTHS).filter((w) => w <= meta.width);
     if (!ladder.length) ladder.push(meta.width);
-    if (ladder.at(-1) < meta.width && meta.width - ladder.at(-1) > 120) ladder.push(meta.width);
+    if (!src.widths && ladder.at(-1) < meta.width && meta.width - ladder.at(-1) > 120)
+      ladder.push(meta.width);
 
     const sizes = [];
     for (const w of ladder) {

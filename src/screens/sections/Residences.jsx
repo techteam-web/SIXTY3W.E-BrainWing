@@ -1,44 +1,24 @@
-import { useCallback, useRef, useState } from 'react';
 import { Screen } from '../../layout/Screen';
 import { Crossfade } from '../../components/Crossfade';
 import { RESIDENCES } from '../../data/content';
-import { useEventListener } from '../../hooks/useEventListener';
-import { gsap, useGSAP, E } from '../../gsap/Gsapconfig';
 
-// Four rooms, full bleed, one at a time — because that is how the brochure shows them,
-// and because a render this good does not want a caption box drawn around it.
+// One room, full bleed — the arrival, and nothing competing with it.
 //
-// The room changes without a page transition: this is movement inside one screen, not
-// movement through the document, and reusing the arch cut here would flatten the
-// difference between the two. The picture cross-fades under a slow settle; the caption
-// is what actually performs.
+// This screen used to carry four plates behind a numbered selector. With the lobby
+// standing alone there is nothing to select between, so the tabs and the left/right
+// key handler are gone and the picture is no longer interrupted: the composition is a
+// single still, and the type is the only thing drawn on top of it.
+//
+// What replaces the old bullet list is a specification band — four columns on one gold
+// rule, each numbered, each divided by a hairline. That is how the brochure sets a
+// specification, and at this size it reads as a plate of credentials rather than as a
+// list of points. Nothing animates here on its own: every marked part is staged and
+// released by TransitionDirector with the arch, so the screen composes as one movement.
 
 const { rooms, eyebrow } = RESIDENCES;
+const room = rooms[0];
 
 export function Residences() {
-  const [i, setI] = useState(0);
-  const room = rooms[i];
-
-  const go = useCallback((next) => {
-    setI((prev) => {
-      const n = (next + rooms.length) % rooms.length;
-      return n === prev ? prev : n;
-    });
-  }, []);
-
-  // This screen owns the left/right keys. Up and down stay with the global nav, which
-  // moves between sections — so the two axes never mean the same thing.
-  useEventListener('keydown', (e) => {
-    if (e.metaKey || e.ctrlKey || e.altKey || e.defaultPrevented) return;
-    if (e.key === 'ArrowRight') {
-      go(i + 1);
-      e.preventDefault();
-    } else if (e.key === 'ArrowLeft') {
-      go(i - 1);
-      e.preventDefault();
-    }
-  });
-
   return (
     <Screen id="residences" padded={false}>
       <Crossfade
@@ -49,185 +29,91 @@ export function Residences() {
         priority
       />
 
-      {/* No teal on these renders. A teal wash turned four interiors lit in warm stone
-          and timber green, so the only shading left is neutral — plain shadow, the way a
-          photograph darkens toward its edge — and only where the caption needs it: the
-          foot of the frame, deepest in the corner the type sits in. */}
+      {/* No teal on this render. A teal wash turned an interior lit in warm stone and
+          timber green, so the only shading left is neutral — plain shadow, the way a
+          photograph darkens toward its edge. The corner pool is deeper than it was:
+          with the selector gone the type sits lower in the frame, and the foot of the
+          lobby plate is pale marble. */}
       <div
         aria-hidden="true"
         className="absolute inset-0 max-md:hidden"
         style={{
           background:
-            'radial-gradient(58% 70% at 0% 100%, rgb(0 0 0 / 0.5) 0%, rgb(0 0 0 / 0.3) 50%, rgb(0 0 0 / 0) 100%), linear-gradient(0deg, rgb(0 0 0 / 0.74) 0%, rgb(0 0 0 / 0.56) 24%, rgb(0 0 0 / 0.22) 42%, rgb(0 0 0 / 0) 58%)',
+            'radial-gradient(64% 76% at 0% 100%, rgb(0 0 0 / 0.56) 0%, rgb(0 0 0 / 0.32) 52%, rgb(0 0 0 / 0) 100%), linear-gradient(0deg, rgb(0 0 0 / 0.78) 0%, rgb(0 0 0 / 0.6) 26%, rgb(0 0 0 / 0.24) 46%, rgb(0 0 0 / 0) 62%)',
         }}
       />
-      {/* The phone's own, and heavier: the caption covers the bottom 40% of the frame,
-          and on the lobby plate that 40% is pale marble. */}
+      {/* The phone's own, and heavier: the type covers the bottom half of the frame. */}
       <div
         aria-hidden="true"
         className="absolute inset-0 md:hidden"
         style={{
           background:
-            'linear-gradient(0deg, rgb(0 0 0 / 0.78) 0%, rgb(0 0 0 / 0.66) 30%, rgb(0 0 0 / 0.3) 48%, rgb(0 0 0 / 0) 68%)',
+            'linear-gradient(0deg, rgb(0 0 0 / 0.82) 0%, rgb(0 0 0 / 0.7) 34%, rgb(0 0 0 / 0.34) 54%, rgb(0 0 0 / 0) 72%)',
         }}
       />
 
-      <div className="screen-inset relative z-10 flex h-full min-h-0 flex-col justify-end gap-[clamp(1.1rem,3.2vh,2.4rem)]">
-        <RoomCaption room={room} index={i} eyebrow={eyebrow} />
-        <Selector rooms={rooms} active={i} onSelect={go} />
+      {/* A soft shadow under the type, wide and faint: over pale stone it is what keeps
+          cream legible without darkening the picture any further. */}
+      <div className="screen-inset relative z-10 flex h-full min-h-0 flex-col justify-end [text-shadow:0_1px_24px_rgb(0_0_0/0.5)]">
+        <span data-stagger className="eyebrow mb-[1em] block">
+          {eyebrow}
+        </span>
+
+        {/* Split into lines and released from under its own clip by the director. */}
+        <h1
+          data-headline
+          className="max-w-[18ch] text-hero font-extralight uppercase leading-[1.06] tracking-[0.055em] text-w-cream max-md:max-w-[12ch]"
+        >
+          {room.title}
+        </h1>
+
+        <Specification features={room.features} />
       </div>
     </Screen>
   );
 }
 
-/* ------------------------------------------------------------------ caption */
+/* ------------------------------------------------------------ specification */
 
-function RoomCaption({ room, index, eyebrow }) {
-  const root = useRef(null);
-
-  // Re-runs whenever the room changes: each line arrives from beneath its own mask, in
-  // sequence. No remount, so the layout never shifts under the animation.
-  useGSAP(
-    () => {
-      gsap.fromTo(
-        '[data-caption-part]',
-        { y: 24, autoAlpha: 0 },
-        { y: 0, autoAlpha: 1, duration: 0.7, ease: E.out, stagger: 0.07, overwrite: 'auto' },
-      );
-    },
-    { dependencies: [index], scope: root, revertOnUpdate: false },
-  );
-
+// Four columns on a shared gold rule, each opening with its own numeral. The rule is
+// gold at full strength on the left and fades out to the right, so the band is anchored
+// where the type is and dissolves into the picture rather than ending on a hard stop.
+function Specification({ features }) {
   return (
-    // A soft shadow under the type, wide and faint: over a bright window or pale stone it
-    // is what keeps cream legible without darkening the picture any further.
-    <div
-      ref={root}
-      className="max-w-[46ch] [text-shadow:0_1px_22px_rgb(0_0_0/0.45)] max-md:max-w-none"
-    >
-      <span data-stagger className="eyebrow mb-[0.9em] block">
-        {eyebrow}
-      </span>
+    <div data-stagger className="mt-[clamp(1.6rem,4.4vh,3.2rem)] shrink-0">
+      <span
+        aria-hidden="true"
+        className="block h-px w-full"
+        style={{
+          background:
+            'linear-gradient(90deg, var(--color-w-gold) 0%, color-mix(in srgb, var(--color-w-gold) 45%, transparent) 46%, transparent 100%)',
+        }}
+      />
 
-      {/* Each line sits in its own clipping box so the movement reads as type rising
-          into place rather than as a block sliding around. */}
-      <div className="overflow-hidden pb-[0.08em]">
-        <h1
-          data-caption-part
-          className="text-headline font-extralight uppercase leading-[1.1] tracking-[0.05em] text-w-cream"
-        >
-          {room.title}
-        </h1>
-      </div>
-
-      <div className="mt-[0.7em] flex items-center gap-[0.9em] overflow-hidden py-[0.1em]">
-        <span
-          data-caption-part
-          aria-hidden="true"
-          className="h-px w-[clamp(1.6rem,3.4vw,3.6rem)] shrink-0 bg-w-gold"
-        />
-        <span data-caption-part className="min-w-0 text-subhead font-light text-w-cream/80">
-          {room.caption}
-        </span>
-      </div>
-
-      {room.note ? (
-        <div className="overflow-hidden pt-[0.5em]">
-          <span
-            data-caption-part
-            className="block text-caption tracking-[0.2em] text-w-gold/75 uppercase"
+      <dl className="grid grid-cols-4 gap-x-[clamp(1rem,2.4vw,3rem)] max-md:grid-cols-2 max-md:gap-y-[1.4rem]">
+        {features.map((f, i) => (
+          <div
+            key={f}
+            className={
+              // A hairline divides the columns — never before the first, and on the
+              // phone's two-column grid never before the one that opens a row (the
+              // odd-numbered children, 01 and 03).
+              `relative pt-[1.15em] ${
+                i === 0
+                  ? ''
+                  : 'before:absolute before:inset-y-[1.15em] before:left-[calc(-1*clamp(0.5rem,1.2vw,1.5rem))] before:w-px before:bg-w-cream/12 before:content-[""] max-md:odd:before:hidden'
+              }`
+            }
           >
-            {room.note}
-          </span>
-        </div>
-      ) : null}
-
-      {/* A room's selling points, where it has them (the lobby): each on its own line
-          behind a short gold rule, rising in after the caption like the lines above. */}
-      {room.features?.length ? (
-        <ul className="mt-[1.1em] flex flex-col gap-[0.5em]">
-          {room.features.map((f) => (
-            <li key={f} className="overflow-hidden py-[0.05em]">
-              <span data-caption-part className="flex items-baseline gap-[0.8em]">
-                <span
-                  aria-hidden="true"
-                  className="h-px w-[0.9em] shrink-0 translate-y-[-0.3em] bg-w-gold"
-                />
-                <span className="min-w-0 text-body text-w-cream/90">{f}</span>
-              </span>
-            </li>
-          ))}
-        </ul>
-      ) : null}
-    </div>
-  );
-}
-
-/* ----------------------------------------------------------------- selector */
-
-// Four numbered tabs on a shared rule. The active marker is ONE element that slides
-// between positions rather than a per-tab underline fading in and out: the eye can
-// follow a thing that moves, and cannot follow two things that swap.
-function Selector({ rooms, active, onSelect }) {
-  const root = useRef(null);
-
-  const place = useCallback(
-    (animate) => {
-      const el = root.current;
-      if (!el) return;
-      const tab = el.querySelector(`[data-tab="${active}"]`);
-      const bar = el.querySelector('[data-tab-bar]');
-      if (!tab || !bar) return;
-      // Both rects come from the same transformed subtree, so the difference between
-      // them is correct even while the screen itself is mid-transition.
-      const box = el.getBoundingClientRect();
-      const r = tab.getBoundingClientRect();
-      const vars = { x: r.left - box.left, width: r.width, overwrite: 'auto' };
-      if (animate) gsap.to(bar, { ...vars, duration: 0.55, ease: E.out });
-      else gsap.set(bar, vars);
-    },
-    [active],
-  );
-
-  useGSAP(() => place(true), { dependencies: [active], scope: root, revertOnUpdate: false });
-  useEventListener('resize', () => place(false));
-
-  return (
-    <div data-stagger ref={root} className="relative shrink-0">
-      <span aria-hidden="true" className="absolute inset-x-0 top-0 h-px bg-w-cream/15" />
-      <span data-tab-bar aria-hidden="true" className="absolute left-0 top-0 h-px w-0 bg-w-gold" />
-
-      <div className="flex gap-[clamp(1.1rem,3vw,4rem)] max-mob:gap-[0.85rem]">
-        {rooms.map((room, i) => (
-          <button
-            key={room.id}
-            type="button"
-            data-tab={i}
-            aria-current={i === active}
-            onClick={() => onSelect(i)}
-            className="group flex min-w-0 flex-col items-start gap-[0.4em] pt-[1.05em] text-left"
-          >
-            <span
-              className={`text-micro tabular-nums tracking-[0.24em] transition-colors duration-300 ${
-                i === active ? 'text-w-gold' : 'text-w-cream/35 group-hover:text-w-gold/70'
-              }`}
-            >
+            <dt className="text-micro tabular-nums tracking-[0.26em] text-w-gold">
               {String(i + 1).padStart(2, '0')}
-            </span>
-            {/* "Entrance Lobby" is fourteen characters, and four of those beside each
-                other do not fit across 390px at a legible size. The phone gets the short
-                name; the full one is the headline directly above it either way. */}
-            <span
-              className={`truncate text-caption uppercase tracking-[0.16em] transition-colors duration-300 ${
-                i === active ? 'text-w-cream' : 'text-w-cream/45 group-hover:text-w-cream/80'
-              }`}
-            >
-              <span className="max-md:hidden">{room.title}</span>
-              <span className="md:hidden">{room.short}</span>
-            </span>
-          </button>
+            </dt>
+            <dd className="mt-[0.85em] max-w-[22ch] text-read font-light leading-[1.5] text-w-cream/85">
+              {f}
+            </dd>
+          </div>
         ))}
-      </div>
+      </dl>
     </div>
   );
 }

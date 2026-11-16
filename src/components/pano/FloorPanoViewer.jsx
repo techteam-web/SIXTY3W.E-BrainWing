@@ -26,8 +26,13 @@ import { Portal } from '../Primitives';
 // and the view stays on the other.
 
 // How much higher than calibrated every floor view opens: the client asked for the view a
-// little further up, off the ground below and onto the skyline.
-const LIFT = 6;
+// little further up, off the ground below and onto the skyline — twice, so this is 12°
+// rather than the 6° it started at. At 6° an apartment still opened on a frame whose
+// bottom third was the rooftops and the nallah directly beneath the tower; at 12° the
+// far skyline sits near the middle of the frame and the ground below falls out of it.
+// Nothing is clamped by it: an opening view sets no pitch limits (`limits: null`), so
+// the visitor can still look straight back down.
+const LIFT = 12;
 const lifted = (start) => (start ? { ...start, pitch: (start.pitch ?? 0) + LIFT } : start);
 
 const levelLabel = (p) => (p.height != null ? `Shot at ${p.height} m` : null);
@@ -131,7 +136,18 @@ export function FloorPanoViewer({
     () =>
       free
         ? looking
-          ? { key: `look-${look}`, start: lifted(roomView.start), limits: null }
+          ? // The key carries the ROOM as well as the press. PanoViewer turns the camera
+            // only when this key changes (it is what tells a re-render from a real change
+            // of subject), so a key of the press alone meant that choosing another
+            // apartment on the radar moved the dot and left the view where it was: the
+            // cone was then drawn from the new apartment pointing the old one's way, and
+            // every apartment reached that way read wrong. Both things that should re-aim
+            // now change it — pressing "Look from" again, and picking another home.
+            {
+              key: `look-${look}:${target.planId}:${target.areaId}`,
+              start: lifted(roomView.start),
+              limits: null,
+            }
           : { key: 'free', start: lifted(AAREY_START), limits: null, keep: true }
         : roomView
           ? {
@@ -143,13 +159,26 @@ export function FloorPanoViewer({
     [free, looking, look, target, roomView],
   );
 
+  // A home is CHOSEN the moment the visitor presses one, on the plan or in the Rooms row
+  // — `areaId` is set only by that press, or by opening the view from a room. `area`
+  // below falls back to the plan's `opensOn` so there is always somewhere to look from,
+  // but a fallback is not a choice and must not move anything on its own.
+  const chosen = areaId != null;
+
   // The radar's dot sits on the room being viewed, not the building's core: the room's
   // own calibrated point (roomView.camera) if one is set, else the centre of its traced
   // shape — so every apartment has its own radar position automatically, with no
   // measuring required, and switching rooms moves the dot (and the cone that turns from
   // it) there too. A plan-less floor has no room and keeps the floor-wide camera.
+  //
+  // `chosen` is in here because the locator used to wait for "Look from": pressing a home
+  // highlighted its shape and renamed the button, but left the dot and cone back on the
+  // tower's core, and they only walked over to it one press later. The map now answers
+  // the press that was actually made. Turning the VIEW still waits for "Look from" — that
+  // is the point of the free 360° — so between the two presses the cone simply reads from
+  // the chosen home at whatever heading the visitor is already on.
   const roomCamera =
-    room && (!free || looking)
+    room && (!free || looking || chosen)
       ? (roomView?.camera ?? (area?.bbox ? bboxCenter(area.bbox) : null))
       : null;
 

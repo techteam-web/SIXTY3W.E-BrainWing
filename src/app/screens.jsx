@@ -8,6 +8,7 @@ import { Amenities } from '../screens/sections/Amenities';
 import { FloorPlans } from '../screens/sections/FloorPlans';
 import { Location } from '../screens/sections/Location';
 import { Specifications } from '../screens/sections/Specifications';
+import { Legacy } from '../screens/sections/Legacy';
 import { comingSoon } from '../screens/sections/ComingSoon';
 
 // Every screen is statically imported: the incoming screen must be mounted and laid out
@@ -23,8 +24,8 @@ export const SECTION_SCREENS = {
   plans: FloorPlans,
   location: Location,
   specifications: Specifications,
+  legacy: Legacy,
   // In the menu, not built yet.
-  legacy: comingSoon('legacy'),
   'master-layout': comingSoon('master-layout'),
 };
 

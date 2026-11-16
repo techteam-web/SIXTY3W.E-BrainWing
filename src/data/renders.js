@@ -155,6 +155,32 @@ export const RENDERS = {
     "src": "/assets/renders/level26-2000.webp",
     "srcSet": "/assets/renders/level26-480.webp 480w, /assets/renders/level26-768.webp 768w, /assets/renders/level26-1200.webp 1200w, /assets/renders/level26-1600.webp 1600w, /assets/renders/level26-2000.webp 2000w",
     "lqip": "data:image/webp;base64,UklGRmYAAABXRUJQVlA4IFoAAACwAwCdASoUAAwAPu1iqU2ppaQiMAgBMB2JZwAAQvJNCN5+OIjAAAD+8X8RPtlTUvSJ6sa376hlO9GVnkpMH0SiM3uxhXqGRXwBluw26VKUb7AF/8R0n7bZNgA="
+  },
+
+  "legacy-93east": {
+    "alt": "93 East, Andheri East \u2014 completed and standing",
+    "width": 2000,
+    "height": 1250,
+    "src": "/assets/renders/legacy-93east-2000.webp",
+    "srcSet": "/assets/renders/legacy-93east-480.webp 480w, /assets/renders/legacy-93east-768.webp 768w, /assets/renders/legacy-93east-1200.webp 1200w, /assets/renders/legacy-93east-1600.webp 1600w, /assets/renders/legacy-93east-2000.webp 2000w",
+    "lqip": "data:image/webp;base64,UklGRpYAAABXRUJQVlA4IIoAAAAQBACdASoUAA0APu1iqU2ppaOiMAgBMB2JZACdIKnqQA33vN9fatOZoADG8hdY8H5LnbZ03KS2Eh754vNIr18W1X7udirUGGHUcd5ym65vhv2wJV08O/rZz9bmLY1bvc3jz9/Z3LEsify31q/9Lw+07aFqSiIkfz7Iu5+4z6uUGEDmFFx5r2iXgAA="
+  },
+
+  "legacy-windermere": {
+    "alt": "Windermere, Bhayander West \u2014 completed",
+    "width": 1600,
+    "height": 1200,
+    "src": "/assets/renders/legacy-windermere-1600.webp",
+    "srcSet": "/assets/renders/legacy-windermere-480.webp 480w, /assets/renders/legacy-windermere-768.webp 768w, /assets/renders/legacy-windermere-1200.webp 1200w, /assets/renders/legacy-windermere-1600.webp 1600w",
+    "lqip": "data:image/webp;base64,UklGRmQAAABXRUJQVlA4IFgAAADwAwCdASoUAA8APu1iqk2ppaQiMAgBMB2JYgCdMoR7KCU3hP+/ZUJgAPpidKn4KTc/8bcoMEf+WrX9lVPPl5KgzMCipbeX6RGgYZBY/sbkGNhK0X1dAAAA"
+  },
+  "legacy-inizio": {
+    "alt": "Inizio, Andheri East \u2014 completed",
+    "width": 1600,
+    "height": 1200,
+    "src": "/assets/renders/legacy-inizio-1600.webp",
+    "srcSet": "/assets/renders/legacy-inizio-480.webp 480w, /assets/renders/legacy-inizio-768.webp 768w, /assets/renders/legacy-inizio-1200.webp 1200w, /assets/renders/legacy-inizio-1600.webp 1600w",
+    "lqip": "data:image/webp;base64,UklGRpgAAABXRUJQVlA4IIwAAAAQBACdASoUAA8APu1iqU2ppaOiMAgBMB2JagCdLwAA7BlydAVuektEAADhGb7Skl83lpgohH1Vi2kkmNXTAuYrh6FUiSpbBbifNy2kmW4BA7OjQrdPJb67iUknrNzqLXITkLXmvWw3QZvA/7tcMxOuz2JFlbACHHF5TFOYGml0ubcY/dhiU0x9MZ8AAA=="
   }
 };
 

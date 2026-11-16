@@ -24,14 +24,22 @@
 // Specifications is "What to Expect".
 export const SECTIONS = [
   {
-    // Coming soon: in the menu at the client's request, not built yet (ComingSoon.jsx).
     id: 'legacy',
     no: '01',
     label: 'Legacy',
-    backdrop: 'tower-dusk',
+    // 93 East, finished and standing — the photograph off the presenter's own Completed
+    // Projects spread. The chapter is about delivered work, so its ground is delivered
+    // work rather than another view of this tower.
+    backdrop: 'legacy-93east',
     // Warmed by the preloader, so the transition's arches carry the picture itself.
-    lead: { id: 'tower-dusk', sizes: '100vw' },
-    soon: true,
+    lead: { id: 'legacy-93east', sizes: '100vw' },
+    // The screen carries three completed buildings: 93 East is a photograph, Windermere
+    // and Inizio are the developer's own impressions of them. Neither the standing
+    // "Artist's impression" nor a flat "Photograph" is true of all three, so the line
+    // says both — the same precision the map's caption exists for.
+    // Kept to one line: at a phone's width the longer form wrapped and ran into the
+    // developers' names at the foot of the page.
+    caption: 'Photograph & artist’s impressions',
   },
   {
     id: 'location',

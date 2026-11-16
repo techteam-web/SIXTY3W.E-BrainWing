@@ -37,7 +37,7 @@ export const LANDMARKS = [
   { id: 'jvlr', name: 'JVLR', cat: 'node', lat: 19.1327, lng: 72.8735 },
 
   /* --------------------------------------------------------------- connectivity */
-  { id: 'weh', name: 'Western Express Highway', cat: 'connectivity', mins: 2, lat: 19.1566, lng: 72.8573 },
+  { id: 'weh', name: 'Western Express Highway', cat: 'connectivity', mins: 2, lat: 19.155, lng: 72.8568 },
   // Metro Line 7's Goregaon (East) station, on the highway at HUB Mall and NESCO.
   { id: 'goregaon-metro', name: 'Goregaon (E) Metro Station', cat: 'connectivity', mins: 3, lat: 19.152507, lng: 72.856522 },
   // Where the Mrinaltai Gore flyover lands on S. V. Road.
