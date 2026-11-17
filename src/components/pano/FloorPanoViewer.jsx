@@ -71,7 +71,11 @@ export function FloorPanoViewer({
   const [areaId, setAreaId] = useState(from?.areaId ?? null);
   // The last "Look from": which press it was, so pressing again re-aims even at the same
   // home. Opened from a room, the view starts as if it had been pressed.
-  const [look, setLook] = useState(from ? 1 : 0);
+  // Starts at 1: the view opens already looking from a home — the one it was opened
+  // from, else the plan's Aarey-facing `opensOn` — so the radar's dot and cone and the
+  // view agree from the first frame. It used to open unaimed, with the dot on the tower's
+  // core, and the first home pressed then read wrong until "Look from" was pressed too.
+  const [look, setLook] = useState(1);
   const lookFrom = useCallback(() => setLook((n) => n + 1), []);
   // The floor-info card starts collapsed to a small pill beside Back.
   const [cardOpen, setCardOpen] = useState(false);
@@ -126,10 +130,8 @@ export function FloorPanoViewer({
     : room
       ? roomViewIn(drafts, room.planId, room.areaId)
       : (roomViewIn(drafts, 'floors', floorKey) ?? roomViewIn(drafts, 'floors', 'default'));
-  // Free: a floor of the building with no home looked from (none chosen to lock to, or
-  // none on this floor). Setup mode always shows the lock, since that is what it edits.
-  // Free: a floor of the building, outside setup mode. Turned to a home only once one has
-  // been looked from (and only on a floor that has it).
+  // Free: a floor of the building, outside setup mode — never locked. Turned to a home
+  // whenever one is looked from (always, now; see `look`), on a floor that has homes.
   const free = !panoOverride && !SETUP_MODE;
   const looking = free && look > 0 && !!room && !!roomView?.start;
   const lock = useMemo(
@@ -173,10 +175,8 @@ export function FloorPanoViewer({
   //
   // `chosen` is in here because the locator used to wait for "Look from": pressing a home
   // highlighted its shape and renamed the button, but left the dot and cone back on the
-  // tower's core, and they only walked over to it one press later. The map now answers
-  // the press that was actually made. Turning the VIEW still waits for "Look from" — that
-  // is the point of the free 360° — so between the two presses the cone simply reads from
-  // the chosen home at whatever heading the visitor is already on.
+  // tower's core. Pressing a home now also turns the view to it (see onSelectRoom below),
+  // so the dot, the cone and the view always speak for the same home.
   const roomCamera =
     room && (!free || looking || chosen)
       ? (roomView?.camera ?? (area?.bbox ? bboxCenter(area.bbox) : null))
@@ -265,7 +265,13 @@ export function FloorPanoViewer({
           readoutRef={readoutRef}
           rooms={rooms}
           activeAreaId={area?.id}
-          onSelectRoom={setAreaId}
+          // A home pressed on the map is looked from at once: the dot moves there AND
+          // the view turns to its outlook, the same as "Look from". Moving only the dot
+          // drew the cone from the new home pointing the old view's way.
+          onSelectRoom={(id) => {
+            setAreaId(id);
+            lookFrom();
+          }}
           locked={false}
           lookLabel={area ? (area.kind === 'unit' ? `Apt ${area.short}` : area.label) : null}
           onLock={free ? lookFrom : null}

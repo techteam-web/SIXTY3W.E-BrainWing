@@ -341,14 +341,19 @@ export function EstateMap({ activeCategory, focusId, highlightId, onRoute, onPic
       // Every dot the map holds, not only those in today's list: one taken off the list
       // (a hospital the client removed) while the map stayed up — a live reload — would
       // otherwise keep showing under every category.
+      //
+      // And while a place is chosen, it is the only one marked: the other dots of its
+      // category step back with the rest, leaving the beacon, the route and the
+      // orientation names (Aarey, the highway, JVLR), which say where things are.
       for (const [id, el] of markers.current) {
         const l = LANDMARK_BY_ID[id];
-        const on = !!l && (l.cat === activeCategory || ALWAYS_ON.has(l.cat));
+        const node = !!l && ALWAYS_ON.has(l.cat);
+        const on = !!l && (node || (l.cat === activeCategory && (!focusId || id === focusId)));
         el.setAttribute('data-dim', String(!on));
         el.style.visibility = l ? '' : 'hidden';
       }
     },
-    { dependencies: [activeCategory, loaded] },
+    { dependencies: [activeCategory, focusId, loaded] },
   );
 
   useGSAP(

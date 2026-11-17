@@ -86,8 +86,9 @@ function conform(raw, ids = null, width = 460.8) {
 // sheet's arch crown never cuts into the linework. It frames; it moves nothing.
 //
 // `opensOn` is the room a floor's 360° view opens on when it is opened from the tower
-// rather than from a room: the one looking out over Aarey (the road side, roughly
-// 120°–220° in the drone shots). Apartment 01 looks the other way, down the nallah.
+// rather than from a room: Apartment 01 on the residential floors, at the client's
+// request (Nov 2026; it had been the Aarey-facing Apartment 02). The amenity floor opens
+// on the Fitness Centre, which faces Aarey.
 export const PLANS = {
   'typical-low': {
     id: 'typical-low',
@@ -99,7 +100,7 @@ export const PLANS = {
     alt: 'Typical floor plan, 2nd to 5th and 7th to 10th floors',
     layer: parseSvgLayer(typicalLowSvg),
     frame: [66, 26, 329, 200],
-    opensOn: '_3', // Apartment 02, on the road side
+    opensOn: '_4', // Apartment 01
     areas: {
       _1: residence('04', 579),
       _2: residence('03', 599),
@@ -120,7 +121,7 @@ export const PLANS = {
     // as before, by apartment: the wings 634, the road-side pair 686.
     layer: parseSvgLayer(conform(typicalHighSvg)),
     frame: [42, 30, 377, 214],
-    opensOn: '_2', // Apartment 02, on the road side
+    opensOn: '_1', // Apartment 01
     areas: {
       _1: residence('01', 634),
       _2: residence('02', 686),
@@ -144,7 +145,7 @@ export const PLANS = {
     // The drawing's bounds off the PNG's alpha (219, 189 → 1580, 890 on the 1800-wide
     // board), scaled, with the same margin the other plates leave for the arch crown.
     frame: [42, 30, 377, 214],
-    opensOn: '_2', // Apartment 02, the whole deck side
+    opensOn: '_1', // Apartment 01
     areas: {
       _1: residence('01', null, { sheet: topApt01 }),
       _2: residence('02', null, { type: '4 BHK', sheet: topApt02 }),
