@@ -294,6 +294,20 @@ export const SPECS = {
   // The sheet is the menu's "What to Expect" (Nov 2026): the specifications, renamed.
   eyebrow: 'Specifications',
   headline: ['What to Expect'],
+  // The presenter PDF's What to Expect page (21), word for word: the seven points on its
+  // teal panel. `icon` names a drawing in Specifications.jsx. The full sheet below
+  // opens from the panel.
+  points: [
+    { icon: 'legacy', label: ['Legacy'] },
+    { icon: 'tower', label: ['31-storey high-rise tower', 'with exclusive Aarey views'] },
+    { icon: 'pool', label: ['Club Euphoria on the', '26th floor with an infinity pool'] },
+    { icon: 'compass', label: ['Vaastu compliant homes'] },
+    { icon: 'house', label: ['Low-density', 'private residences'] },
+    { icon: 'pin', label: ['Prime location'] },
+    { icon: 'fittings', label: ['Grade A internal', 'fittings / finishes'] },
+  ],
+  cta: 'Full specifications',
+  close: 'Back',
   columns: [
     {
       id: 'hallmarks',
