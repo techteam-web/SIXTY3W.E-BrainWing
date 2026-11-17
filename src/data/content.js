@@ -88,11 +88,27 @@ export const LEGACY = {
 
   // The three buildings the presenter package carries photographs of, which the arch
   // cycles through. Each is also pinned to its own name in the list below.
+  // Since Nov 2026: the four photographs on the presenter PDF's Completed Projects
+  // spread (page 2), in its order.
   plates: [
-    { id: 'legacy-93east', name: '93 East', place: 'Andheri East' },
-    { id: 'legacy-windermere', name: 'Windermere', place: 'Bhayander West' },
-    { id: 'legacy-inizio', name: 'Inizio', place: 'Andheri East' },
+    { id: 'legacy-c-93east', name: '93 East', place: 'Andheri East', position: '34% 50%' },
+    { id: 'legacy-c-at', name: 'AT', place: 'Andheri East' },
+    { id: 'legacy-c-inizio', name: 'Inizio', place: 'Andheri East' },
+    { id: 'legacy-c-windermere', name: 'Windermere', place: 'Bhayander West' },
   ],
+
+  // The presenter PDF's Ongoing & Upcoming spread (page 3), shown at the head of the
+  // showcase.
+  ongoing: {
+    title: 'Ongoing & Upcoming',
+    headline: ['Four buildings,', 'in the making'],
+    items: [
+      { id: 'legacy-o-residential', name: 'Sixty3 W.E. Residential', place: 'Goregaon East', status: 'Ongoing' },
+      { id: 'legacy-o-bizpark', name: 'Sixty3 W.E. Bizpark', place: 'Goregaon East', status: 'Ongoing' },
+      { id: 'legacy-o-wiz', name: 'WIZ', place: 'Goregaon East', status: 'Upcoming' },
+      { id: 'legacy-o-soon', name: 'Coming Soon', place: 'Andheri East', status: 'Upcoming' },
+    ],
+  },
 
   // The showcase's own words.
   showcase: {

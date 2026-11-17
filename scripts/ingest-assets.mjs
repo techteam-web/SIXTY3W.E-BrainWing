@@ -11,7 +11,7 @@
 //
 // Output: public/assets/renders/<id>-<w>.webp  +  src/data/renders.js
 
-import { mkdir, readdir, writeFile, rm, stat } from 'node:fs/promises';
+import { mkdir, readdir, readFile, writeFile, rm, stat } from 'node:fs/promises';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFile } from 'node:child_process';
@@ -25,6 +25,16 @@ const PDF = '/Users/Arsalan/Downloads/SIXTY3W-E-Residential_Minu Brochure.pdf';
 // photographs at full size. A source marked `links: true` is read from here instead of
 // from the PDF cache — see 'legacy-93east' below.
 const LINKS = '/Users/Arsalan/Downloads/AGM_RESI_PRESENTER_A3_Folder/Links';
+// The presenter deck as a flattened PDF (Nov 2026). Its Completed / Ongoing project
+// spreads (pages 2 and 3) and its What to Expect page (21) carry photographs the package's
+// Links folder does not. A source marked `agm: true` is read from AGM_CACHE, which
+// extractAgm() fills by having Inkscape (poppler) write each page as plain SVG and
+// decoding the embedded rasters at their native size. Files are named p<page>-<n>.png,
+// n counting every <image> on the page, soft masks included.
+const AGM_PDF = process.env.AGM_PDF ?? '/Users/Arsalan/Downloads/agmpdf (3).pdf';
+const AGM_PAGES = [2, 3, 21];
+const INKSCAPE = process.env.INKSCAPE ?? 'inkscape';
+const AGM_CACHE = join(ROOT, '.cache/agm-pdf');
 const CACHE = join(ROOT, '.cache/pdf-images');
 const OUT = join(ROOT, 'public/assets/renders');
 
@@ -87,6 +97,28 @@ const SOURCES = [
     alt: 'Inizio, Andheri East — completed',
   },
 
+  // The presenter PDF's Completed Projects spread: the four buildings photographed at
+  // the head of its four columns, in the brochure's order. Shown as tall arch windows,
+  // never wider than a quarter of the screen, so the ladder stops at the source.
+  { id: 'legacy-c-93east', agm: true, file: 'p2-1.png', widths: [480, 768, 1200, 1508], alt: '93 East, Andheri East' },
+  { id: 'legacy-c-at', agm: true, file: 'p2-2.png', widths: [480, 768, 1200, 1375], alt: 'AT, Andheri East' },
+  { id: 'legacy-c-inizio', agm: true, file: 'p2-4.png', widths: [480, 768, 1200, 1348], alt: 'Inizio, Andheri East' },
+  { id: 'legacy-c-windermere', agm: true, file: 'p2-6.png', widths: [480, 768, 1200, 1285], alt: 'Windermere, Bhayander West' },
+  // Its Ongoing and Upcoming spread.
+  { id: 'legacy-o-residential', agm: true, file: 'p3-1.png', widths: [480, 768, 1200, 1600, 2000], alt: 'SIXTY3W.E. Residential, Goregaon East' },
+  { id: 'legacy-o-bizpark', agm: true, file: 'p3-3.png', widths: [480, 768, 1200, 1600, 2000], alt: 'SIXTY3W.E. Bizpark, Goregaon East' },
+  { id: 'legacy-o-wiz', agm: true, file: 'p3-5.png', widths: [480, 768, 1200, 1600, 1911], alt: 'WIZ, Goregaon East' },
+  { id: 'legacy-o-soon', agm: true, file: 'p3-7.png', widths: [480, 768, 1200, 1600], alt: 'Coming soon, Andheri East' },
+  // What to Expect's ground: the family in the living room, page 21. Full-bleed, so its
+  // ladder runs on to 4K.
+  {
+    id: 'expect-living',
+    agm: true,
+    file: 'p21-0.png',
+    widths: [768, 1200, 1600, 2000, 2800, 3840],
+    alt: 'A family at home in the living room, the city and the forest beyond the glass',
+  },
+
   // No plan plates: the Floor Plans screen draws its drawings straight from the traced
   // SVG layers and renders in src/assets/building and src/assets/floorplans.
 ];
@@ -105,16 +137,58 @@ async function ensureExtracted() {
   await run('mutool', ['extract', PDF], { cwd: CACHE, maxBuffer: 1 << 28 });
 }
 
+async function extractAgm() {
+  try {
+    const have = await readdir(AGM_CACHE);
+    if (have.some((f) => f.endsWith('.png'))) return;
+  } catch {
+    /* first run */
+  }
+  await mkdir(AGM_CACHE, { recursive: true });
+  console.log('  extracting embedded rasters from the presenter PDF…');
+  for (const page of AGM_PAGES) {
+    const svgPath = join(AGM_CACHE, `p${page}.svg`);
+    await run(
+      INKSCAPE,
+      ['--pdf-poppler', `--pages=${page}`, '--export-type=svg', '--export-plain-svg', `--export-filename=${svgPath}`, AGM_PDF],
+      { maxBuffer: 1 << 28 },
+    );
+    const svg = await readFile(svgPath, 'utf8');
+    const re = /<image[^>]*?href="data:image\/\w+;base64,([^"]+)"/g;
+    let m;
+    let n = 0;
+    while ((m = re.exec(svg))) {
+      await sharp(Buffer.from(m[1], 'base64')).png().toFile(join(AGM_CACHE, `p${page}-${n++}.png`));
+    }
+    await rm(svgPath);
+  }
+}
+
+// `--only=id,id` re-ingests just those sources and merges them into the existing
+// manifest, leaving every other render where it is — for adding plates on a machine that
+// does not hold every source file.
+const ONLY = process.argv.find((a) => a.startsWith('--only='))?.slice(7).split(',').filter(Boolean) ?? null;
+
 async function main() {
-  await ensureExtracted();
-  await rm(OUT, { recursive: true, force: true });
-  await mkdir(OUT, { recursive: true });
+  const todo = ONLY ? SOURCES.filter((s) => ONLY.includes(s.id)) : SOURCES;
+  if (todo.some((s) => !s.links && !s.agm)) await ensureExtracted();
+  if (todo.some((s) => s.agm)) await extractAgm();
+  if (ONLY) {
+    await mkdir(OUT, { recursive: true });
+    for (const f of await readdir(OUT)) {
+      if (todo.some((s) => f.startsWith(`${s.id}-`) && /^\d+\.webp$/.test(f.slice(s.id.length + 1))))
+        await rm(join(OUT, f));
+    }
+  } else {
+    await rm(OUT, { recursive: true, force: true });
+    await mkdir(OUT, { recursive: true });
+  }
 
   const manifest = [];
   let total = 0;
 
-  for (const src of SOURCES) {
-    const input = join(src.links ? LINKS : CACHE, src.file);
+  for (const src of todo) {
+    const input = join(src.links ? LINKS : src.agm ? AGM_CACHE : CACHE, src.file);
     // `unlimited`: the packaged links are hundreds of megabytes of CMYK TIFF and trip
     // libvips' default allocation ceiling, which the PDF's own JPEGs never do.
     let pipe = sharp(input, { limitInputPixels: false, unlimited: !!src.links });
@@ -165,32 +239,34 @@ async function main() {
     );
   }
 
+  let entries = manifest.map((r) => [
+    r.id,
+    {
+      alt: r.alt,
+      width: r.width,
+      height: r.height,
+      src: `/assets/renders/${r.sizes.at(-1).file}`,
+      srcSet: r.sizes.map((s) => `/assets/renders/${s.file} ${s.w}w`).join(', '),
+      lqip: r.lqip,
+    },
+  ]);
+  if (ONLY) {
+    const { RENDERS: prev } = await import(`../src/data/renders.js?${Date.now()}`);
+    const fresh = Object.fromEntries(entries);
+    const ids = [...new Set([...SOURCES.map((s) => s.id), ...Object.keys(prev)])];
+    entries = ids.filter((id) => fresh[id] || prev[id]).map((id) => [id, fresh[id] ?? prev[id]]);
+  }
+
   const js =
     `// GENERATED by scripts/ingest-assets.mjs — do not edit.\n` +
     `//\n` +
     `// Every render in the application, as a WebP ladder plus an inline LQIP. Read only\n` +
     `// through getRender(id) / <Render id=…> so no screen ever hard-codes a path.\n\n` +
-    `export const RENDERS = ${JSON.stringify(
-      Object.fromEntries(
-        manifest.map((r) => [
-          r.id,
-          {
-            alt: r.alt,
-            width: r.width,
-            height: r.height,
-            src: `/assets/renders/${r.sizes.at(-1).file}`,
-            srcSet: r.sizes.map((s) => `/assets/renders/${s.file} ${s.w}w`).join(', '),
-            lqip: r.lqip,
-          },
-        ]),
-      ),
-      null,
-      2,
-    )};\n\n` +
+    `export const RENDERS = ${JSON.stringify(Object.fromEntries(entries), null, 2)};\n\n` +
     `export const getRender = (id) => (id ? RENDERS[id] ?? null : null);\n`;
 
   await writeFile(join(ROOT, 'src/data/renders.js'), js);
-  console.log(`\n  ${manifest.length} renders, ${bytes(total)} of WebP → public/assets/renders/`);
+  console.log(`\n  ${entries.length} renders, ${bytes(total)} of WebP → public/assets/renders/`);
   console.log(`  manifest → src/data/renders.js\n`);
 }
 

@@ -156,18 +156,16 @@ export const RENDERS = {
     "srcSet": "/assets/renders/level26-480.webp 480w, /assets/renders/level26-768.webp 768w, /assets/renders/level26-1200.webp 1200w, /assets/renders/level26-1600.webp 1600w, /assets/renders/level26-2000.webp 2000w",
     "lqip": "data:image/webp;base64,UklGRmYAAABXRUJQVlA4IFoAAACwAwCdASoUAAwAPu1iqU2ppaQiMAgBMB2JZwAAQvJNCN5+OIjAAAD+8X8RPtlTUvSJ6sa376hlO9GVnkpMH0SiM3uxhXqGRXwBluw26VKUb7AF/8R0n7bZNgA="
   },
-
   "legacy-93east": {
-    "alt": "93 East, Andheri East \u2014 completed and standing",
+    "alt": "93 East, Andheri East — completed and standing",
     "width": 2000,
     "height": 1250,
     "src": "/assets/renders/legacy-93east-2000.webp",
     "srcSet": "/assets/renders/legacy-93east-480.webp 480w, /assets/renders/legacy-93east-768.webp 768w, /assets/renders/legacy-93east-1200.webp 1200w, /assets/renders/legacy-93east-1600.webp 1600w, /assets/renders/legacy-93east-2000.webp 2000w",
     "lqip": "data:image/webp;base64,UklGRpYAAABXRUJQVlA4IIoAAAAQBACdASoUAA0APu1iqU2ppaOiMAgBMB2JZACdIKnqQA33vN9fatOZoADG8hdY8H5LnbZ03KS2Eh754vNIr18W1X7udirUGGHUcd5ym65vhv2wJV08O/rZz9bmLY1bvc3jz9/Z3LEsify31q/9Lw+07aFqSiIkfz7Iu5+4z6uUGEDmFFx5r2iXgAA="
   },
-
   "legacy-windermere": {
-    "alt": "Windermere, Bhayander West \u2014 completed",
+    "alt": "Windermere, Bhayander West — completed",
     "width": 1600,
     "height": 1200,
     "src": "/assets/renders/legacy-windermere-1600.webp",
@@ -175,12 +173,84 @@ export const RENDERS = {
     "lqip": "data:image/webp;base64,UklGRmQAAABXRUJQVlA4IFgAAADwAwCdASoUAA8APu1iqk2ppaQiMAgBMB2JYgCdMoR7KCU3hP+/ZUJgAPpidKn4KTc/8bcoMEf+WrX9lVPPl5KgzMCipbeX6RGgYZBY/sbkGNhK0X1dAAAA"
   },
   "legacy-inizio": {
-    "alt": "Inizio, Andheri East \u2014 completed",
+    "alt": "Inizio, Andheri East — completed",
     "width": 1600,
     "height": 1200,
     "src": "/assets/renders/legacy-inizio-1600.webp",
     "srcSet": "/assets/renders/legacy-inizio-480.webp 480w, /assets/renders/legacy-inizio-768.webp 768w, /assets/renders/legacy-inizio-1200.webp 1200w, /assets/renders/legacy-inizio-1600.webp 1600w",
     "lqip": "data:image/webp;base64,UklGRpgAAABXRUJQVlA4IIwAAAAQBACdASoUAA8APu1iqU2ppaOiMAgBMB2JagCdLwAA7BlydAVuektEAADhGb7Skl83lpgohH1Vi2kkmNXTAuYrh6FUiSpbBbifNy2kmW4BA7OjQrdPJb67iUknrNzqLXITkLXmvWw3QZvA/7tcMxOuz2JFlbACHHF5TFOYGml0ubcY/dhiU0x9MZ8AAA=="
+  },
+  "legacy-c-93east": {
+    "alt": "93 East, Andheri East",
+    "width": 1508,
+    "height": 1225,
+    "src": "/assets/renders/legacy-c-93east-1508.webp",
+    "srcSet": "/assets/renders/legacy-c-93east-480.webp 480w, /assets/renders/legacy-c-93east-768.webp 768w, /assets/renders/legacy-c-93east-1200.webp 1200w, /assets/renders/legacy-c-93east-1508.webp 1508w",
+    "lqip": "data:image/webp;base64,UklGRpQAAABXRUJQVlA4IIgAAABwBACdASoUABAAPu1iqU2ppaOiMAgBMB2JagCdBagBCvuew0zr62uG04rGAADo4WtS5x0ykUx+hR/xRcUX7oxtpAheGgsr58vm5MDSH6InTI6gNRQk9S7GjHbvXQ6lOfjVWesXXjwtD+yyYZoUZhT2OrHZ2EGD9PinjAuc92rICi69TwdM2ugA"
+  },
+  "legacy-c-at": {
+    "alt": "AT, Andheri East",
+    "width": 1375,
+    "height": 1012,
+    "src": "/assets/renders/legacy-c-at-1375.webp",
+    "srcSet": "/assets/renders/legacy-c-at-480.webp 480w, /assets/renders/legacy-c-at-768.webp 768w, /assets/renders/legacy-c-at-1200.webp 1200w, /assets/renders/legacy-c-at-1375.webp 1375w",
+    "lqip": "data:image/webp;base64,UklGRmgAAABXRUJQVlA4IFwAAAAQBACdASoUAA8APu1iqU2ppaOiMAgBMB2JaACdMoMftEmQ8BoKupsmAAD+4vrfaxZZhFMLullE/fy1pViG0Jyb0tj6jXMgCFXhG4UiiWQRc385dQcRYG2DxL5AAA=="
+  },
+  "legacy-c-inizio": {
+    "alt": "Inizio, Andheri East",
+    "width": 1348,
+    "height": 1007,
+    "src": "/assets/renders/legacy-c-inizio-1348.webp",
+    "srcSet": "/assets/renders/legacy-c-inizio-480.webp 480w, /assets/renders/legacy-c-inizio-768.webp 768w, /assets/renders/legacy-c-inizio-1200.webp 1200w, /assets/renders/legacy-c-inizio-1348.webp 1348w",
+    "lqip": "data:image/webp;base64,UklGRpoAAABXRUJQVlA4II4AAAAQBACdASoUAA8APu1iqU2ppaOiMAgBMB2JagCdLwAA43GY5gqLj+x0AADhGb7Skl83lrGcsgvZEFWysJmT2eNYJMQ+opZZGW6Q7NKGek3X42OCwclGfatkVn34Bzu54+479jOHsyzy7JUCTetSD547M6MpJbvI/Unor8XT/rt01Mf7Kk4rK0X6c/jAT7gA"
+  },
+  "legacy-c-windermere": {
+    "alt": "Windermere, Bhayander West",
+    "width": 1285,
+    "height": 1104,
+    "src": "/assets/renders/legacy-c-windermere-1285.webp",
+    "srcSet": "/assets/renders/legacy-c-windermere-480.webp 480w, /assets/renders/legacy-c-windermere-768.webp 768w, /assets/renders/legacy-c-windermere-1200.webp 1200w, /assets/renders/legacy-c-windermere-1285.webp 1285w",
+    "lqip": "data:image/webp;base64,UklGRowAAABXRUJQVlA4IIAAAADwBACdASoUABEAPu1wsFIppiSiqAgBMB2JZACdMzQ5aBKcF7z/uG9gFKkDQqWRdcAA/ULL2B7yvEBMW2BElqCQF00SzEsqflczmTHo84KN22pVilczBv+WgcTuvT/15INNkA26dtMyxOm7hNqxRrrMKAx1aMJ6g7+baOS+W0sgAA=="
+  },
+  "legacy-o-residential": {
+    "alt": "SIXTY3W.E. Residential, Goregaon East",
+    "width": 2607,
+    "height": 1348,
+    "src": "/assets/renders/legacy-o-residential-2000.webp",
+    "srcSet": "/assets/renders/legacy-o-residential-480.webp 480w, /assets/renders/legacy-o-residential-768.webp 768w, /assets/renders/legacy-o-residential-1200.webp 1200w, /assets/renders/legacy-o-residential-1600.webp 1600w, /assets/renders/legacy-o-residential-2000.webp 2000w",
+    "lqip": "data:image/webp;base64,UklGRmIAAABXRUJQVlA4IFYAAACQAwCdASoUAAoAPu1iqU2ppaQiMAgBMB2JQAAImAEb3rccRxzYAP7L+xv3YMMPKVWRCJ2hHZtKVnxE+PEDKr+5B7up0KEVlm6fWRHo2BmaqhfyKOAAAA=="
+  },
+  "legacy-o-bizpark": {
+    "alt": "SIXTY3W.E. Bizpark, Goregaon East",
+    "width": 2620,
+    "height": 1616,
+    "src": "/assets/renders/legacy-o-bizpark-2000.webp",
+    "srcSet": "/assets/renders/legacy-o-bizpark-480.webp 480w, /assets/renders/legacy-o-bizpark-768.webp 768w, /assets/renders/legacy-o-bizpark-1200.webp 1200w, /assets/renders/legacy-o-bizpark-1600.webp 1600w, /assets/renders/legacy-o-bizpark-2000.webp 2000w",
+    "lqip": "data:image/webp;base64,UklGRmgAAABXRUJQVlA4IFwAAADwAwCdASoUAAwAPu1iqk4ppaQiMAgBMB2JbACdACFo2A3vPCJlrkmAAP65KUpQnSfiHBAlK4giyi2SbO+w5pD1K8jnZ7O6MQ32wX7AzmHQcaQFqrjZ7OyWccAAAA=="
+  },
+  "legacy-o-wiz": {
+    "alt": "WIZ, Goregaon East",
+    "width": 1911,
+    "height": 995,
+    "src": "/assets/renders/legacy-o-wiz-1911.webp",
+    "srcSet": "/assets/renders/legacy-o-wiz-480.webp 480w, /assets/renders/legacy-o-wiz-768.webp 768w, /assets/renders/legacy-o-wiz-1200.webp 1200w, /assets/renders/legacy-o-wiz-1600.webp 1600w, /assets/renders/legacy-o-wiz-1911.webp 1911w",
+    "lqip": "data:image/webp;base64,UklGRmoAAABXRUJQVlA4IF4AAADQAwCdASoUAAoAPu1iqk2ppaQiMAgBMB2JagCw7CHK3twOpxwxiAAA/rxxdTNpl6DIs342DbpnsHYwwfWwki/VPPvGK+J9JOzY197nLJw7cpcGKa4N6CWKJYTc0AAA"
+  },
+  "legacy-o-soon": {
+    "alt": "Coming soon, Andheri East",
+    "width": 2918,
+    "height": 1600,
+    "src": "/assets/renders/legacy-o-soon-1600.webp",
+    "srcSet": "/assets/renders/legacy-o-soon-480.webp 480w, /assets/renders/legacy-o-soon-768.webp 768w, /assets/renders/legacy-o-soon-1200.webp 1200w, /assets/renders/legacy-o-soon-1600.webp 1600w",
+    "lqip": "data:image/webp;base64,UklGRnIAAABXRUJQVlA4IGYAAACQAwCdASoUAAsAPu1iqU2ppaOiMAgBMB2JYwCo9BKz/w/+CthgAP7p8vnbHA2Gay6GE9qpNpj5EmFLMYL8VzsqhD9vTnkmTP1f+PbO7B9jxVbwzbLi9Ed5bZTXoh7pFl/z3ckAAAA="
+  },
+  "expect-living": {
+    "alt": "A family at home in the living room, the city and the forest beyond the glass",
+    "width": 5400,
+    "height": 3900,
+    "src": "/assets/renders/expect-living-3840.webp",
+    "srcSet": "/assets/renders/expect-living-768.webp 768w, /assets/renders/expect-living-1200.webp 1200w, /assets/renders/expect-living-1600.webp 1600w, /assets/renders/expect-living-2000.webp 2000w, /assets/renders/expect-living-2800.webp 2800w, /assets/renders/expect-living-3840.webp 3840w",
+    "lqip": "data:image/webp;base64,UklGRo4AAABXRUJQVlA4IIIAAADQAwCdASoUAA4APu1iqU2ppaOiMAgBMB2JYwCdACPQZCnwN7l5dUAA/kBYj5fAa6hl0td4f9yVX+OIHCLvMy8yrrSxmLbIn0u+7PD11CpcIE7nMbed99K3RXOH+3oqIM+5MD7UGlTbPR0AJuxV3iNTb4OaSmxhd+UoKHcgLyd15EAA"
   }
 };
 

@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import { Screen } from '../../layout/Screen';
 import { SectionHead } from './SectionHead';
+import { Crossfade } from '../../components/Crossfade';
 import { SPECS, DISCLAIMER } from '../../data/content';
 import { useMediaQuery } from '../../hooks/useEventListener';
 import { gsap, useGSAP, E } from '../../gsap/Gsapconfig';
@@ -10,8 +11,12 @@ import { gsap, useGSAP, E } from '../../gsap/Gsapconfig';
 // Three arch-topped panels side by side: the logo's own three arches, each holding one
 // chapter of the sheet. A panel gives each chapter an edge and a title to stand under,
 // which is what loose columns of type on an open ground did not have; cutting it to the
-// arch makes it the building's shape rather than a card. There is no picture here —
-// behind thirty lines of type a render can only be shown so dark that it reads as dirt.
+// arch makes it the building's shape rather than a card.
+//
+// The ground is the presenter PDF's own What to Expect page (21): the family at home in
+// the living room. It is left light where it shows — under the title and between the
+// panels — and the panels carry their own frosted fill, so the photograph is the room
+// the list is read in rather than a texture the type has to fight.
 //
 // Three panels above lg: the whole sheet at a glance, the way a broker wants it when
 // someone asks a question mid-conversation. Below lg the panels become tabs over one
@@ -26,7 +31,20 @@ export function Specifications() {
 
   return (
     <Screen id="specifications">
-      <div className="grid h-full min-h-0 grid-rows-[minmax(0,1fr)_auto] gap-[clamp(0.8rem,2.4vh,1.8rem)]">
+      <Crossfade id="expect-living" sizes="100vw" className="absolute inset-0" position="30% 50%" priority />
+      {/* Neutral shadow, not a teal wash — a teal scrim turns warm timber and stone green.
+          Heaviest at the top, where the title sits over the pale ceiling, and at the foot,
+          where the disclaimer is set. */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0"
+        style={{
+          background:
+            'linear-gradient(180deg, rgb(3 16 15 / 0.74) 0%, rgb(3 16 15 / 0.42) 26%, rgb(3 16 15 / 0.32) 60%, rgb(3 16 15 / 0.8) 100%)',
+        }}
+      />
+
+      <div className="relative grid h-full min-h-0 grid-rows-[minmax(0,1fr)_auto] gap-[clamp(0.8rem,2.4vh,1.8rem)]">
         <div className="flex min-h-0 flex-col justify-center gap-[clamp(1.1rem,3.4vh,2.6rem)]">
           <div className="flex flex-wrap items-end justify-between gap-x-[1.5em] gap-y-[0.9em]">
             <SectionHead eyebrow={eyebrow} headline={headline} />
@@ -36,7 +54,7 @@ export function Specifications() {
           <Sheet columns={shown} token={stacked ? tab : 'all'} />
         </div>
 
-        <p data-stagger className="text-micro leading-[1.5] text-w-cream/35">
+        <p data-stagger className="text-micro leading-[1.5] text-w-cream/55">
           {DISCLAIMER}
         </p>
       </div>
@@ -48,7 +66,7 @@ export function Specifications() {
 
 function Tabs({ columns, active, onSelect }) {
   return (
-    <div data-stagger className="flex shrink-0 flex-wrap gap-x-[1.3em] gap-y-[0.4em]">
+    <div data-stagger className="flex min-w-0 flex-wrap gap-x-[1.3em] gap-y-[0.4em]">
       {columns.map((c) => (
         <button
           key={c.id}
@@ -125,9 +143,9 @@ function Panel({ col }) {
     <article className="@container relative flex min-h-0 min-w-0 flex-col">
       <span
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 rounded-t-[calc(var(--arch-crown)*100cqw)] border border-w-gold/22"
+        className="pointer-events-none absolute inset-0 rounded-t-[calc(var(--arch-crown)*100cqw)] border border-w-gold/30 md:backdrop-blur-[14px]"
         style={{
-          background: 'var(--glass-bg)',
+          background: 'linear-gradient(180deg, rgb(7 41 40 / 0.8), rgb(4 26 25 / 0.84))',
           boxShadow:
             'inset 0 1px 0 rgb(240 234 224 / 0.05), 0 30px 60px -34px rgb(2 12 11 / 0.8)',
         }}

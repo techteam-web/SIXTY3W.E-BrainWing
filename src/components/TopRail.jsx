@@ -24,6 +24,7 @@ function NavButton({ label, onClick, disabled, icon }) {
       onClick={onClick}
       disabled={disabled}
       icon={icon}
+      data-rail-nav
       className="pointer-events-auto"
     >
       {label}

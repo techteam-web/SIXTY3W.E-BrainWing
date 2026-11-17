@@ -74,7 +74,7 @@ for (const vp of VIEWPORTS) {
     await click(`[data-section="${id}"]`);
     await page.screenshot({ path: `${OUT}/${vp.name}-${id}.png` });
     // Back to the menu through the rail, which is also the archFall direction.
-    await click('.portal--sm');
+    await click('[data-rail-nav]');
   }
 
   const overflows = await page.evaluate(() => window.__W63__?.overflows ?? []);
